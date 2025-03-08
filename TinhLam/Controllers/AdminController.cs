@@ -23,12 +23,65 @@ public class AdminController : Controller
         return View(categories);
     }
 
-    // Hiển thị form thêm danh mục
-    public IActionResult Index()
+    public IActionResult ThongKe()
     {
         return View();
     }
-    
+
+    public async Task<IActionResult> GetThongKeData()
+    {
+        try
+        {
+            var revenueByMonth = await _context.Orders
+                .Where(o => o.Status == "Completed")
+                .GroupBy(o => new { o.OrderDate.Year, o.OrderDate.Month })
+                .Select(g => new
+                {
+                    Month = $"{g.Key.Month}/{g.Key.Year}",
+                    TotalRevenue = g.Sum(o => o.TotalAmount)
+                })
+                .OrderBy(g => g.Month)
+                .ToListAsync();
+
+            var bestSellingProducts = await _context.OrderDetails
+                .GroupBy(od => od.Product.ProductName)
+                .Select(g => new
+                {
+                    ProductName = g.Key,
+                    TotalSold = g.Sum(od => od.Quantity)
+                })
+                .OrderByDescending(g => g.TotalSold)
+                .Take(5)
+                .ToListAsync();
+
+            var bestSellingCategories = await _context.OrderDetails
+                .GroupBy(od => od.Product.Category.CategoryName)
+                .Select(g => new
+                {
+                    CategoryName = g.Key,
+                    TotalSold = g.Sum(od => od.Quantity)
+                })
+                .OrderByDescending(g => g.TotalSold)
+                .Take(5)
+                .ToListAsync();
+
+            return Json(new
+            {
+                revenueByMonth,
+                bestSellingProducts,
+                bestSellingCategories
+            });
+        }
+        catch (Exception ex)
+        {
+            // Ghi lỗi ra console
+            Console.WriteLine("Lỗi khi lấy dữ liệu thống kê: " + ex.Message);
+            Console.WriteLine("StackTrace: " + ex.StackTrace);
+
+            // Trả về lỗi 500 để dễ debug
+            return StatusCode(500, "Lỗi Server: " + ex.Message);
+        }
+    }
 
 }
 

@@ -103,7 +103,7 @@ namespace TinhLam.Controllers
             
             if (khachHang.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
             {
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("ThongKe", "Admin");
             }
 
             if (Url.IsLocalUrl(ReturnUrl))

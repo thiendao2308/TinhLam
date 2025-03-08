@@ -1,0 +1,99 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Thống kê doanh số";
+}
+
+<h2 class="mb-4">Thống kê doanh số</h2>
+
+<div class="row">
+    <!-- Biểu đồ doanh thu -->
+    <div class="col-md-6">
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+    <!-- Biểu đồ số lượng người dùng -->
+    <div class="col-md-6">
+        <canvas id="userChart"></canvas>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Biểu đồ sản phẩm bán chạy -->
+    <div class="col-md-6">
+        <canvas id="bestSellingProductChart"></canvas>
+    </div>
+
+    <!-- Biểu đồ danh mục bán chạy -->
+    <div class="col-md-6">
+        <canvas id="bestSellingCategoryChart"></canvas>
+    </div>
+</div>
+
+<!-- Import Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch('/Admin/GetThongKeData')
+            .then(response => response.json())
+            .then(data => {
+                // ✅ 1. Biểu đồ doanh thu theo tháng
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.revenueByMonth.map(x => x.Month),
+                        datasets: [{
+                            label: 'Doanh thu (VNĐ)',
+                            data: data.revenueByMonth.map(x => x.TotalRevenue),
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2
+                        }]
+                    }
+                });
+
+                // ✅ 2. Biểu đồ số lượng người dùng theo tháng
+                const userCtx = document.getElementById('userChart').getContext('2d');
+                new Chart(userCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.userByMonth.map(x => x.Month),
+                        datasets: [{
+                            label: 'Số người dùng',
+                            data: data.userByMonth.map(x => x.TotalUsers),
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2
+                        }]
+                    }
+                });
+
+                // ✅ 3. Biểu đồ sản phẩm bán chạy
+                const bestSellingProductCtx = document.getElementById('bestSellingProductChart').getContext('2d');
+                new Chart(bestSellingProductCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.bestSellingProducts.map(x => x.ProductName),
+                        datasets: [{
+                            data: data.bestSellingProducts.map(x => x.TotalSold),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                        }]
+                    }
+                });
+
+                // ✅ 4. Biểu đồ danh mục bán chạy
+                const bestSellingCategoryCtx = document.getElementById('bestSellingCategoryChart').getContext('2d');
+                new Chart(bestSellingCategoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.bestSellingCategories.map(x => x.CategoryName),
+                        datasets: [{
+                            data: data.bestSellingCategories.map(x => x.TotalSold),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                        }]
+                    }
+                });
+
+            });
+    });
+</script>
