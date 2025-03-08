@@ -1,0 +1,81 @@
+﻿@model IEnumerable<TinhLam.Data.Product>
+
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<h1>Danh sách sản phẩm</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Thêm sản phẩm</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Tên sản phẩm</th>
+            <th>Đơn giá (VND)</th>
+            <th>Số lượng</th>
+            <th>Mô tả</th>
+            <th>Hình ảnh</th>
+            <th>Kích thước</th>
+            <th>Trạng thái</th>
+            <th>Danh mục</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@string.Format("{0:N0}", item.Price)</td>
+                <td>@item.StockQuantity</td>
+                <td>@item.Description</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.Image))
+                    {
+                        <img src="@Url.Content("~/images/" + item.Image)" alt="@item.ProductName" class="img-thumbnail" style="max-width: 100px;" />
+                    }
+                    else
+                    {
+                        <span>Không có ảnh</span>
+                    }
+                </td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.SizeOption))
+                    {
+                        var sizes = item.SizeOption.Split(',');
+                        <ul>
+                            @foreach (var size in sizes)
+                            {
+                                <li>@size cm</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>Không có</span>
+                    }
+                </td>
+                <td>
+                    @if (item.IsActive ?? false)
+                    {
+                        <span class="text-success">Đang bán</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Ngừng bán</span>
+                    }
+                </td>
+                <td>@(item.Category?.CategoryName ?? "Không có")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger btn-sm">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

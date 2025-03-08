@@ -1,0 +1,181 @@
+﻿@model IEnumerable<TinhLam.ViewModels.CartItem>
+@{
+    ViewData["Title"] = "ThanhToan";
+}
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <h1 class="mb-4">Thông tin mua hàng</h1>
+        <form asp-action="ThanhToan" asp-controller="Cart">
+            <div class="row g-5">
+                
+                    <div class="col-md-12 col-lg-6 col-xl-7">
+
+                        <div class="form-check my-3">
+                            <input type="checkbox" class="form-check-input" id="GiongKhachHang" name="GiongKhachHang" value="0">
+                            <label class="form-check-label" for="GiongKhachHang">Giống thông tin khách hàng</label>
+                        </div>
+                        <div class="form-item delivery-info">
+                            <label class="form-label my-3">Người nhận<sup>*</sup></label>
+                            <input type="text" name="CustomerName" class="form-control" placeholder="Nhập tên khách hàng">
+                        </div>
+                        <div class="form-item delivery-info">
+                            <label class="form-label my-3">Địa chỉ <sup>*</sup></label>
+                            <input type="text" name="ShippingAddress" class="form-control" placeholder="Nhập địa chỉ nhận hàng">
+                        </div>
+                        <div class="form-item delivery-info">
+                            <label class="form-label my-3">Số điện thoại<sup>*</sup></label>
+                            <input type="text" name="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại">
+                        </div>
+                      
+                        <div class="form-item">
+                            <textarea name="Notes" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Nhập ghi chú"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">Đặt hàng</button>
+                        
+                    </div>
+                
+                <div class="col-md-12 col-lg-6 col-xl-5">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Sản phẩm</th>
+                                    <th scope="col">Giá</th>
+                                    <th scope="col">Số lượng</th>
+                                    <th scope="col">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <th scope="row">
+                                            <div class="d-flex align-items-center mt-2">
+                                                <img src="~/images/@item.Hinh" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="@item.TenProduct">
+                                            </div>
+                                        </th>
+                                        <td class="py-5">
+                                            <p class="mb-0 fw-bold">
+                                                <a asp-controller="Home" asp-action="DetailProduct" asp-route-id="@item.MaProduct" class="text-dark text-decoration-none hover-text-primary">
+                                                    @item.TenProduct
+                                                </a>
+                                            </p>
+                                            <small class="text-muted">Size: @item.SizeOption cm</small>
+                                        </td>
+                                        <td class="py-5">@item.Price VND</td>
+                                        <td class="py-5">@item.SoLuong</td>
+                                        <td class="py-5">@item.ThanhTien</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <th scope="row">
+                                    </th>
+                                    <td class="py-5"></td>
+                                    <td class="py-5"></td>
+                                    <td class="py-5">
+                                        <p class="mb-0 text-dark py-3">Tổng cộng</p>
+                                    </td>
+                                    <td class="py-5">
+                                        <div class="py-3 border-bottom border-top">
+                                            <p class="mb-0 text-dark">@Model.Sum(p => p.ThanhTien).ToString("#,##0.00")</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                
+
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
+                        <div class="col-12">
+                            <div class="form-check text-start my-3">
+                                <input type="checkbox" class="form-check-input bg-primary border-0" id="Payments-1" name="Payments" value="Payments">
+                                <label class="form-check-label" for="Payments-1">Thanh toán bằng VNPAY</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
+                        <div class="col-12">
+                            <div class="form-check text-start my-3">
+                                <input type="checkbox" class="form-check-input bg-primary border-0" id="Delivery-1" name="Delivery" value="Delivery">
+                                <label class="form-check-label" for="Delivery-1">Thanh toán khi nhận hàng</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="paypal-button-container" style="max-width: 150px;"></div>
+                    
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://www.paypal.com/sdk/js?client-id=AVWotvlVWqbKF3lwfI6Mttunu8kiXSNFpVfr3-_poa80IFVbZwS0AvT7LHhBYczMaSKLBj2sBV-_3gaH"></script>
+    <script>
+        $(document).ready(function () {
+            $("#GiongKhachHang").change(function () {
+                if ($(this).prop("checked")) {
+                    $(this).val(true);
+                    $(".delivery-info").addClass("d-none");
+                } else {
+                    $(this).val(false);
+                    $(".delivery-info").removeClass("d-none");
+                }
+            });
+        });
+
+        paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'silver',
+                tagline: 'false'
+            },
+                    createOrder: (data, actions) => {
+            
+            return fetch("/Cart/create-paypal-order", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({}) // Nếu API cần dữ liệu, thêm dữ liệu vào đây
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => { throw error; });
+                }
+                return response.json();
+            })
+            .then(order => {
+                if (!order || !order.id) {
+                    throw new Error("Không lấy được orderId hợp lệ");
+                }
+                return order.id;
+            })
+            .catch(error => {
+                alert(error.message);
+                throw error; // Đảm bảo lỗi được xử lý ở mức cao hơn
+            });
+        },
+        onApprove: (data, actions) => {
+            return fetch(`/Cart/capture-paypal-order?orderId=${data.orderID}`, {
+                method: "POST",
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => { throw error; });
+                }
+                window.location.href = "/Cart/PaymentSuccess";
+            })
+            .catch(error => alert(error.message));
+        }
+
+        }).render('#paypal-button-container');
+    </script>
+
+}
+

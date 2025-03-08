@@ -1,0 +1,111 @@
+﻿@model TinhLam.ViewModels.ProfileVM
+
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<h1>Hồ sơ cá nhân</h1>
+
+<div class="profile-container">
+    <h4>Thông tin cá nhân</h4>
+    <table class="table">
+        <tr>
+            <th>Họ và tên:</th>
+            <td>@Model.CustomerName</td>
+        </tr>
+        <tr>
+            <th>Email:</th>
+            <td>@Model.Email</td>
+        </tr>
+        <tr>
+            <th>Số điện thoại:</th>
+            <td>@Model.PhoneNumber</td>
+        </tr>
+        <tr>
+            <th>Địa chỉ:</th>
+            <td>@Model.DiaChi</td>
+        </tr>
+    </table>
+
+    <h4>Lịch sử đơn hàng</h4>
+    @if (Model.Orders.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Chi tiết</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.Orders)
+                {
+                    <tr>
+                        <td>@order.OrderId</td>
+                        <td>@order.OrderDate.ToShortDateString()</td>
+                        <td>@order.TotalAmount VNĐ</td>
+                        <td>@order.Status</td>
+                        <td>
+                            <button class="btn btn-primary btn-detail" data-orderid="@order.OrderId">
+                                Xem
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Bạn chưa có đơn hàng nào.</p>
+    }
+</div>
+
+<div>
+    <a asp-action="DangXuat" class="btn btn-danger">Đăng xuất</a>
+</div>
+
+<!-- Modal hiển thị chi tiết đơn hàng -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailModalLabel">Chi tiết đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="orderDetailContent">
+                    <p>Đang tải...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".btn-detail").click(function () {
+                var orderId = $(this).data("orderid");
+
+                // Hiển thị modal
+                $("#orderDetailModal").modal("show");
+
+                // Gửi request AJAX để lấy chi tiết đơn hàng
+                $.ajax({
+                    url: "/Orders/GetOrderDetails/" + orderId,
+                    type: "GET",
+                    success: function (data) {
+                        $("#orderDetailContent").html(data);
+                    },
+                    error: function () {
+                        $("#orderDetailContent").html("<p class='text-danger'>Không thể tải chi tiết đơn hàng.</p>");
+                    }
+                });
+            });
+        });
+    </script>
+}

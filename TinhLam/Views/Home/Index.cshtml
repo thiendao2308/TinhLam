@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Trang Chủ - Trang Sức Phong Thủy";
+}
+
+<!-- Banner dưới menu -->
+<div id="bannerCarousel" class="carousel slide w-100" data-bs-ride="carousel" data-bs-interval="3000">
+    <div class="carousel-inner">
+        <!-- Banner 1 -->
+        <div class="carousel-item active">
+            <img src="~/images/banner1.jpg" class="d-block w-100" alt="Banner 1">
+        </div>
+        <!-- Banner 2 -->
+        <div class="carousel-item">
+            <img src="~/images/banner2.jpg" class="d-block w-100" alt="Banner 2">
+        </div>
+        <!-- Banner 3 -->
+        <div class="carousel-item">
+            <img src="~/images/banner3.jpg" class="d-block w-100" alt="Banner 3">
+        </div>
+    </div>
+    <!-- Nút điều hướng trái/phải -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<!-- Danh mục sản phẩm -->
+<section class="category my-5">
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="category-card position-relative overflow-hidden">
+                <img src="~/images/category1.jpg" class="img-fluid w-100" alt="Vòng Đá Phong Thủy">
+                <div class="category-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                    <p class="text-white text-sm-center">Vòng Đá Phong Thủy</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="category-card position-relative overflow-hidden">
+                <img src="~/images/category2.jpg" class="img-fluid w-100" alt="New Collection">
+                <div class="category-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                    <p class="text-white text-sm-center">New Collection</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Danh sách Sản phẩm -->
+<section class="product-list">
+    <div class="tabs">
+        <button class="tab-button active" data-tab="new">Mới nhất</button>
+        <button class="tab-button" data-tab="best-seller">Bán chạy nhất</button>
+    </div>
+    <div class="tab-content">
+        <div id="new" class="tab-pane active">
+            <div class="product-row">
+                @foreach (var product in (IEnumerable<TinhLam.Data.Product>)ViewData["LatestProducts"])
+                {
+                    <a class="product" asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.ProductId">
+                        <div class="product-card">
+                            <img src="~/images/@product.Image" alt="@product.ProductName">
+                            <h3>@product.ProductName</h3>
+                            <p class="price">@product.Price.ToString("N0") VND</p>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+        <div id="best-seller" class="tab-pane">
+            <div class="product-row">
+                @foreach (var product in (IEnumerable<TinhLam.Data.Product>)ViewData["BestSellingProducts"])
+                {
+                    <a class="product" asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId">
+                        <div class="product-card">
+                            <img src="~/images/@product.Image" alt="@product.ProductName">
+                            <h3>@product.ProductName</h3>
+                            <p class="price">@product.Price.ToString("N0") VND</p>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!--Ngũ hành -->
+<section class="ngu-hanh my-5">
+    
+    <table class="bang-ngu-hanh">
+        <tr>
+            <td class="relative  overflow-hidden rounded-lg">
+                <img src="https://tinhlamjw.com/wp-content/uploads/2020/09/product-1-2.jpg" alt="Mệnh Thổ">
+            </td>
+            <td class="relative  overflow-hidden rounded-lg">
+                <img src="https://tinhlamjw.com/wp-content/uploads/2020/09/product-2-2.jpg" alt="Mệnh Kim">
+            </td>
+            <td class="relative  overflow-hidden rounded-lg">
+                <img src="https://tinhlamjw.com/wp-content/uploads/2020/09/product-3-2.jpg" alt="Mệnh Thủy">
+            </td>
+        </tr>
+        <tr>
+            <td class="relative  overflow-hidden rounded-lg">
+                <img src="https://tinhlamjw.com/wp-content/uploads/2020/09/product-4-2.jpg" alt="Mệnh Mộc">
+            </td>
+            <td class="relative  overflow-hidden rounded-lg">
+                <img src="https://tinhlamjw.com/wp-content/uploads/2020/09/product-5-1.jpg" alt="Mệnh Hỏa">
+            </td>
+            <td class="relative  overflow-hidden rounded-lg">
+                <img src="https://tinhlamjw.com/wp-content/uploads/2020/09/product-6-1.jpg" alt="Thời trang">
+            </td>
+        </tr>
+    </table>
+    <div class="ngu-hanh-content1">
+        <h4 class="ngu-hanh-tieu-de">Ngũ Hành</h4>
+        <p class="text-center mt-6 text-gray-700 px-4 md:px-20">
+            Vòng đá phong thủy theo ngũ hành (Kim, Thủy, Mộc,
+            Hỏa, Thổ) là những chiếc vòng được làm từ chính
+            những viên đá có sẵn trong tự nhiên, với những màu
+            sắc khác nhau và được chế tác vô cùng kỳ công. Ngoài
+            ra, nó còn được xem là những vật phẩm có khả năng
+            đem lại những may mắn cho con người. Mang đến tài
+            lộc, thịnh vượng, phù trợ cho con người trong công
+            việc cũng như cuộc sống. Đặc biệt là những người
+            kinh doanh, buôn bán sẽ giúp bạn thuận lợi hơn trong
+            con đường công danh sự nghiệp.
+        </p>
+    </div>
+    
+</section>
+

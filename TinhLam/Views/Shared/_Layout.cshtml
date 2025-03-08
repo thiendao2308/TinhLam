@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TinhLam</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TinhLam.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    @RenderSection("Styles", required: false)
+    
+</head>
+<body>
+    <!-- Header -->
+    <header class="shadow-sm bg-[#f5c808]">
+        <nav class="navbar navbar-expand-lg border-bottom bg-[#f5c808]">
+            <div class="container bg-[#f5c808]">
+                <!-- Logo -->
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" alt="TinhLam" height="40">
+                </a>
+
+                <!-- Toggle Mobile -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navbar Items -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Trang Chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Giới Thiệu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Category" >
+                                Sản Phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="" asp-action="">Bài Viết</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="" asp-action="">Liên Hệ</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex m-3 me-0">
+                        <button class="btn icon-btn search-btn" data-bs-toggle="modal" data-bs-target="#searchModal">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        @await Component.InvokeAsync("Cart")
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <!-- Nếu người dùng đã đăng nhập, hiển thị Profile -->
+                            <a asp-controller="KhachHang" asp-action="Profile" title="Xem thông tin cá nhân" class="icon-btn user-btn">
+                                <i class="fas fa-user"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <!-- Nếu chưa đăng nhập, hiển thị nút đăng nhập -->
+                            <a asp-controller="KhachHang" asp-action="DangNhap" title="Đăng nhập" class="dangnhap-a">
+                                 Đăng Nhập
+                            </a>
+
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-section  text-white py-4" >
+        <div class="container">
+            <div class="row">
+                <!-- Thông tin liên hệ -->
+                <div class="col-md-4">
+                    <img class="logo2" src="~/images/logo2.png" />
+                    <p>© 2021 Bản quyền thuộc Công Ty TNHH Tinh Lâm</p>
+                    <p>Giấy chứng nhận đăng ký doanh nghiệp: 0316663318</p>
+                    <p>Địa chỉ: 280 Lương Định Của, P. An Phú, Q.2, TP.HCM</p>
+                    <p>ĐT: 028 777 98917</p>
+                </div>
+
+                <!-- Sản phẩm hỗ trợ -->
+                <div class="col-md-4">
+                    <h5>SẢN PHẨM HỖ TRỢ</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Vòng Đá Phong Thủy</a></li>
+                        <li><a href="#" class="text-white">Vòng Đá Thời Trang</a></li>
+                        <li><a href="#" class="text-white">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#" class="text-white">Chính sách bán hàng</a></li>
+                    </ul>
+                </div>
+
+                <!-- Showroom -->
+                <div class="col-md-4">
+                    <h5>CHI NHÁNH</h5>
+                    <ul class="list-unstyled">
+                        <li>Chi nhánh 1: 280 Lương Định Của, Q.2, TP.HCM</li>
+                        <li>Chi nhánh 2: 610 Phan Đình Phùng, Q.Phú Nhuận, TP.HCM</li>
+                        <li>Chi nhánh 3: 42 Nguyễn Huệ, Q.1, TP.HCM</li>
+                        <li>Chi nhánh 4: 91 Xuân Thủy, Q.2, TP.HCM</li>
+                        <li>Chi nhánh 5: 47 Lý Thường Kiệt, Long Xuyên, An Giang</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Liên kết và bản quyền -->
+            <div class="text-center mt-3">
+                <p>Email: tinhlamjw@gmail.com | Hotline: 1900 29 29 17</p>
+                <p>&copy; 2023 Tinh Lam. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+
+    <!-- Modal tìm kiếm -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchModalLabel">Tìm kiếm sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/Search" method="get">
+                        <div class="input-group">
+                            <input id="searchText" type="text" class="form-control" name="query" placeholder="Nhập từ khóa...">
+                            <button id="searchButton" class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+
+    <script src="~/js/tabSwitch.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#searchButton").click(function (event) {
+                event.preventDefault(); // Ngăn form submit mặc định
+
+                let query = $("#searchText").val().trim();
+                if (query.length > 0) {
+                    let url = "/Products/Search?query=" + encodeURIComponent(query);
+                    window.location.href = url;
+                }
+            });
+        });
+    </script>
+    <script>
+        // Back to Top Button
+        document.addEventListener("DOMContentLoaded", function () {
+            const backToTopButton = document.querySelector(".back-to-top");
+
+            window.addEventListener("scroll", function () {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.add("show");
+                } else {
+                    backToTopButton.classList.remove("show");
+                }
+            });
+
+            backToTopButton.addEventListener("click", function (e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            });
+        });
+    </script>
+</body>
+</html>
