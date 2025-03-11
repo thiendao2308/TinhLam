@@ -1,90 +1,106 @@
 ﻿@model IEnumerable<TinhLam.Data.Order>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách đơn hàng";
     Layout = "_AdminLayout";
 }
 
-<h1>Index</h1>
+<style>
+    .orders-container {
+        max-width: 95%;
+        margin: auto;
+        overflow-x: auto;
+        border: 2px solid #55161b;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CustomerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ShippingAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PaymentMethod)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Notes)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CustomerName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShippingAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PaymentMethod)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Notes)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.UserId)
-            </td>
-            <td>
-                
-                <a asp-action="Details" asp-controller="Orders" asp-route-id="@item.OrderId">Details</a> |
-                
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+        .orders-table thead {
+            background: #55161b;
+            color: white;
+        }
+
+        .orders-table th, .orders-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .orders-table th {
+            border-bottom: 2px solid #f5c808;
+        }
+
+        .orders-table tbody tr:hover {
+            background: #f9f2e8;
+        }
+
+    .total-amount {
+        color: #55161b;
+        font-weight: bold;
+    }
+
+    .btn-details {
+        background: #f5c808;
+        color: #55161b;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+        .btn-details:hover {
+            background: #d4a307;
+        }
+
+</style>
+
+<h1 style="color: #55161b; text-align: center; margin-bottom: 20px;">Danh sách đơn hàng</h1>
+
+<div class="orders-container">
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Khách hàng</th>
+                <th>SĐT</th>
+                <th>Địa chỉ</th>
+                <th>Ngày đặt</th>
+                <th>Giờ đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Thanh toán</th>
+                <th>Ghi chú</th>
+                <th>User</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.CustomerName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ShippingAddress)</td>
+                    <td>@Html.DisplayFor(modelItem => item.OrderDate)</td>
+                    <td>@Html.DisplayFor(modelItem => item.OrderTime)</td>
+                    <td class="total-amount">@Html.DisplayFor(modelItem => item.TotalAmount) VND</td>
+                    <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td>@Html.DisplayFor(modelItem => item.PaymentMethod)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Notes)</td>
+                    <td>@Html.DisplayFor(modelItem => item.User.UserId)</td>
+                    <td>
+                        <a asp-action="Details" asp-controller="Orders" asp-route-id="@item.OrderId" class="btn-details">
+                            Xem chi tiết
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

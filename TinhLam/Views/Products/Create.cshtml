@@ -1,109 +1,212 @@
 ﻿@model TinhLam.Data.Product
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm sản phẩm";
     Layout = "_AdminLayout";
 }
 
-<h1>Create</h1>
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
 
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ProductName" class="control-label">Tên sản phẩm</label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
+    .form-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: auto;
+        border: 2px solid #55161b;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            color: #55161b;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .input-group {
+        display: flex;
+    }
+
+    .input-group-text {
+        background: #f5c808;
+        color: #55161b;
+        font-weight: bold;
+        padding: 8px 12px;
+        border: none;
+    }
+
+    .image-preview img {
+        max-width: 100px;
+        border-radius: 5px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .size-options {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .size-options label {
+            background: #f5c808;
+            color: #55161b;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .size-options input {
+            display: none;
+        }
+
+            .size-options input:checked + label {
+                background: #55161b;
+                color: #fff;
+            }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .btn-submit {
+        background: #55161b;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .btn-submit:hover {
+            background: #3d1014;
+        }
+
+    .btn-back {
+        background: #f5c808;
+        color: #55161b;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+        .btn-back:hover {
+            background: #d4a307;
+        }
+</style>
+
+<h1 class="page-title">Thêm sản phẩm mới</h1>
+
+<div class="form-container">
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="ProductName">Tên sản phẩm</label>
+            <input asp-for="ProductName" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Price">Đơn giá</label>
+            <div class="input-group">
+                <input id="priceInput" class="form-control" type="text" />
+                <span class="input-group-text">VND</span>
             </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label">Đơn giá</label>
-                <div class="input-group">
-                    <input id="priceInput" class="form-control" type="text"  />
-                    <span class="input-group-text">VND</span>
+            <input type="hidden" asp-for="Price" id="priceHidden" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="StockQuantity">Số lượng nhập</label>
+            <input asp-for="StockQuantity" class="form-control" type="number" min="1" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description">Mô tả sản phẩm</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Hình ảnh</label>
+            <input type="file" id="imageInput" name="ImageFile" class="form-control" accept="image/*" />
+            <div class="image-preview">
+                <img id="imagePreview" src="#" class="d-none" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Chọn size tay (tối đa 3 size)</label>
+            <div id="sizeOptions" class="size-options">
+                <div>
+                    <input type="checkbox" id="size14" name="SizeOption" value="14">
+                    <label for="size14">14mm</label>
                 </div>
-                <input type="hidden" asp-for="Price" id="priceHidden" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StockQuantity" class="control-label">Số lượng nhập</label>
-                <input asp-for="StockQuantity" class="form-control" type="number" min="1" />
-                <span asp-validation-for="StockQuantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label">Mô tả sản phẩm</label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Hình ảnh</label>
-                <input type="file" id="imageInput" name="ImageFile" class="form-control" accept="image/*" />
-                <span asp-validation-for="Image" class="text-danger"></span>
-
-                <!-- Xem trước ảnh -->
-                <div class="mt-2">
-                    <img id="imagePreview" src="#" alt="Xem trước ảnh" class="img-thumbnail d-none" style="max-width: 150px;" />
+                <div>
+                    <input type="checkbox" id="size16" name="SizeOption" value="16">
+                    <label for="size16">16mm</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="size18" name="SizeOption" value="18">
+                    <label for="size18">18mm</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="size20" name="SizeOption" value="20">
+                    <label for="size20">20mm</label>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label class="control-label">Chọn size tay (tối đa 3 size)</label>
-                <div id="sizeOptions">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="SizeOption" value="14" id="size14">
-                        <label class="form-check-label" for="size14">14mm</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="SizeOption" value="16" id="size16">
-                        <label class="form-check-label" for="size16">16mm</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="SizeOption" value="18" id="size18">
-                        <label class="form-check-label" for="size18">18mm</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="SizeOption" value="20" id="size20">
-                        <label class="form-check-label" for="size20">20mm</label>
-                    </div>
-                </div>
-                <span class="text-danger d-none" id="sizeError">Bạn chỉ có thể chọn tối đa 3 size!</span>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label">Danh mục</label>
-                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
-                    <option value="">-- Chọn danh mục --</option> <!-- Tùy chọn mặc định -->
-                </select>
-                <span asp-validation-for="CategoryId" class="text-danger"></span>
-            </div>
+        <div class="form-group">
+            <label asp-for="CategoryId">Danh mục</label>
+            <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                <option value="">-- Chọn danh mục --</option>
+            </select>
+        </div>
 
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+        <div class="form-actions">
+            <input type="submit" value="Thêm sản phẩm" class="btn-submit" />
+            <a asp-action="Index" class="btn-back">Quay lại</a>
+        </div>
+    </form>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    @* Validate số *@
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const priceInput = document.getElementById("priceInput");
             const priceHidden = document.getElementById("priceHidden");
             const stockInput = document.getElementById("StockQuantity");
 
-            // Format giá tiền (có dấu chấm phân cách ngàn)
             priceInput.addEventListener("input", function () {
-                let value = priceInput.value.replace(/\D/g, ""); // Chỉ giữ lại số
+                let value = priceInput.value.replace(/\D/g, "");
                 if (value === "") {
                     priceHidden.value = "";
                     priceInput.value = "";
@@ -111,26 +214,18 @@
                 }
                 let formatted = new Intl.NumberFormat("vi-VN").format(value);
                 priceInput.value = formatted;
-                priceHidden.value = value; // Gửi số nguyên không có dấu chấm lên server
+                priceHidden.value = value;
             });
 
-            // Ngăn nhập số lượng nhỏ hơn 1
             stockInput.addEventListener("input", function () {
                 if (stockInput.value < 1) {
                     stockInput.value = 1;
                 }
             });
-        });
-    </script>
 
-
-    @* Hình ảnh *@
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
             const imageInput = document.getElementById("imageInput");
             const imagePreview = document.getElementById("imagePreview");
 
-            // Khi người dùng chọn ảnh, hiển thị ảnh xem trước
             imageInput.addEventListener("change", function () {
                 if (imageInput.files && imageInput.files[0]) {
                     let reader = new FileReader();
@@ -141,24 +236,18 @@
                     reader.readAsDataURL(imageInput.files[0]);
                 }
             });
-        });
-    </script>
 
-    @* Size Tay *@
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
             const sizeOptions = document.querySelectorAll("#sizeOptions input[type='checkbox']");
             const sizeError = document.getElementById("sizeError");
 
             sizeOptions.forEach(checkbox => {
                 checkbox.addEventListener("change", function () {
                     let selectedSizes = Array.from(sizeOptions).filter(cb => cb.checked);
-
                     if (selectedSizes.length > 3) {
-                        this.checked = false; // Hủy bỏ chọn nếu vượt quá 3
-                        sizeError.classList.remove("d-none"); // Hiện lỗi
+                        this.checked = false;
+                        sizeError.classList.remove("d-none");
                     } else {
-                        sizeError.classList.add("d-none"); // Ẩn lỗi nếu hợp lệ
+                        sizeError.classList.add("d-none");
                     }
                 });
             });

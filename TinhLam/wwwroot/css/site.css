@@ -265,6 +265,10 @@ body {
     text-align: center;
     font-size: 16px;
 }
+/*    .tab-button:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }*/
 
     .tab-button.active {
         background-color: #ddd;
@@ -279,9 +283,11 @@ body {
     }
 
 .product-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cột trên mỗi hàng */
+    gap: 20px; /* Khoảng cách giữa các sản phẩm */
+    justify-content: center;
+    
 }
 
 /*.product-card {
@@ -297,7 +303,7 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
     overflow: hidden;
-    width: 24%;
+    width: 220px;
     text-align: center;
     padding: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);

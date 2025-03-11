@@ -1,36 +1,119 @@
 ﻿@model IEnumerable<TinhLam.Data.Category>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh mục sản phẩm";
     Layout = "_AdminLayout";
 }
 
-<h1>Index</h1>
+<h1>Danh mục sản phẩm</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn-create">Thêm danh mục mới</a>
 </p>
-<table class="table">
+
+<table class="table-category">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CategoryName)
-            </th>
-            <th></th>
+            <th>Tên danh mục</th>
+            <th>Hành động</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoryName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn-action edit">Sửa</a>
+                    
+                    <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn-action delete">Xóa</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        color: #333;
+        text-align: center;
+    }
+
+    h1 {
+        color: #55161b;
+        margin-bottom: 20px;
+    }
+
+    .btn-create {
+        display: inline-block;
+        padding: 10px 15px;
+        background-color: #55161b;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+        .btn-create:hover {
+            background-color: #f5c808;
+            color: #55161b;
+        }
+
+    .table-category {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+        .table-category th, .table-category td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table-category th {
+            background-color: #55161b;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .table-category tr:hover {
+            background-color: #f5f5f5;
+        }
+
+    .btn-action {
+        display: inline-block;
+        padding: 5px 10px;
+        margin: 3px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .edit {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .details {
+        background-color: #f5c808;
+        color: black;
+    }
+
+    .delete {
+        background-color: #d9534f;
+        color: white;
+    }
+
+    .btn-action:hover {
+        opacity: 0.8;
+    }
+</style>

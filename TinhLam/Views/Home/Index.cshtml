@@ -56,14 +56,28 @@
 
 <!-- Danh sách Sản phẩm -->
 <section class="product-list">
-    <div class="tabs">
-        <button class="tab-button active" data-tab="new">Mới nhất</button>
-        <button class="tab-button" data-tab="best-seller">Bán chạy nhất</button>
+    <div class="tabs" style="display: flex; gap: 8px; border-bottom: 2px solid #ddd;">
+        <button class="tab-button active" data-tab="new"
+                style="background: transparent; color: #55161b;
+               font-size: 18px; font-weight: 600; padding: 10px 20px;
+               border: none; border-bottom: 3px solid #f5c808;
+               cursor: pointer; transition: all 0.3s ease; outline: none;">
+            Mới nhất
+        </button>
+        <button class="tab-button" data-tab="best-seller"
+                style="background: transparent; color: #777;
+               font-size: 18px; font-weight: 600; padding: 10px 20px;
+               border: none; border-bottom: 3px solid transparent;
+               cursor: pointer; transition: all 0.3s ease; outline: none;">
+            Bán chạy nhất
+        </button>
     </div>
+
+
     <div class="tab-content">
         <div id="new" class="tab-pane active">
             <div class="product-row">
-                @foreach (var product in (IEnumerable<TinhLam.Data.Product>)ViewData["LatestProducts"])
+                @foreach (var product in ((IEnumerable<TinhLam.Data.Product>)ViewData["LatestProducts"]).Take(8))
                 {
                     <a class="product" asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.ProductId">
                         <div class="product-card">
@@ -77,7 +91,7 @@
         </div>
         <div id="best-seller" class="tab-pane">
             <div class="product-row">
-                @foreach (var product in (IEnumerable<TinhLam.Data.Product>)ViewData["BestSellingProducts"])
+                @foreach (var product in ((IEnumerable<TinhLam.Data.Product>)ViewData["BestSellingProducts"]).Take(8))
                 {
                     <a class="product" asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId">
                         <div class="product-card">

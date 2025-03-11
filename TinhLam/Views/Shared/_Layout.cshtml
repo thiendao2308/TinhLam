@@ -177,6 +177,19 @@
         });
     </script>
     <script>
+        document.querySelectorAll(".tab-button").forEach(button => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".tab-button").forEach(btn => {
+                    btn.style.color = "#777";
+                    btn.style.borderBottom = "3px solid transparent";
+                });
+
+                button.style.color = "#55161b";
+                button.style.borderBottom = "3px solid #f5c808";
+            });
+        });
+    </script>
+    <script>
         // Back to Top Button
         document.addEventListener("DOMContentLoaded", function () {
             const backToTopButton = document.querySelector(".back-to-top");

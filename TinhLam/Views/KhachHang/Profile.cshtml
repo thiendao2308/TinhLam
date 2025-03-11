@@ -4,107 +4,254 @@
     ViewData["Title"] = "Hồ sơ cá nhân";
 }
 
-<h1>Hồ sơ cá nhân</h1>
+<link rel="stylesheet" href="/css/profile.css">
+
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .title {
+        color: #55161b;
+        text-align: center;
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .info-box {
+        background: #f4f4f4;
+        padding: 15px;
+        border-radius: 8px;
+        color: #55161b;
+    }
+
+        .info-box table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .info-box th {
+            text-align: left;
+            padding-right: 10px;
+        }
+
+    .order-title {
+        color: #55161b;
+        font-size: 22px;
+        margin-top: 20px;
+    }
+
+    .order-table-container {
+        overflow-x: auto;
+    }
+
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+        .order-table th, .order-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .order-table th {
+            background: #f5c808;
+            color: #55161b;
+        }
+
+    .btn-detail {
+        background: #55161b;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .btn-detail:hover {
+            background: #742020;
+        }
+
+    .no-orders {
+        color: #777;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .logout-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .logout-btn {
+        background: red;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+        .logout-btn:hover {
+            background: darkred;
+            color: white;
+        }
+
+    /* Modal Styles */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .modal.show {
+            display: flex;
+        }
+
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 50%;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: red;
+    }
+</style>
 
 <div class="profile-container">
-    <h4>Thông tin cá nhân</h4>
-    <table class="table">
-        <tr>
-            <th>Họ và tên:</th>
-            <td>@Model.CustomerName</td>
-        </tr>
-        <tr>
-            <th>Email:</th>
-            <td>@Model.Email</td>
-        </tr>
-        <tr>
-            <th>Số điện thoại:</th>
-            <td>@Model.PhoneNumber</td>
-        </tr>
-        <tr>
-            <th>Địa chỉ:</th>
-            <td>@Model.DiaChi</td>
-        </tr>
-    </table>
+    <h1 class="title">Hồ sơ cá nhân</h1>
 
-    <h4>Lịch sử đơn hàng</h4>
+    <div class="info-box">
+        <h4>Thông tin cá nhân</h4>
+        <table>
+            <tr>
+                <th>Họ và tên:</th>
+                <td>@Model.CustomerName</td>
+            </tr>
+            <tr>
+                <th>Email:</th>
+                <td>@Model.Email</td>
+            </tr>
+            <tr>
+                <th>Số điện thoại:</th>
+                <td>@Model.PhoneNumber</td>
+            </tr>
+            <tr>
+                <th>Địa chỉ:</th>
+                <td>@Model.DiaChi</td>
+            </tr>
+        </table>
+    </div>
+    <div class="logout-container">
+        <a asp-action="DangXuat" class="logout-btn">Đăng xuất</a>
+    </div>
+
+    <h4 class="order-title">Lịch sử đơn hàng</h4>
     @if (Model.Orders.Any())
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Mã đơn hàng</th>
-                    <th>Ngày đặt</th>
-                    <th>Tổng tiền</th>
-                    <th>Trạng thái</th>
-                    <th>Chi tiết</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var order in Model.Orders)
-                {
+        <div class="order-table-container">
+            <table class="order-table">
+                <thead>
                     <tr>
-                        <td>@order.OrderId</td>
-                        <td>@order.OrderDate.ToShortDateString()</td>
-                        <td>@order.TotalAmount VNĐ</td>
-                        <td>@order.Status</td>
-                        <td>
-                            <button class="btn btn-primary btn-detail" data-orderid="@order.OrderId">
-                                Xem
-                            </button>
-                        </td>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Chi tiết</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td>@order.OrderId</td>
+                            <td>@order.OrderDate.ToShortDateString()</td>
+                            <td>@order.TotalAmount VNĐ</td>
+                            <td>@order.Status</td>
+                            <td>
+                                <button class="btn-detail" data-orderid="@order.OrderId">
+                                    Xem
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
     else
     {
-        <p>Bạn chưa có đơn hàng nào.</p>
+        <p class="no-orders">Bạn chưa có đơn hàng nào.</p>
     }
+
+    
 </div>
 
-<div>
-    <a asp-action="DangXuat" class="btn btn-danger">Đăng xuất</a>
-</div>
 
-<!-- Modal hiển thị chi tiết đơn hàng -->
-<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="orderDetailModalLabel">Chi tiết đơn hàng</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="orderDetailContent">
-                    <p>Đang tải...</p>
-                </div>
-            </div>
+<!-- Modal chi tiết đơn hàng -->
+<div class="modal" id="orderDetailModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5>Chi tiết đơn hàng</h5>
+            <button id="closeModal" class="close-btn">&times;</button>
+        </div>
+        <div id="orderDetailContent" class="modal-body">
+            <p>Đang tải...</p>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            $(".btn-detail").click(function () {
-                var orderId = $(this).data("orderid");
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btn-detail").forEach(button => {
+                button.addEventListener("click", function () {
+                    const orderId = this.dataset.orderid;
+                    document.getElementById("orderDetailModal").classList.add("show");
 
-                // Hiển thị modal
-                $("#orderDetailModal").modal("show");
-
-                // Gửi request AJAX để lấy chi tiết đơn hàng
-                $.ajax({
-                    url: "/Orders/GetOrderDetails/" + orderId,
-                    type: "GET",
-                    success: function (data) {
-                        $("#orderDetailContent").html(data);
-                    },
-                    error: function () {
-                        $("#orderDetailContent").html("<p class='text-danger'>Không thể tải chi tiết đơn hàng.</p>");
-                    }
+                    fetch(`/Orders/GetOrderDetails/${orderId}`)
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById("orderDetailContent").innerHTML = data;
+                        })
+                        .catch(() => {
+                            document.getElementById("orderDetailContent").innerHTML = "<p class='error-message'>Không thể tải chi tiết đơn hàng.</p>";
+                        });
                 });
+            });
+
+            document.getElementById("closeModal").addEventListener("click", function () {
+                document.getElementById("orderDetailModal").classList.remove("show");
             });
         });
     </script>

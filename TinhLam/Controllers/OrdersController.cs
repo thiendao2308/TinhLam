@@ -37,8 +37,12 @@ namespace TinhLam.Controllers
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            var tLinhContext = _context.Orders.Include(o => o.User);
-            return View(await tLinhContext.ToListAsync());
+            var orders = await _context.Orders
+                .OrderByDescending(o => o.OrderDate)
+                .ThenByDescending(o => o.OrderTime)
+                .ToListAsync();
+
+            return View(orders);
         }
 
         // GET: Orders/Details/5

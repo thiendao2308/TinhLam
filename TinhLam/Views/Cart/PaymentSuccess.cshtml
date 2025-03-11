@@ -1,0 +1,20 @@
+﻿@model TinhLam.Data.Order
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+}
+
+<div class="container text-center py-5">
+    <div class="card shadow-lg rounded-3 p-5" style="background-color: #fdf6e3; max-width: 600px; margin: auto;">
+        <div class="text-center">
+            <img src="~/images/success-icon-png.jpg" alt="Success" width="100" class="mb-3">
+            <h2 class="text-success fw-bold">Đặt hàng thành công!</h2>
+            <p class="text-muted">Cảm ơn bạn đã mua hàng. Chúng tôi sẽ liên hệ sớm để xác nhận đơn hàng.</p>
+        </div>
+
+        
+
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn text-white fw-bold" style="background-color: #55161b;">Tiếp tục mua sắm</a>
+        </div>
+    </div>
+</div>
