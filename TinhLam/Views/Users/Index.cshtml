@@ -1,65 +1,98 @@
 ﻿@model IEnumerable<TinhLam.Data.User>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý người dùng";
+    Layout = "_AdminLayout";
 }
 
-<h1>Index</h1>
+<h1>Danh sách người dùng</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Username)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Password)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Role)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RewardPoints)
-            </th>
-            <th></th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>Vai trò</th>
+            <th>Điểm thưởng</th>
+            <th>Hành động</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Username)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Role)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RewardPoints)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.UserId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.UserId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.UserId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Username</td>
+                <td>@item.Email</td>
+                <td>@item.PhoneNumber</td>
+                <td>@item.Role</td>
+                <td>@item.RewardPoints</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.UserId">Chi tiết</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<!-- Chat box -->
+@* <div id="chat-container"> *@
+@*     <h3>Hỗ trợ khách hàng</h3> *@
+@*     <div id="chat-messages"></div> *@
+@*     <input type="text" id="message-input" placeholder="Nhập tin nhắn..." /> *@
+@*     <button id="send-message">Gửi</button> *@
+@* </div> *@
+
+<style>
+    #chat-container {
+        width: 300px;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }
+
+    #chat-messages {
+        height: 200px;
+        overflow-y: scroll;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 10px;
+    }
+
+    #message-input {
+        width: 70%;
+        padding: 5px;
+    }
+
+    #send-message {
+        width: 25%;
+        padding: 5px;
+        background: blue;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+</style>
+
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script> *@
+@* <script> *@
+@*     var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build(); *@
+
+@*     connection.start().catch(err => console.error(err)); *@
+
+@*     document.getElementById("send-message").addEventListener("click", function () { *@
+@*         var message = document.getElementById("message-input").value; *@
+@*         connection.invoke("SendMessage", 1, message).catch(err => console.error(err)); *@
+@*         document.getElementById("message-input").value = ""; *@
+@*     }); *@
+
+@*     connection.on("ReceiveMessage", function (userId, message) { *@
+@*         var chatBox = document.getElementById("chat-messages"); *@
+@*         chatBox.innerHTML += "<p><strong>User " + userId + ":</strong> " + message + "</p>"; *@
+@*         chatBox.scrollTop = chatBox.scrollHeight; *@
+@*     }); *@
+@* </script> *@

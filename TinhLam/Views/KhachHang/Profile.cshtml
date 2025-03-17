@@ -146,6 +146,27 @@
     .error-message {
         color: red;
     }
+
+    .filter-form {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-filter {
+        background: #55161b;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-filter:hover {
+            background: #722025;
+        }
 </style>
 
 <div class="profile-container">
@@ -177,6 +198,24 @@
     </div>
 
     <h4 class="order-title">Lịch sử đơn hàng</h4>
+    <form method="get" asp-action="Profile" class="filter-form">
+        <label for="status">Trạng thái:</label>
+        <select name="status" id="status">
+            <option value="">-- Tất cả --</option>
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+
+        <label for="startDate">Từ ngày:</label>
+        <input type="date" name="startDate" id="startDate">
+
+        <label for="endDate">Đến ngày:</label>
+        <input type="date" name="endDate" id="endDate">
+
+        <button type="submit" class="btn-filter">Lọc</button>
+    </form>
     @if (Model.Orders.Any())
     {
         <div class="order-table-container">

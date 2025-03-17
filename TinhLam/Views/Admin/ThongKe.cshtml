@@ -1,99 +1,155 @@
-﻿@{
+﻿@model List<TinhLam.ViewModels.RevenueVM>
+
+@{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Thống kê doanh số";
+    ViewData["Title"] = "Thống kê doanh thu";
 }
 
-<h2 class="mb-4">Thống kê doanh số</h2>
+<style>
+    .container-thongke {
+        max-width: 800px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
 
-<div class="row">
-    <!-- Biểu đồ doanh thu -->
-    <div class="col-md-6">
-        <canvas id="revenueChart"></canvas>
-    </div>
+    h2 {
+        text-align: center;
+        color: #333;
+    }
 
-    <!-- Biểu đồ số lượng người dùng -->
-    <div class="col-md-6">
-        <canvas id="userChart"></canvas>
-    </div>
+    .filter-form {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    input[type="date"], button {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    button {
+        background-color: #55161b;
+        color: white;
+        cursor: pointer;
+    }
+
+        button:hover {
+            background-color: #55161b;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #55161b;
+        color: white;
+    }
+
+    .no-data {
+        text-align: center;
+        color: gray;
+        margin-top: 10px;
+    }
+
+    .chart-container {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container-thongke mx-auto mt-5 p-5 bg-white shadow-lg rounded-lg">
+    <h2 class="text-2xl font-semibold mb-4 text-center">Thống kê doanh thu</h2>
+
+    <!-- Bộ lọc ngày -->
+    <form method="get" action="@Url.Action("ThongKe", "Admin")" class="flex items-center gap-4 mb-4">
+        <input type="date" name="selectedDate" id="selectedDate"
+               class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300" />
+        <button type="submit"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            Lọc
+        </button>
+    </form>
+
+    <!-- Hiển thị bảng doanh thu nếu có dữ liệu -->
+    @if (Model.Any())
+    {
+        <table class="table-auto w-full border-collapse border border-gray-200">
+            <thead>
+                <tr class="bg-blue-100">
+                    <th class="border border-gray-300 px-4 py-2">Ngày</th>
+                    <th class="border border-gray-300 px-4 py-2">Doanh thu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="text-center">
+                        <td class="border border-gray-300 px-4 py-2">@item.Date.ToString("dd/MM/yyyy")</td>
+                        <td class="border border-gray-300 px-4 py-2 font-bold text-blue-600">
+                            @item.TotalRevenue.ToString("N0") VNĐ
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Biểu đồ doanh thu -->
+        <div class="mt-6">
+            <canvas id="revenueChart" width="400" height="200"></canvas>
+        </div>
+    }
+    else
+    {
+        <p class="text-center text-gray-500 mt-4">Không có dữ liệu doanh thu cho ngày này.</p>
+    }
 </div>
 
-<div class="row mt-4">
-    <!-- Biểu đồ sản phẩm bán chạy -->
-    <div class="col-md-6">
-        <canvas id="bestSellingProductChart"></canvas>
-    </div>
-
-    <!-- Biểu đồ danh mục bán chạy -->
-    <div class="col-md-6">
-        <canvas id="bestSellingCategoryChart"></canvas>
-    </div>
-</div>
-
-<!-- Import Chart.js -->
+<!-- Biểu đồ Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        fetch('/Admin/GetThongKeData')
-            .then(response => response.json())
-            .then(data => {
-                // ✅ 1. Biểu đồ doanh thu theo tháng
-                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-                new Chart(revenueCtx, {
-                    type: 'line',
-                    data: {
-                        labels: data.revenueByMonth.map(x => x.Month),
-                        datasets: [{
-                            label: 'Doanh thu (VNĐ)',
-                            data: data.revenueByMonth.map(x => x.TotalRevenue),
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 2
-                        }]
-                    }
-                });
+        var revenueData = @Html.Raw(Json.Serialize(Model.Select(x => x.TotalRevenue)));
+        var revenueLabels = @Html.Raw(Json.Serialize(Model.Select(x => x.Date.ToString("dd/MM/yyyy"))));
 
-                // ✅ 2. Biểu đồ số lượng người dùng theo tháng
-                const userCtx = document.getElementById('userChart').getContext('2d');
-                new Chart(userCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.userByMonth.map(x => x.Month),
-                        datasets: [{
-                            label: 'Số người dùng',
-                            data: data.userByMonth.map(x => x.TotalUsers),
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 2
-                        }]
+        if (revenueData.length > 0) {
+            var ctx = document.getElementById('revenueChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: revenueData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
                     }
-                });
-
-                // ✅ 3. Biểu đồ sản phẩm bán chạy
-                const bestSellingProductCtx = document.getElementById('bestSellingProductChart').getContext('2d');
-                new Chart(bestSellingProductCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: data.bestSellingProducts.map(x => x.ProductName),
-                        datasets: [{
-                            data: data.bestSellingProducts.map(x => x.TotalSold),
-                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-                        }]
-                    }
-                });
-
-                // ✅ 4. Biểu đồ danh mục bán chạy
-                const bestSellingCategoryCtx = document.getElementById('bestSellingCategoryChart').getContext('2d');
-                new Chart(bestSellingCategoryCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.bestSellingCategories.map(x => x.CategoryName),
-                        datasets: [{
-                            data: data.bestSellingCategories.map(x => x.TotalSold),
-                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-                        }]
-                    }
-                });
-
+                }
             });
+        }
     });
 </script>

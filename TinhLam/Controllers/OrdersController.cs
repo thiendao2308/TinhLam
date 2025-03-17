@@ -35,15 +35,95 @@ namespace TinhLam.Controllers
         }
 
         // GET: Orders
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string status, DateTime? startDate, DateTime? endDate)
         {
-            var orders = await _context.Orders
-                .OrderByDescending(o => o.OrderDate)
-                .ThenByDescending(o => o.OrderTime)
-                .ToListAsync();
+            var ordersQuery = _context.Orders.AsQueryable();
+
+            // Lọc theo trạng thái đơn hàng nếu có
+            if (!string.IsNullOrEmpty(status))
+            {
+                ordersQuery = ordersQuery.Where(o => o.Status == status);
+            }
+
+            // Chuyển đổi DateTime? sang DateOnly trước khi lọc
+            if (startDate.HasValue)
+            {
+                DateOnly startDateOnly = DateOnly.FromDateTime(startDate.Value);
+                ordersQuery = ordersQuery.Where(o => o.OrderDate >= startDateOnly);
+            }
+
+            if (endDate.HasValue)
+            {
+                DateOnly endDateOnly = DateOnly.FromDateTime(endDate.Value);
+                ordersQuery = ordersQuery.Where(o => o.OrderDate <= endDateOnly);
+            }
+
+            // Sắp xếp theo ngày đặt hàng và giờ đặt hàng giảm dần
+            ordersQuery = ordersQuery.OrderByDescending(o => o.OrderDate)
+                                     .ThenByDescending(o => o.OrderTime);
+
+            // Thực thi truy vấn trước khi gọi await
+            var orders = await ordersQuery.ToListAsync();
 
             return View(orders);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int orderId, string status)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            order.Status = status;
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        public IActionResult GetOrdersByPhone(string phone)
+        {
+            if (string.IsNullOrEmpty(phone))
+            {
+                return Content("<p class='error-message'>Số điện thoại không hợp lệ!</p>");
+            }
+
+            var orders = _context.Orders
+                .Where(o => o.PhoneNumber == phone)
+                .OrderByDescending(o => o.OrderDate)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    o.OrderDate,
+                    o.TotalAmount,
+                    o.Status
+                })
+                .ToList();
+
+            if (orders.Count == 0)
+            {
+                return Content("<p class='error-message'>Không tìm thấy đơn hàng nào!</p>");
+            }
+
+            var resultHtml = "<table class='order-table'>";
+            resultHtml += "<tr><th>Mã đơn hàng</th><th>Ngày đặt</th><th>Tổng tiền</th><th>Trạng thái</th></tr>";
+
+            foreach (var order in orders)
+            {
+                resultHtml += $"<tr><td>{order.OrderId}</td><td>{order.OrderDate.ToShortDateString()}</td><td>{order.TotalAmount} VNĐ</td><td>{order.Status}</td></tr>";
+            }
+
+            resultHtml += "</table>";
+
+            return Content(resultHtml, "text/html");
+        }
+
+
+
 
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int id)

@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using TinhLam.Data;
 using TinhLam.ViewModels;
 
@@ -16,72 +17,36 @@ public class AdminController : Controller
         _context = context;
     }
 
-    // Hiển thị danh sách danh mục
-    public IActionResult AdminCategory()
-    {
-        var categories = _context.Categories.ToList();
-        return View(categories);
-    }
 
-    public IActionResult ThongKe()
-    {
-        return View();
-    }
 
-    public async Task<IActionResult> GetThongKeData()
+    
+    public async Task<IActionResult> ThongKe(string selectedDate)
     {
-        try
+        DateTime? dateFilter = null;
+        if (!string.IsNullOrEmpty(selectedDate))
         {
-            var revenueByMonth = await _context.Orders
-                .Where(o => o.Status == "Completed")
-                .GroupBy(o => new { o.OrderDate.Year, o.OrderDate.Month })
-                .Select(g => new
-                {
-                    Month = $"{g.Key.Month}/{g.Key.Year}",
-                    TotalRevenue = g.Sum(o => o.TotalAmount)
-                })
-                .OrderBy(g => g.Month)
-                .ToListAsync();
+            dateFilter = DateTime.ParseExact(selectedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
 
-            var bestSellingProducts = await _context.OrderDetails
-                .GroupBy(od => od.Product.ProductName)
-                .Select(g => new
-                {
-                    ProductName = g.Key,
-                    TotalSold = g.Sum(od => od.Quantity)
-                })
-                .OrderByDescending(g => g.TotalSold)
-                .Take(5)
-                .ToListAsync();
+        var revenueQuery = _context.Orders.AsQueryable();
 
-            var bestSellingCategories = await _context.OrderDetails
-                .GroupBy(od => od.Product.Category.CategoryName)
-                .Select(g => new
-                {
-                    CategoryName = g.Key,
-                    TotalSold = g.Sum(od => od.Quantity)
-                })
-                .OrderByDescending(g => g.TotalSold)
-                .Take(5)
-                .ToListAsync();
+        if (dateFilter.HasValue)
+        {
+            DateOnly dateOnlyFilter = DateOnly.FromDateTime(dateFilter.Value);
+            revenueQuery = revenueQuery.Where(o => o.OrderDate == dateOnlyFilter);
+        }
 
-            return Json(new
+
+        var revenueData = await revenueQuery
+            .GroupBy(o => o.OrderDate)
+            .Select(g => new RevenueVM
             {
-                revenueByMonth,
-                bestSellingProducts,
-                bestSellingCategories
-            });
-        }
-        catch (Exception ex)
-        {
-            // Ghi lỗi ra console
-            Console.WriteLine("Lỗi khi lấy dữ liệu thống kê: " + ex.Message);
-            Console.WriteLine("StackTrace: " + ex.StackTrace);
+                Date = g.Key,
+                TotalRevenue = g.Sum(o => o.TotalAmount)
+            })
+            .OrderByDescending(r => r.Date)
+            .ToListAsync();
 
-            // Trả về lỗi 500 để dễ debug
-            return StatusCode(500, "Lỗi Server: " + ex.Message);
-        }
+        return View(revenueData);
     }
-
 }
-

@@ -116,9 +116,8 @@ namespace TinhLam.Controllers
 
 
         [Authorize(Roles = "User")]
-        public IActionResult Profile()
+        public IActionResult Profile(string status, DateOnly? startDate, DateOnly? endDate)
         {
-            // Lấy UserId từ Claims
             var userIdClaim = User.FindFirst(MySetting.CLAIM_CUSTOMERID);
             if (userIdClaim == null)
             {
@@ -126,19 +125,31 @@ namespace TinhLam.Controllers
             }
 
             int userId = int.Parse(userIdClaim.Value);
-
-            // Tìm người dùng theo UserId
             var khachHang = db.Users.FirstOrDefault(kh => kh.UserId == userId);
             if (khachHang == null)
             {
                 return NotFound();
             }
 
-            // Lấy danh sách đơn hàng của user
-            var orders = db.Orders
-                .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.OrderDate)
-                .ToList();
+            var ordersQuery = db.Orders.Where(o => o.UserId == userId);
+
+            // Lọc theo trạng thái nếu có
+            if (!string.IsNullOrEmpty(status))
+            {
+                ordersQuery = ordersQuery.Where(o => o.Status == status);
+            }
+
+            // Lọc theo ngày nếu có
+            if (startDate.HasValue)
+            {
+                ordersQuery = ordersQuery.Where(o => o.OrderDate >= startDate.Value);
+            }
+            if (endDate.HasValue)
+            {
+                ordersQuery = ordersQuery.Where(o => o.OrderDate <= endDate.Value);
+            }
+
+            var orders = ordersQuery.OrderByDescending(o => o.OrderDate).ToList();
 
             var profileVM = new ProfileVM
             {
@@ -152,6 +163,8 @@ namespace TinhLam.Controllers
 
             return View(profileVM);
         }
+
+
 
 
         [Authorize] // Áp dụng cho mọi tài khoản đã đăng nhập (User và Admin)

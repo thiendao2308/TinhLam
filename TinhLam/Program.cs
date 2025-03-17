@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TinhLam.Data;
 using TinhLam.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,13 +18,15 @@ builder.Services.AddDbContext<TLinhContext>(options =>
 });
 
 builder.Services.AddDistributedMemoryCache();
-
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(1);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+// Thêm SignalR
+builder.Services.AddSignalR();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -32,20 +35,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.LoginPath = "/KhachHang/DangNhap";
     options.AccessDeniedPath = "/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.Zero; // Hết hạn ngay khi đóng trình duyệt
-    options.SlidingExpiration = false; // Không tự động gia hạn cookie
+    options.SlidingExpiration = false;
     options.Cookie.IsEssential = true;
     options.Cookie.HttpOnly = true;
 });
 
-
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("RequireUser", policy => policy.RequireRole("User", "Admin")); // Cả User và Admin đều có thể truy cập
+    options.AddPolicy("RequireUser", policy => policy.RequireRole("User", "Admin"));
 });
 
-
-//đăng ký PaypalClient dạng Singleton() - chỉ có 1 instance duy nhất trong toàn ứng dụng 
+// Đăng ký PaypalClient dạng Singleton()
 builder.Services.AddSingleton(x => new PaypalClient(
     builder.Configuration["PaypalOptions:AppId"],
     builder.Configuration["PaypalOptions:AppSecret"],
@@ -67,11 +68,13 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession();
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 
 app.Run();

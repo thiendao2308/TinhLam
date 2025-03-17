@@ -59,10 +59,47 @@
             background: #d4a307;
         }
 
+    .filter-form {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-filter {
+        background: #55161b;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-filter:hover {
+            background: #722025;
+        }
 </style>
 
 <h1 style="color: #55161b; text-align: center; margin-bottom: 20px;">Danh sách đơn hàng</h1>
+<form method="get" asp-action="Index" asp-controller="Orders" class="filter-form">
+    <label for="status">Trạng thái:</label>
+    <select name="status" id="status">
+        <option value="">-- Tất cả --</option>
+        <option value="Pending">Pending</option>
+        <option value="Processing">Processing</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+    </select>
 
+    <label for="startDate">Từ ngày:</label>
+    <input type="date" name="startDate" id="startDate">
+
+    <label for="endDate">Đến ngày:</label>
+    <input type="date" name="endDate" id="endDate">
+
+    <button type="submit" class="btn-filter">Lọc</button>
+</form>
 <div class="orders-container">
     <table class="orders-table">
         <thead>
@@ -76,7 +113,7 @@
                 <th>Trạng thái</th>
                 <th>Thanh toán</th>
                 <th>Ghi chú</th>
-                <th>User</th>
+                
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -90,10 +127,21 @@
                     <td>@Html.DisplayFor(modelItem => item.OrderDate)</td>
                     <td>@Html.DisplayFor(modelItem => item.OrderTime)</td>
                     <td class="total-amount">@Html.DisplayFor(modelItem => item.TotalAmount) VND</td>
-                    <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td>
+                        <form method="post" asp-action="UpdateStatus" asp-controller="Orders">
+                            <input type="hidden" name="orderId" value="@item.OrderId" />
+                            <select name="status" onchange="this.form.submit()">
+                                <option value="Pending" selected="@(item.Status == "Pending" ? "selected" : null)">Pending</option>
+                                <option value="Processing" selected="@(item.Status == "Processing" ? "selected" : null)">Processing</option>
+                                <option value="Completed" selected="@(item.Status == "Completed" ? "selected" : null)">Completed</option>
+                                <option value="Cancelled" selected="@(item.Status == "Cancelled" ? "selected" : null)">Cancelled</option>
+                            </select>
+                        </form>
+                    </td>
+
                     <td>@Html.DisplayFor(modelItem => item.PaymentMethod)</td>
                     <td>@Html.DisplayFor(modelItem => item.Notes)</td>
-                    <td>@Html.DisplayFor(modelItem => item.User.UserId)</td>
+                    
                     <td>
                         <a asp-action="Details" asp-controller="Orders" asp-route-id="@item.OrderId" class="btn-details">
                             Xem chi tiết
