@@ -118,11 +118,14 @@ namespace TinhLam.Controllers
 
         public IActionResult RemoveCart(int id)
         {
-            var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
+            var customerIdClaim = HttpContext.User.Claims.FirstOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
             if (customerIdClaim != null) // Nếu user đã đăng nhập
             {
                 int customerId = int.Parse(customerIdClaim.Value);
-                var item = db.CartsUsers.SingleOrDefault(c => c.UserId == customerId && c.ProductId == id);
+
+                // Sử dụng FirstOrDefault để tránh lỗi khi có nhiều bản ghi
+                var item = db.CartsUsers.FirstOrDefault(c => c.UserId == customerId && c.ProductId == id);
+
                 if (item != null)
                 {
                     db.CartsUsers.Remove(item);
@@ -132,7 +135,7 @@ namespace TinhLam.Controllers
             else // Nếu là khách vãng lai
             {
                 var gioHang = Cart;
-                var item = gioHang.SingleOrDefault(p => p.MaProduct == id);
+                var item = gioHang.FirstOrDefault(p => p.MaProduct == id); // Sửa SingleOrDefault -> FirstOrDefault
                 if (item != null)
                 {
                     gioHang.Remove(item);
@@ -141,6 +144,7 @@ namespace TinhLam.Controllers
             }
             return RedirectToAction("Index");
         }
+
 
 
 

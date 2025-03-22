@@ -76,6 +76,15 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.UseStaticFiles();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "categoryFilter",
+        pattern: "Category/{id?}/{minPrice?}/{maxPrice?}",
+        defaults: new { controller = "Categories", action = "Category" }
+    );
+});
+
 
 
 app.Run();

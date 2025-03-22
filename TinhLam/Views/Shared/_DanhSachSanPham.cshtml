@@ -16,9 +16,22 @@
                     <!-- Bộ lọc giá -->
                     <div class="mb-4">
                         <h5 class="text-primary fw-bold">Khoảng giá</h5>
-                        <input type="range" class="form-range w-100" id="rangeInput" name="rangeInput" min="0" max="500" value="0" oninput="amount.value=rangeInput.value">
-                        <output id="amount" class="fw-bold text-danger">0</output> VND
+                        <form method="get" action="@Url.Action("Category", "Categories")">
+                            <input type="hidden" name="id" value="@ViewContext.RouteData.Values["id"]" />
+
+                            <!-- Thanh kéo giá -->
+                            <input type="range" class="form-range" id="priceRange" name="maxPrice" min="0" max="5000000" value="5000000"
+                                   oninput="priceOutput.value=priceRange.value">
+
+                            <div class="d-flex justify-content-between">
+                                <span>0 VND</span>
+                                <output id="priceOutput" class="price-display">5000000</output> VND
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 mt-2">Lọc</button>
+                        </form>
                     </div>
+
 
                     <!-- Bộ lọc trạng thái -->
                     <div class="mb-4">
@@ -128,4 +141,22 @@
     .search-box button {
         padding: 6px 12px; /* Giảm padding */
     }
+    /* Thanh trượt */
+    input[type="range"] {
+        width: 100%;
+        accent-color: #55161b;
+    }
+
+    /* Tăng kích thước output */
+    /* Tăng khoảng cách và làm dịu số tiền */
+    output {
+        font-size: 1rem; /* Giảm kích thước */
+        font-weight: 500; /* Không quá đậm */
+        color: #444; /* Màu xám nhẹ */
+        background: #f8f9fa; /* Nền nhẹ để dịu hơn */
+        padding: 2px 6px;
+        border-radius: 5px;
+    }
+
+
 </style>

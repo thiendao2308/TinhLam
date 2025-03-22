@@ -26,23 +26,33 @@ namespace TinhLam.Controllers
             }
         }
 
-        public IActionResult Category(int? id)
+        public IActionResult Category(int? id, int? maxPrice)
         {
-            var product = _context.Products.AsQueryable();
+            var productQuery = _context.Products.AsQueryable();
+
             if (id.HasValue)
             {
-                product = product.Where(p => p.CategoryId == id.Value);
+                productQuery = productQuery.Where(p => p.CategoryId == id.Value);
             }
-            var result = product.Select(p => new ProductVM
+
+            if (maxPrice.HasValue)
+            {
+                productQuery = productQuery.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            var result = productQuery.Select(p => new ProductVM
             {
                 MaProduct = p.ProductId,
                 TenProduct = p.ProductName,
                 Price = p.Price,
                 Hinh = p.Image,
                 MoTaNgan = p.Description
-            });
+            }).ToList();
+
             return View(result);
         }
+
+
 
         public async Task<IActionResult> Index()
         {
