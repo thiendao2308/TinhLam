@@ -1,5 +1,6 @@
 ﻿@model TinhLam.Data.Product
 
+
 @{
     ViewData["Title"] = "Chi tiết sản phẩm";
     Layout = "_AdminLayout";
@@ -19,9 +20,6 @@
         <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Đơn giá:</dt>
         <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.Price) VND</dd>
 
-        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Số lượng trong kho:</dt>
-        <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.StockQuantity)</dd>
-
         <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Mô tả:</dt>
         <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.Description)</dd>
 
@@ -31,9 +29,6 @@
                  style="max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd; display: block; margin: 10px auto;" />
         </dd>
 
-        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Size tay:</dt>
-        <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.SizeOption)</dd>
-
         <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Trạng thái:</dt>
         <dd style="color: #333; margin-bottom: 10px;">
             @(Model.IsActive.HasValue ? (Model.IsActive.Value ? "Hoạt động" : "Ngừng bán") : "Chưa xác định")
@@ -41,6 +36,23 @@
 
         <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Danh mục:</dt>
         <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.Category.CategoryId)</dd>
+
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Các size tay:</dt>
+        <dd style="color: #333; margin-bottom: 10px;">
+            @if (Model.ProductSizes != null && Model.ProductSizes.Any())
+            {
+                <ul>
+                    @foreach (var size in Model.ProductSizes)
+                    {
+                        <li>@size.Size cm (Còn @size.StockQuantity)</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>Chưa có size</span>
+            }
+        </dd>
     </dl>
 
     <div style="display: flex; justify-content: space-between; margin-top: 20px;">

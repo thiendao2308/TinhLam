@@ -101,14 +101,26 @@
         <dt>Số điện thoại:</dt>
         <dd>@Model.PhoneNumber</dd>
 
-        <dt>Địa chỉ giao hàng:</dt>
-        <dd>@Model.ShippingAddress</dd>
+         <dt>Địa chỉ giao hàng:</dt> 
+         <dd>@Model.StreetAddress</dd> 
 
         <dt>Ngày đặt hàng:</dt>
         <dd>@Model.OrderDate</dd>
 
         <dt>Tổng tiền:</dt>
         <dd class="total-amount">@Model.TotalAmount VND</dd>
+
+        @if (Model.DiscountAmount > 0)
+        {
+            <dt>Giảm giá (điểm thưởng):</dt>
+            <dd style="color: #28a745; font-weight: bold;">-@Model.DiscountAmount?.ToString("N0") VND</dd>
+        }
+
+        @if (Model.RewardPointsUsed > 0)
+        {
+            <dt>Điểm thưởng đã sử dụng:</dt>
+            <dd style="color: #ffc107; font-weight: bold;">@Model.RewardPointsUsed điểm</dd>
+        }
 
         <dt>Trạng thái:</dt>
         <dd>@Model.Status</dd>

@@ -6,14 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TinhLam.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TinhLam.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {
-        private readonly TLinhContext _context;
+        private readonly TlinhContext _context;
 
-        public UsersController(TLinhContext context)
+        public UsersController(TlinhContext context)
         {
             _context = context;
         }

@@ -7,7 +7,8 @@
         public string TenProduct { get; set; }
         public decimal Price { get; set; }
         public int SoLuong { get; set; }
-        public string SizeOption { get; set; }
+        public int? ProductSizeId { get; set; }
+        public string Size { get; set; }
         public decimal ThanhTien => SoLuong * Price;
     }
 }

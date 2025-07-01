@@ -1,0 +1,151 @@
+@model IEnumerable<TinhLam.Data.User>
+
+@{
+    ViewData["Title"] = "Quản lý điểm tích lũy";
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<style>
+    .reward-points-container {
+        max-width: 95%;
+        margin: auto;
+        overflow-x: auto;
+        border: 2px solid #55161b;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .reward-points-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+        .reward-points-table thead {
+            background: #55161b;
+            color: white;
+        }
+
+        .reward-points-table th, .reward-points-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .reward-points-table th {
+            border-bottom: 2px solid #f5c808;
+        }
+
+        .reward-points-table tbody tr:hover {
+            background: #f9f2e8;
+        }
+
+    .points-amount {
+        color: #55161b;
+        font-weight: bold;
+    }
+
+    .btn-action {
+        background: #f5c808;
+        color: #55161b;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        margin: 2px;
+    }
+
+        .btn-action:hover {
+            background: #d4a307;
+        }
+
+    .btn-info {
+        background: #17a2b8 !important;
+        color: white !important;
+    }
+
+    .btn-warning {
+        background: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    .bg-primary {
+        background-color: #007bff !important;
+        color: white !important;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+</style>
+
+<h1 style="color: #55161b; text-align: center; margin-bottom: 20px;">Quản lý điểm tích lũy</h1>
+
+<div class="reward-points-container">
+    <table class="reward-points-table">
+        <thead>
+            <tr>
+                <th>Khách hàng</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Điểm tích lũy</th>
+                <th>Giá trị tương đương</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@(user.CustomerName ?? user.Username)</td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
+                    <td class="points-amount">
+                        <span class="badge bg-primary">@(user.RewardPoints ?? 0) điểm</span>
+                    </td>
+                    <td class="points-amount">@((user.RewardPoints ?? 0) * 1000) VNĐ</td>
+                    <td>
+                        <a asp-action="UserHistory" asp-route-userId="@user.UserId" class="btn-action btn-info">
+                            Lịch sử
+                        </a>
+                        <a asp-action="AdjustPoints" asp-route-userId="@user.UserId" class="btn-action btn-warning">
+                            Điều chỉnh
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div> 

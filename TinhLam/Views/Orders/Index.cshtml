@@ -79,6 +79,27 @@
         .btn-filter:hover {
             background: #722025;
         }
+
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+        font-weight: bold;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
 </style>
 
 <h1 style="color: #55161b; text-align: center; margin-bottom: 20px;">Danh sách đơn hàng</h1>
@@ -110,6 +131,8 @@
                 <th>Ngày đặt</th>
                 <th>Giờ đặt</th>
                 <th>Tổng tiền</th>
+                <th>Điểm sử dụng</th>
+                <th>Giảm giá</th>
                 <th>Trạng thái</th>
                 <th>Thanh toán</th>
                 <th>Ghi chú</th>
@@ -123,10 +146,30 @@
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.CustomerName)</td>
                     <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
-                    <td>@Html.DisplayFor(modelItem => item.ShippingAddress)</td>
+                    <td>@Html.DisplayFor(modelItem => item.StreetAddress)</td>
                     <td>@Html.DisplayFor(modelItem => item.OrderDate)</td>
                     <td>@Html.DisplayFor(modelItem => item.OrderTime)</td>
                     <td class="total-amount">@Html.DisplayFor(modelItem => item.TotalAmount) VND</td>
+                    <td>
+                        @if (item.RewardPointsUsed > 0)
+                        {
+                            <span class="badge bg-warning">@item.RewardPointsUsed điểm</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.DiscountAmount > 0)
+                        {
+                            <span class="text-success">-@item.DiscountAmount?.ToString("N0") VND</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
                     <td>
                         <form method="post" asp-action="UpdateStatus" asp-controller="Orders">
                             <input type="hidden" name="orderId" value="@item.OrderId" />
@@ -138,7 +181,7 @@
                             </select>
                         </form>
                     </td>
-
+                
                     <td>@Html.DisplayFor(modelItem => item.PaymentMethod)</td>
                     <td>@Html.DisplayFor(modelItem => item.Notes)</td>
                     

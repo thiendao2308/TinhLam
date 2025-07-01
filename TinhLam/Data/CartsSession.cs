@@ -17,5 +17,9 @@ public partial class CartsSession
 
     public decimal UnitPrice { get; set; }
 
+    public int? ProductSizeId { get; set; }
+
     public virtual Product? Product { get; set; }
+
+    public virtual ProductSize? ProductSize { get; set; }
 }

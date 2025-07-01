@@ -1,0 +1,451 @@
+@model TinhLam.Data.Post
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "_Layout";
+}
+
+<style>
+    .post-container {
+        background: #fff;
+        padding: 32px 20px 28px 20px;
+        border-radius: 14px;
+        box-shadow: 0 2px 16px rgba(85,22,27,0.08);
+        max-width: 800px;
+        margin: 32px auto;
+        border: 1.5px solid #f5c808;
+    }
+    .post-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #55161b;
+        text-align: center;
+        margin-bottom: 18px;
+        line-height: 1.2;
+    }
+    .post-meta {
+        text-align: center;
+        color: #888;
+        font-size: 1.05rem;
+        margin-bottom: 18px;
+    }
+    .post-image {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+    .post-image img {
+        max-width: 100%;
+        max-height: 350px;
+        border-radius: 10px;
+        border: 2px solid #f5c808;
+        box-shadow: 0 2px 8px rgba(85,22,27,0.08);
+        object-fit: cover;
+    }
+    .post-content {
+        color: #222;
+        font-size: 1.15rem;
+        line-height: 1.8;
+        background: #fffbe7;
+        border-radius: 8px;
+        border: 1.5px solid #f5c808;
+        padding: 22px 18px;
+        margin-bottom: 18px;
+        word-break: break-word;
+    }
+    .post-tags {
+        margin-top: 18px;
+        color: #55161b;
+        font-size: 1rem;
+        text-align: left;
+    }
+    .post-tags span {
+        background: #f5c808;
+        color: #55161b;
+        border-radius: 4px;
+        padding: 2px 10px;
+        margin-right: 6px;
+        font-size: 0.98rem;
+        font-weight: 500;
+    }
+    .btn-back {
+        background: #f5c808;
+        color: #55161b;
+        padding: 13px 0;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        display: block;
+        width: 100%;
+        margin: 30px auto 0 auto;
+        text-align: center;
+        font-size: 1.15rem;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-back:hover {
+        background: #d4a307;
+        color: #55161b;
+    }
+    
+    /* Comments Section Styles */
+    .comments-section {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #f5c808;
+    }
+    .comments-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .comment-form {
+        background: #fffbe7;
+        border: 2px solid #f5c808;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    .comment-form h4 {
+        color: #55161b;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #55161b;
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .form-control:focus {
+        border-color: #f5c808;
+        outline: none;
+        box-shadow: 0 0 5px rgba(245, 200, 8, 0.3);
+    }
+    .btn-comment {
+        background: #55161b;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .btn-comment:hover {
+        background: #742020;
+    }
+    .comments-list {
+        margin-top: 20px;
+    }
+    .comment-item {
+        background: #f8f9fa;
+        border-left: 4px solid #f5c808;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .comment-author {
+        font-weight: bold;
+        color: #55161b;
+    }
+    .comment-date {
+        color: #888;
+        font-size: 0.9rem;
+    }
+    .comment-content {
+        color: #333;
+        line-height: 1.6;
+    }
+    .no-comments {
+        text-align: center;
+        color: #888;
+        font-style: italic;
+        padding: 20px;
+    }
+    .alert {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .btn-delete-comment {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 3px;
+        transition: background 0.3s;
+    }
+    .btn-delete-comment:hover {
+        background: rgba(220, 53, 69, 0.1);
+    }
+</style>
+
+<nav aria-label="breadcrumb" class="breadcrumb-nav" style="margin-bottom: 18px;">
+        <ol class="breadcrumb" style="background: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; list-style: none;">
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index" style="color: #55161b; font-weight: bold; text-decoration: none;">Trang chủ</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-controller="Posts" asp-action="Index" style="color: #55161b; font-weight: bold; text-decoration: none;">Bài viết</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page" style="color: #888; font-weight: bold;">@Model.Title</li>
+        </ol>
+    </nav>
+<div class="post-container">
+    
+    
+    <div class="post-title">@Model.Title</div>
+    <div class="post-meta">
+        Đăng bởi <b>@Model.Author</b> | @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm") | Lượt xem: @Model.ViewCount
+    </div>
+    @if (!string.IsNullOrEmpty(Model.Image))
+    {
+        <div class="post-image">
+            <img src="~/images/posts/@Model.Image" alt="@Model.Title" />
+        </div>
+    }
+    <div class="post-content">
+        @Html.Raw(Model.Content.Replace("\n", "<br>"))
+    </div>
+    @if (!string.IsNullOrEmpty(Model.Tags))
+    {
+        <div class="post-tags">
+            <span>Tags:</span>
+            @foreach (var tag in Model.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
+            {
+                <span>@tag.Trim()</span>
+            }
+        </div>
+    }
+    
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3 class="comments-title">
+            <i class="fas fa-comments"></i> Bình luận (@Model.PostComments.Count)
+        </h3>
+        
+        <!-- Comment Form -->
+        <div class="comment-form">
+            <h4><i class="fas fa-edit"></i> Thêm bình luận</h4>
+            <div id="commentAlert"></div>
+            <form id="commentForm">
+                <input type="hidden" id="postId" value="@Model.PostId" />
+                <div class="form-group">
+                    <label for="commentContent">Nội dung bình luận:</label>
+                    <textarea id="commentContent" class="form-control" rows="4" placeholder="Viết bình luận của bạn..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">Số điện thoại (tùy chọn):</label>
+                    <input type="tel" id="phoneNumber" class="form-control" placeholder="Nhập số điện thoại của bạn..." />
+                </div>
+                <button type="submit" class="btn-comment">
+                    <i class="fas fa-paper-plane"></i> Gửi bình luận
+                </button>
+            </form>
+        </div>
+        
+        <!-- Comments List -->
+        <div class="comments-list" id="commentsList">
+            @if (Model.PostComments.Any())
+            {
+                @foreach (var comment in Model.PostComments.OrderByDescending(c => c.CommentDate))
+                {
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">
+                                @if (comment.User != null)
+                                {
+                                    @comment.User.CustomerName
+                                }
+                                else
+                                {
+                                    @(string.IsNullOrEmpty(comment.PhoneNumber) ? "Khách" : comment.PhoneNumber)
+                                }
+                            </span>
+                            <div class="comment-actions">
+                                <span class="comment-date">
+                                    @(comment.CommentDate?.ToString("dd/MM/yyyy HH:mm") ?? "")
+                                </span>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <button class="btn-delete-comment" data-comment-id="@comment.CommentId" title="Xóa bình luận">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        <div class="comment-content">
+                            @comment.CommentContent
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-comments">
+                    <i class="fas fa-comment-slash"></i>
+                    Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
+                </div>
+            }
+        </div>
+    </div>
+    
+    
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#commentForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var postId = $('#postId').val();
+                var commentContent = $('#commentContent').val().trim();
+                var phoneNumber = $('#phoneNumber').val().trim();
+                
+                // Validation
+                if (!commentContent) {
+                    showAlert('Vui lòng nhập nội dung bình luận!', 'danger');
+                    $('#commentContent').focus();
+                    return;
+                }
+                
+                if (commentContent.length > 1000) {
+                    showAlert('Nội dung bình luận không được quá 1000 ký tự!', 'danger');
+                    $('#commentContent').focus();
+                    return;
+                }
+                
+                // Validate phone number format (optional)
+                if (phoneNumber && !/^[0-9+\-\s()]{10,15}$/.test(phoneNumber)) {
+                    showAlert('Số điện thoại không đúng định dạng!', 'danger');
+                    $('#phoneNumber').focus();
+                    return;
+                }
+                
+                // Disable submit button
+                var submitBtn = $(this).find('button[type="submit"]');
+                var originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang gửi...');
+                
+                $.ajax({
+                    url: '@Url.Action("AddComment", "Posts")',
+                    type: 'POST',
+                    data: {
+                        postId: postId,
+                        commentContent: commentContent,
+                        phoneNumber: phoneNumber
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showAlert(response.message, 'success');
+                            $('#commentContent').val('');
+                            $('#phoneNumber').val('');
+                            
+                            // Reload comments
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            showAlert(response.message, 'danger');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ajax error:', error);
+                        showAlert('Có lỗi xảy ra khi gửi bình luận. Vui lòng thử lại!', 'danger');
+                    },
+                    complete: function() {
+                        submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+            
+            function showAlert(message, type) {
+                var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible fade show">' + 
+                               '<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-triangle') + '"></i> ' +
+                               message + 
+                               '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+                $('#commentAlert').html(alertHtml);
+                
+                // Auto hide after 5 seconds
+                setTimeout(function() {
+                    $('#commentAlert .alert').fadeOut();
+                }, 5000);
+            }
+            
+            // Auto-resize textarea
+            $('#commentContent').on('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Delete comment functionality
+            $(document).on('click', '.btn-delete-comment', function() {
+                var commentId = $(this).data('comment-id');
+                var commentItem = $(this).closest('.comment-item');
+                
+                if (confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteComment", "Posts")',
+                        type: 'POST',
+                        data: { commentId: commentId },
+                        success: function(response) {
+                            if (response.success) {
+                                commentItem.fadeOut(300, function() {
+                                    $(this).remove();
+                                    // Update comment count
+                                    var currentCount = parseInt($('.comments-title').text().match(/\((\d+)\)/)[1]);
+                                    $('.comments-title').html('<i class="fas fa-comments"></i> Bình luận (' + (currentCount - 1) + ')');
+                                    
+                                    // If no comments left, show no-comments message
+                                    if (currentCount - 1 === 0) {
+                                        $('#commentsList').html('<div class="no-comments"><i class="fas fa-comment-slash"></i>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</div>');
+                                    }
+                                });
+                                showAlert(response.message, 'success');
+                            } else {
+                                showAlert(response.message, 'danger');
+                            }
+                        },
+                        error: function() {
+                            showAlert('Có lỗi xảy ra khi xóa bình luận. Vui lòng thử lại!', 'danger');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+} 

@@ -139,11 +139,6 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="StockQuantity">Số lượng nhập</label>
-            <input asp-for="StockQuantity" class="form-control" type="number" min="1" />
-        </div>
-
-        <div class="form-group">
             <label asp-for="Description">Mô tả sản phẩm</label>
             <textarea asp-for="Description" class="form-control" rows="3"></textarea>
         </div>
@@ -155,29 +150,6 @@
                 <img id="imagePreview" src="#" class="d-none" />
             </div>
         </div>
-
-        <div class="form-group">
-            <label>Chọn size tay (tối đa 3 size)</label>
-            <div id="sizeOptions" class="size-options">
-                <div>
-                    <input type="checkbox" id="size14" name="SizeOption" value="14">
-                    <label for="size14">14mm</label>
-                </div>
-                <div>
-                    <input type="checkbox" id="size16" name="SizeOption" value="16">
-                    <label for="size16">16mm</label>
-                </div>
-                <div>
-                    <input type="checkbox" id="size18" name="SizeOption" value="18">
-                    <label for="size18">18mm</label>
-                </div>
-                <div>
-                    <input type="checkbox" id="size20" name="SizeOption" value="20">
-                    <label for="size20">20mm</label>
-                </div>
-            </div>
-        </div>
-
 
         <div class="form-group">
             <label asp-for="CategoryId">Danh mục</label>
@@ -193,7 +165,6 @@
     </form>
 </div>
 
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -203,7 +174,6 @@
         document.addEventListener("DOMContentLoaded", function () {
             const priceInput = document.getElementById("priceInput");
             const priceHidden = document.getElementById("priceHidden");
-            const stockInput = document.getElementById("StockQuantity");
 
             priceInput.addEventListener("input", function () {
                 let value = priceInput.value.replace(/\D/g, "");
@@ -215,12 +185,6 @@
                 let formatted = new Intl.NumberFormat("vi-VN").format(value);
                 priceInput.value = formatted;
                 priceHidden.value = value;
-            });
-
-            stockInput.addEventListener("input", function () {
-                if (stockInput.value < 1) {
-                    stockInput.value = 1;
-                }
             });
 
             const imageInput = document.getElementById("imageInput");
@@ -235,21 +199,6 @@
                     };
                     reader.readAsDataURL(imageInput.files[0]);
                 }
-            });
-
-            const sizeOptions = document.querySelectorAll("#sizeOptions input[type='checkbox']");
-            const sizeError = document.getElementById("sizeError");
-
-            sizeOptions.forEach(checkbox => {
-                checkbox.addEventListener("change", function () {
-                    let selectedSizes = Array.from(sizeOptions).filter(cb => cb.checked);
-                    if (selectedSizes.length > 3) {
-                        this.checked = false;
-                        sizeError.classList.remove("d-none");
-                    } else {
-                        sizeError.classList.add("d-none");
-                    }
-                });
             });
         });
     </script>

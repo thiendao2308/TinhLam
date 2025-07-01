@@ -7,9 +7,9 @@ namespace TinhLam.ViewComponents
 {
     public class CartViewComponent : ViewComponent
     {
-        private readonly TLinhContext db;
+        private readonly TlinhContext db;
 
-        public CartViewComponent(TLinhContext context)
+        public CartViewComponent(TlinhContext context)
         {
             db = context;
         }

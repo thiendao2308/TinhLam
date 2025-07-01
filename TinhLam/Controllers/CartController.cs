@@ -10,11 +10,17 @@ using Microsoft.AspNetCore.Http;
 
 namespace TinhLam.Controllers
 {
+    public class PayPalOrderRequest
+    {
+        public bool UseRewardPoints { get; set; }
+        public decimal DiscountAmount { get; set; }
+    }
+
     public class CartController : Controller
     {
-        private readonly TLinhContext db;
+        private readonly TlinhContext db;
         private readonly PaypalClient _paypalClient;
-        public CartController(TLinhContext context, PaypalClient paypalClient)
+        public CartController(TlinhContext context, PaypalClient paypalClient)
         {
             _paypalClient = paypalClient;
             db = context;
@@ -33,11 +39,13 @@ namespace TinhLam.Controllers
                         .Where(c => c.UserId == customerId)
                         .Select(c => new CartItem
                         {
-                            MaProduct = c.ProductId ?? 0, // Tránh null
+                            MaProduct = c.ProductId ?? 0,
                             TenProduct = c.Product.ProductName,
                             Price = c.UnitPrice,
                             Hinh = c.Product.Image ?? string.Empty,
-                            SoLuong = c.Quantity
+                            SoLuong = c.Quantity,
+                            ProductSizeId = c.ProductSizeId,
+                            Size = c.ProductSize != null ? c.ProductSize.Size : ""
                         }).ToList();
                 }
                 else // Khách vãng lai
@@ -52,13 +60,13 @@ namespace TinhLam.Controllers
             return View(Cart);
         }
 
-        public IActionResult AddToCart(int id, int quantity = 1)
+        public IActionResult AddToCart(int id, int productSizeId, int quantity = 1)
         {
             var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
             if (customerIdClaim != null) // Nếu người dùng đã đăng nhập
             {
                 int customerId = int.Parse(customerIdClaim.Value);
-                var existingItem = db.CartsUsers.SingleOrDefault(c => c.UserId == customerId && c.ProductId == id);
+                var existingItem = db.CartsUsers.SingleOrDefault(c => c.UserId == customerId && c.ProductId == id && c.ProductSizeId == productSizeId);
                 if (existingItem == null)
                 {
                     var product = db.Products.SingleOrDefault(p => p.ProductId == id);
@@ -71,6 +79,7 @@ namespace TinhLam.Controllers
                     {
                         UserId = customerId,
                         ProductId = product.ProductId,
+                        ProductSizeId = productSizeId,
                         Quantity = quantity,
                         UnitPrice = product.Price,
                         TotalAmount = product.Price * quantity
@@ -87,7 +96,7 @@ namespace TinhLam.Controllers
             else // Nếu là khách vãng lai
             {
                 var gioHang = Cart;
-                var item = gioHang.SingleOrDefault(p => p.MaProduct == id);
+                var item = gioHang.SingleOrDefault(p => p.MaProduct == id && p.ProductSizeId == productSizeId);
                 if (item == null)
                 {
                     var product = db.Products.SingleOrDefault(p => p.ProductId == id);
@@ -96,13 +105,16 @@ namespace TinhLam.Controllers
                         TempData["Message"] = $"Không tìm thấy sản phẩm có mã {id}";
                         return Redirect("/404");
                     }
+                    var productSize = db.ProductSizes.SingleOrDefault(ps => ps.ProductSizeId == productSizeId);
                     item = new CartItem
                     {
                         MaProduct = product.ProductId,
                         TenProduct = product.ProductName,
                         Price = Math.Round(product.Price, 0),
                         Hinh = product.Image ?? string.Empty,
-                        SoLuong = quantity
+                        SoLuong = quantity,
+                        ProductSizeId = productSizeId,
+                        Size = productSize?.Size ?? ""
                     };
                     gioHang.Add(item);
                 }
@@ -116,15 +128,14 @@ namespace TinhLam.Controllers
         }
 
 
-        public IActionResult RemoveCart(int id)
+        public IActionResult RemoveCart(int id, int productSizeId)
         {
             var customerIdClaim = HttpContext.User.Claims.FirstOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
             if (customerIdClaim != null) // Nếu user đã đăng nhập
             {
                 int customerId = int.Parse(customerIdClaim.Value);
 
-                // Sử dụng FirstOrDefault để tránh lỗi khi có nhiều bản ghi
-                var item = db.CartsUsers.FirstOrDefault(c => c.UserId == customerId && c.ProductId == id);
+                var item = db.CartsUsers.FirstOrDefault(c => c.UserId == customerId && c.ProductId == id && c.ProductSizeId == productSizeId);
 
                 if (item != null)
                 {
@@ -135,7 +146,7 @@ namespace TinhLam.Controllers
             else // Nếu là khách vãng lai
             {
                 var gioHang = Cart;
-                var item = gioHang.FirstOrDefault(p => p.MaProduct == id); // Sửa SingleOrDefault -> FirstOrDefault
+                var item = gioHang.FirstOrDefault(p => p.MaProduct == id && p.ProductSizeId == productSizeId);
                 if (item != null)
                 {
                     gioHang.Remove(item);
@@ -158,13 +169,14 @@ namespace TinhLam.Controllers
 
             foreach (var item in sessionCart)
             {
-                var existingItem = db.CartsUsers.SingleOrDefault(c => c.UserId == customerId && c.ProductId == item.MaProduct);
+                var existingItem = db.CartsUsers.SingleOrDefault(c => c.UserId == customerId && c.ProductId == item.MaProduct && c.ProductSizeId == item.ProductSizeId);
                 if (existingItem == null)
                 {
                     db.CartsUsers.Add(new CartsUser
                     {
                         UserId = customerId,
                         ProductId = item.MaProduct,
+                        ProductSizeId = item.ProductSizeId,
                         Quantity = item.SoLuong,
                         UnitPrice = item.Price,
                         TotalAmount = item.SoLuong * item.Price
@@ -198,6 +210,25 @@ namespace TinhLam.Controllers
             return View(Cart);
         }
 
+        [HttpGet]
+        public IActionResult GetUserRewardPoints()
+        {
+            var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
+            if (customerIdClaim != null)
+            {
+                int customerId = int.Parse(customerIdClaim.Value);
+                var user = db.Users.SingleOrDefault(u => u.UserId == customerId);
+                if (user != null)
+                {
+                    return Json(new { 
+                        isLoggedIn = true, 
+                        rewardPoints = user.RewardPoints ?? 0 
+                    });
+                }
+            }
+            return Json(new { isLoggedIn = false, rewardPoints = 0 });
+        }
+
         [HttpPost]
         public IActionResult ThanhToan(DatHangVM model)
         {
@@ -206,23 +237,50 @@ namespace TinhLam.Controllers
                 var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
                 int? customerId = customerIdClaim != null ? int.Parse(customerIdClaim.Value) : (int?)null;
 
-                var khachHang = new User();
-                if (model.GiongKhachHang)
+                // Đảm bảo PhoneNumber không null
+                if (string.IsNullOrEmpty(model.PhoneNumber))
                 {
-                    khachHang = db.Users.SingleOrDefault(kh => kh.UserId == customerId);
+                    ModelState.AddModelError("PhoneNumber", "Số điện thoại là bắt buộc");
+                    return View(Cart);
+                }
+
+                // Tính toán tổng tiền và giảm giá
+                decimal subtotal = Cart.Sum(item => item.ThanhTien);
+                decimal finalTotal = subtotal;
+
+                // Xử lý giảm giá từ điểm thưởng
+                if (model.UseRewardPoints && customerId.HasValue)
+                {
+                    var user = db.Users.SingleOrDefault(u => u.UserId == customerId.Value);
+                    if (user != null && user.RewardPoints >= 50)
+                    {
+                        // Chỉ sử dụng 50 điểm mỗi lần (5% giảm giá)
+                        model.DiscountAmount = Math.Floor(subtotal * 5 / 100); // 5% giảm giá
+                        model.PointsUsed = 50; // Chỉ sử dụng 50 điểm
+                        finalTotal = subtotal - model.DiscountAmount;
+
+                        // Trừ điểm thưởng
+                        user.RewardPoints -= model.PointsUsed;
+                        db.SaveChanges();
+                    }
                 }
 
                 var hoadon = new Order
                 {
                     UserId = customerId,
-                    CustomerName = model.CustomerName ?? khachHang.Username,
-                    ShippingAddress = model.ShippingAddress ?? khachHang.Diachi,
-                    PhoneNumber = model.PhoneNumber ?? khachHang.PhoneNumber,
+                    CustomerName = model.CustomerName ?? "Khách hàng",
+                    PhoneNumber = model.PhoneNumber,
                     OrderDate = DateOnly.FromDateTime(DateTime.Now),
                     PaymentMethod = "COD",
                     Status = "Pending",
                     Notes = model.Notes,
-                    TotalAmount = Cart.Sum(item => item.ThanhTien),
+                    TotalAmount = finalTotal,
+                    City = model.City,
+                    District = model.District,
+                    Ward = model.Ward,
+                    StreetAddress = model.StreetAddress,
+                    DiscountAmount = model.DiscountAmount,
+                    RewardPointsUsed = model.PointsUsed
                 };
 
                 using (var transaction = db.Database.BeginTransaction())
@@ -241,34 +299,37 @@ namespace TinhLam.Controllers
                                 Quantity = item.SoLuong,
                                 UnitPrice = item.Price,
                                 ProductId = item.MaProduct,
+                                ProductSizeId = item.ProductSizeId
                             });
 
-                            // 🔴 Cập nhật số lượng tồn kho
-                            var product = db.Products.SingleOrDefault(p => p.ProductId == item.MaProduct);
-                            if (product != null)
+                            // Cập nhật số lượng tồn kho của ProductSize
+                            if (item.ProductSizeId.HasValue)
                             {
-                                product.StockQuantity -= item.SoLuong;
-                                if (product.StockQuantity < 0) product.StockQuantity = 0; // Đảm bảo không âm
+                                var productSize = db.ProductSizes.SingleOrDefault(ps => ps.ProductSizeId == item.ProductSizeId.Value);
+                                if (productSize != null)
+                                {
+                                    productSize.StockQuantity -= item.SoLuong;
+                                    if (productSize.StockQuantity < 0) productSize.StockQuantity = 0;
+                                }
                             }
                         }
                         db.AddRange(cthds);
                         db.SaveChanges();
 
-                        // **XÓA GIỎ HÀNG SAU KHI ĐẶT HÀNG**
                         if (customerId != null)
                         {
                             var cartItems = db.CartsUsers.Where(c => c.UserId == customerId).ToList();
                             db.CartsUsers.RemoveRange(cartItems);
                         }
-                        HttpContext.Session.Remove(MySetting.CART_KEY); // Xóa giỏ hàng session
+                        HttpContext.Session.Remove(MySetting.CART_KEY);
                         db.SaveChanges();
-                        transaction.Commit(); // Commit nếu không có lỗi
+                        transaction.Commit();
 
                         return RedirectToAction("PaymentSuccess", "Cart", new { orderId = hoadon.OrderId });
                     }
                     catch
                     {
-                        transaction.Rollback(); // Rollback nếu có lỗi
+                        transaction.Rollback();
                         ModelState.AddModelError("", "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
                     }
                 }
@@ -284,10 +345,30 @@ namespace TinhLam.Controllers
 
 
         [HttpPost("/Cart/create-paypal-order")]
-        public async Task<IActionResult> CreatePaypalOrder(CancellationToken cancellationToken)
+        public async Task<IActionResult> CreatePaypalOrder([FromBody] PayPalOrderRequest request, CancellationToken cancellationToken)
         {
-            // Lấy tổng tiền và đảm bảo không có dấu phẩy hoặc chấm
-            var tongTien = Cart.Sum(p => p.ThanhTien).ToString("F2", CultureInfo.InvariantCulture);
+            // Tính toán tổng tiền cuối cùng
+            decimal subtotal = Cart.Sum(p => p.ThanhTien);
+            decimal finalAmount = subtotal;
+
+            // Xử lý giảm giá nếu có
+            if (request.UseRewardPoints)
+            {
+                var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
+                if (customerIdClaim != null)
+                {
+                    int customerId = int.Parse(customerIdClaim.Value);
+                    var user = db.Users.SingleOrDefault(u => u.UserId == customerId);
+                    if (user != null && user.RewardPoints >= 50)
+                    {
+                        decimal discountAmount = Math.Floor(subtotal * 5 / 100); // 5% giảm giá
+                        finalAmount = subtotal - discountAmount;
+                    }
+                }
+            }
+
+            // Lấy tổng tiền cuối cùng và đảm bảo không có dấu phẩy hoặc chấm
+            var tongTien = finalAmount.ToString("F2", CultureInfo.InvariantCulture);
 
             var donViTienTe = "USD";
             var maDonHangThamChieu = "DH" + DateTime.Now.Ticks.ToString();
@@ -311,26 +392,52 @@ namespace TinhLam.Controllers
         {
             try
             {
-                // Gửi yêu cầu bắt thanh toán từ PayPal
                 var response = await _paypalClient.CaptureOrder(orderID);
 
-                // Kiểm tra nếu thanh toán thành công
                 if (response.status == "COMPLETED")
                 {
                     var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
                     int? customerId = customerIdClaim != null ? int.Parse(customerIdClaim.Value) : (int?)null;
 
+                    // Tính toán tổng tiền và giảm giá
+                    decimal subtotal = Cart.Sum(item => item.ThanhTien);
+                    decimal finalTotal = subtotal;
+                    decimal discountAmount = 0;
+                    int pointsUsed = 0;
+
+                    // Xử lý giảm giá từ điểm thưởng nếu có
+                    if (customerId.HasValue)
+                    {
+                        var user = db.Users.SingleOrDefault(u => u.UserId == customerId.Value);
+                        if (user != null && user.RewardPoints >= 50)
+                        {
+                            // Chỉ sử dụng 50 điểm mỗi lần (5% giảm giá)
+                            discountAmount = Math.Floor(subtotal * 5 / 100); // 5% giảm giá
+                            pointsUsed = 50; // Chỉ sử dụng 50 điểm
+                            finalTotal = subtotal - discountAmount;
+
+                            // Trừ điểm thưởng
+                            user.RewardPoints -= pointsUsed;
+                            db.SaveChanges();
+                        }
+                    }
+
                     var hoadon = new Order
                     {
                         UserId = customerId,
-                        CustomerName = "đào đức thuận", // Nếu có thông tin khách hàng, lấy từ response
-                        ShippingAddress = "34 Nguyễn Văn Cừ ",
+                        CustomerName = "Khách hàng PayPal",
                         PhoneNumber = "0123456789",
                         OrderDate = DateOnly.FromDateTime(DateTime.Now),
                         PaymentMethod = "PayPal",
                         Status = "Completed",
                         Notes = "Thanh toán qua PayPal",
-                        TotalAmount = Cart.Sum(item => item.ThanhTien),
+                        TotalAmount = finalTotal,
+                        City = null,
+                        District = null,
+                        Ward = null,
+                        StreetAddress = null,
+                        DiscountAmount = discountAmount,
+                        RewardPointsUsed = pointsUsed
                     };
 
                     using (var transaction = db.Database.BeginTransaction())
@@ -349,26 +456,29 @@ namespace TinhLam.Controllers
                                     Quantity = item.SoLuong,
                                     UnitPrice = item.Price,
                                     ProductId = item.MaProduct,
+                                    ProductSizeId = item.ProductSizeId
                                 });
 
-                                // 🔴 Cập nhật số lượng tồn kho
-                                var product = db.Products.SingleOrDefault(p => p.ProductId == item.MaProduct);
-                                if (product != null)
+                                // Cập nhật số lượng tồn kho của ProductSize
+                                if (item.ProductSizeId.HasValue)
                                 {
-                                    product.StockQuantity -= item.SoLuong;
-                                    if (product.StockQuantity < 0) product.StockQuantity = 0; // Đảm bảo không âm
+                                    var productSize = db.ProductSizes.SingleOrDefault(ps => ps.ProductSizeId == item.ProductSizeId.Value);
+                                    if (productSize != null)
+                                    {
+                                        productSize.StockQuantity -= item.SoLuong;
+                                        if (productSize.StockQuantity < 0) productSize.StockQuantity = 0;
+                                    }
                                 }
                             }
                             db.AddRange(cthds);
                             db.SaveChanges();
 
-                            // **XÓA GIỎ HÀNG SAU KHI THANH TOÁN**
                             if (customerId != null)
                             {
                                 var cartItems = db.CartsUsers.Where(c => c.UserId == customerId).ToList();
                                 db.CartsUsers.RemoveRange(cartItems);
                             }
-                            HttpContext.Session.Remove(MySetting.CART_KEY); // Xóa giỏ hàng session
+                            HttpContext.Session.Remove(MySetting.CART_KEY);
                             db.SaveChanges();
                             transaction.Commit();
 
@@ -377,15 +487,11 @@ namespace TinhLam.Controllers
                         catch
                         {
                             transaction.Rollback();
-                            return BadRequest(new { success = false, message = "Có lỗi xảy ra khi lưu đơn hàng vào database." });
+                            ModelState.AddModelError("", "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
                         }
                     }
-
                 }
-                else
-                {
-                    return BadRequest(new { success = false, message = "Thanh toán PayPal không thành công." });
-                }
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -399,3 +505,5 @@ namespace TinhLam.Controllers
 
     }
 }
+
+

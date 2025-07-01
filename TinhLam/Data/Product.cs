@@ -11,13 +11,9 @@ public partial class Product
 
     public decimal Price { get; set; }
 
-    public int StockQuantity { get; set; }
-
     public string? Description { get; set; }
 
     public string? Image { get; set; }
-
-    public string? SizeOption { get; set; }
 
     public int? CategoryId { get; set; }
 
@@ -31,7 +27,7 @@ public partial class Product
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
-    public virtual ICollection<RedeemPoint> RedeemPoints { get; set; } = new List<RedeemPoint>();
+    public virtual ICollection<ProductSize> ProductSizes { get; set; } = new List<ProductSize>();
 
     public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

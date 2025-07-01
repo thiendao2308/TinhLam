@@ -29,7 +29,11 @@ public partial class User
 
     public virtual ICollection<CartsUser> CartsUsers { get; set; } = new List<CartsUser>();
 
+    public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual ICollection<PostComment> PostComments { get; set; } = new List<PostComment>();
 
     public virtual ICollection<RedeemPoint> RedeemPoints { get; set; } = new List<RedeemPoint>();
 

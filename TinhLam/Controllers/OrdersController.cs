@@ -6,16 +6,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TinhLam.Data;
+using Microsoft.AspNetCore.Authorization;
+using TinhLam.Helpers;
 
 namespace TinhLam.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class OrdersController : Controller
     {
-        private readonly TLinhContext _context;
+        private readonly TlinhContext _context;
+        private readonly IRewardPointService _rewardPointService;
 
-        public OrdersController(TLinhContext context)
+        public OrdersController(TlinhContext context, IRewardPointService rewardPointService)
         {
             _context = context;
+            _rewardPointService = rewardPointService;
         }
 
         [HttpGet]
@@ -77,14 +82,27 @@ namespace TinhLam.Controllers
                 return NotFound();
             }
 
+            var oldStatus = order.Status;
             order.Status = status;
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
 
+            // Nếu đơn hàng chuyển sang trạng thái "Completed" và có UserId
+            if (status == "Completed" && order.UserId.HasValue && oldStatus != "Completed")
+            {
+                // Tính điểm tích lũy
+                var earnedPoints = await _rewardPointService.CalculateEarnedPoints(order.TotalAmount);
+                if (earnedPoints > 0)
+                {
+                    await _rewardPointService.AddRewardPointsToUser(order.UserId.Value, earnedPoints);
+                    TempData["SuccessMessage"] = $"Đã cộng {earnedPoints} điểm tích lũy cho khách hàng!";
+                }
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-
+        [AllowAnonymous]
         public IActionResult GetOrdersByPhone(string phone)
         {
             if (string.IsNullOrEmpty(phone))
@@ -122,9 +140,6 @@ namespace TinhLam.Controllers
             return Content(resultHtml, "text/html");
         }
 
-
-
-
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int id)
         {
@@ -140,7 +155,6 @@ namespace TinhLam.Controllers
 
             return View(order);
         }
-
 
         // GET: Orders/Create
         public IActionResult Create()

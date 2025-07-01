@@ -10,9 +10,9 @@ using TinhLam.ViewModels;
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly TLinhContext _context;
+    private readonly TlinhContext _context;
 
-    public AdminController(TLinhContext context)
+    public AdminController(TlinhContext context)
     {
         _context = context;
     }

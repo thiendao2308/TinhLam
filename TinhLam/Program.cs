@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Cấu hình DbContext cho CSDL
-builder.Services.AddDbContext<TLinhContext>(options =>
+builder.Services.AddDbContext<TlinhContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("TLinh"));
 });
@@ -29,6 +29,9 @@ builder.Services.AddSession(options =>
 builder.Services.AddSignalR();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+// Đăng ký RewardPointService
+builder.Services.AddScoped<IRewardPointService, RewardPointService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
@@ -61,9 +64,9 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseHttpsRedirection();
+
 
 app.UseRouting();
 
@@ -75,7 +78,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.UseStaticFiles();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(

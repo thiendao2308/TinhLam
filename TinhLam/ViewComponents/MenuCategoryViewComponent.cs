@@ -6,8 +6,8 @@ namespace TinhLam.ViewComponents
 {
     public class MenuCategoryViewComponent : ViewComponent
     {
-        public readonly TLinhContext db;
-        public MenuCategoryViewComponent(TLinhContext context) => db = context;
+        public readonly TlinhContext db;
+        public MenuCategoryViewComponent(TlinhContext context) => db = context;
 
         public IViewComponentResult Invoke()
         {

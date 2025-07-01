@@ -42,7 +42,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="" asp-action="">Bài Viết</a>
+                            <a class="nav-link" asp-area="" asp-controller="Posts" asp-action="List">Bài Viết</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="" asp-action="">Liên Hệ</a>
@@ -149,35 +149,71 @@
 
     <!-- Modal tìm kiếm -->
     <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="searchModalLabel">Tìm kiếm sản phẩm</h5>
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="searchModalLabel">
+                        <i class="fas fa-search me-2"></i>
+                        Tìm kiếm sản phẩm
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
-                <div class="modal-body">
-                    <form action="/Search" method="get">
-                        <div class="input-group">
-                            <input id="searchText" type="text" class="form-control" name="query" placeholder="Nhập từ khóa...">
-                            <button id="searchButton" class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                <div class="modal-body p-4">
+                    
+                    
+                    <form action="/Categories/Category" method="get">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input id="searchText" type="text" class="form-control" name="search" 
+                                   placeholder="Nhập tên sản phẩm">
+                            <button id="searchButton" class="btn btn-warning" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </div>
                     </form>
+                    
+                    
                 </div>
             </div>
         </div>
     </div>
     <!-- Modal tìm kiếm danh sách đơn hàng-->
-    <div class="modal" id="queryOrdersModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Tra cứu đơn hàng</h5>
-                <button id="closeQueryModal" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <label for="phoneNumber">Nhập số điện thoại:</label>
-                <input type="text" id="phoneNumber" placeholder="Nhập số điện thoại..." class="input-field">
-                <button id="searchOrdersBtn" class="btn-search">Tìm kiếm</button>
-                <div id="orderResults"></div>
+    <div class="modal fade" id="queryOrdersModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-search me-2"></i>
+                        Tra cứu đơn hàng
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-receipt text-warning" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Nhập số điện thoại để tra cứu đơn hàng</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label fw-bold">
+                            <i class="fas fa-phone me-2"></i>
+                            Số điện thoại
+                        </label>
+                        <input type="text" id="phoneNumber" class="form-control form-control-lg" 
+                               placeholder="Ví dụ: 0901234567">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button id="searchOrdersBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search me-2"></i>
+                            Tìm kiếm
+                        </button>
+                    </div>
+                    
+                    <div id="orderResults" class="mt-3"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -202,13 +238,32 @@
     <script>
         $(document).ready(function () {
             $("#searchButton").click(function (event) {
-                event.preventDefault(); // Ngăn form submit mặc định
+                event.preventDefault();
 
                 let query = $("#searchText").val().trim();
                 if (query.length > 0) {
-                    let url = "/Products/Search?query=" + encodeURIComponent(query);
+                    let url = "/Categories/Category?search=" + encodeURIComponent(query);
                     window.location.href = url;
+                } else {
+                    // Hiển thị thông báo nếu không nhập gì
+                    $("#searchText").focus();
+                    $("#searchText").addClass("is-invalid");
+                    setTimeout(() => {
+                        $("#searchText").removeClass("is-invalid");
+                    }, 2000);
                 }
+            });
+
+            // Xử lý nhấn Enter
+            $("#searchText").keypress(function(e) {
+                if (e.which == 13) {
+                    $("#searchButton").click();
+                }
+            });
+
+            // Focus vào input khi modal mở
+            $('#searchModal').on('shown.bs.modal', function () {
+                $("#searchText").focus();
             });
         });
     </script>
@@ -251,28 +306,29 @@
         document.addEventListener("DOMContentLoaded", function () {
             const queryOrdersBtn = document.querySelector(".query-orders-btn");
             const queryOrdersModal = document.getElementById("queryOrdersModal");
-            const closeQueryModal = document.getElementById("closeQueryModal");
             const searchOrdersBtn = document.getElementById("searchOrdersBtn");
             const orderResults = document.getElementById("orderResults");
+            const phoneInput = document.getElementById("phoneNumber");
 
             // Mở modal khi click vào nút
-            queryOrdersBtn.addEventListener("click", function () {
-                queryOrdersModal.classList.add("show");
-            });
-
-            // Đóng modal khi click vào nút X
-            closeQueryModal.addEventListener("click", function () {
-                queryOrdersModal.classList.remove("show");
+            queryOrdersBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                const modal = new bootstrap.Modal(queryOrdersModal);
+                modal.show();
             });
 
             // Xử lý tìm kiếm đơn hàng
             searchOrdersBtn.addEventListener("click", function () {
-                const phoneNumber = document.getElementById("phoneNumber").value.trim();
+                const phoneNumber = phoneInput.value.trim();
 
                 if (phoneNumber === "") {
-                    orderResults.innerHTML = "<p class='error-message'>Vui lòng nhập số điện thoại!</p>";
+                    orderResults.innerHTML = '<div class="alert alert-warning">Vui lòng nhập số điện thoại!</div>';
                     return;
                 }
+
+                // Hiển thị loading
+                searchOrdersBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang tìm...';
+                searchOrdersBtn.disabled = true;
 
                 fetch(`/Orders/GetOrdersByPhone?phone=${phoneNumber}`)
                     .then(response => response.text())
@@ -280,8 +336,19 @@
                         orderResults.innerHTML = data;
                     })
                     .catch(() => {
-                        orderResults.innerHTML = "<p class='error-message'>Không thể tìm đơn hàng!</p>";
+                        orderResults.innerHTML = '<div class="alert alert-danger">Không thể tìm đơn hàng!</div>';
+                    })
+                    .finally(() => {
+                        searchOrdersBtn.innerHTML = '<i class="fas fa-search me-2"></i>Tìm kiếm';
+                        searchOrdersBtn.disabled = false;
                     });
+            });
+
+            // Xử lý nhấn Enter
+            phoneInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    searchOrdersBtn.click();
+                }
             });
         });
     </script>

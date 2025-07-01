@@ -13,9 +13,9 @@ namespace TinhLam.Controllers
 {
     public class KhachHangController : Controller
     {
-        private readonly TLinhContext db;
+        private readonly TlinhContext db;
         private readonly IMapper _mapper;
-        public KhachHangController(TLinhContext context, IMapper mapper)
+        public KhachHangController(TlinhContext context, IMapper mapper)
         {
             db = context;
             _mapper = mapper;
@@ -115,7 +115,7 @@ namespace TinhLam.Controllers
         }
 
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Admin")]
         public IActionResult Profile(string status, DateOnly? startDate, DateOnly? endDate)
         {
             var userIdClaim = User.FindFirst(MySetting.CLAIM_CUSTOMERID);
@@ -158,6 +158,7 @@ namespace TinhLam.Controllers
                 Email = khachHang.Email,
                 PhoneNumber = khachHang.PhoneNumber,
                 DiaChi = khachHang.Diachi,
+                RewardPoints = khachHang.RewardPoints,
                 Orders = orders
             };
 

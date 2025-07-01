@@ -26,10 +26,25 @@
                 <input asp-for="PhoneNumber" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
+            <div class="form-group"> 
+                <label asp-for="StreetAddress" class="control-label"></label> 
+                <input asp-for="StreetAddress" class="form-control" /> 
+                <span asp-validation-for="StreetAddress" class="text-danger"></span> 
+            </div> 
             <div class="form-group">
-                <label asp-for="ShippingAddress" class="control-label"></label>
-                <input asp-for="ShippingAddress" class="form-control" />
-                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="District" class="control-label"></label>
+                <input asp-for="District" class="form-control" />
+                <span asp-validation-for="District" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Ward" class="control-label"></label>
+                <input asp-for="Ward" class="form-control" />
+                <span asp-validation-for="Ward" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TotalAmount" class="control-label"></label>

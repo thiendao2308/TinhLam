@@ -8,13 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using TinhLam.Data;
 using TinhLam.Models;
 using TinhLam.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TinhLam.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly TLinhContext _context;
-        public CategoriesController(TLinhContext context)
+        private readonly TlinhContext _context;
+        public CategoriesController(TlinhContext context)
         {
             _context = context;
         }
@@ -26,7 +27,7 @@ namespace TinhLam.Controllers
             }
         }
 
-        public IActionResult Category(int? id, int? maxPrice)
+        public IActionResult Category(int? id, int? maxPrice, string? query, int page = 1)
         {
             var productQuery = _context.Products.AsQueryable();
 
@@ -40,20 +41,47 @@ namespace TinhLam.Controllers
                 productQuery = productQuery.Where(p => p.Price <= maxPrice.Value);
             }
 
-            var result = productQuery.Select(p => new ProductVM
+            // Thêm logic tìm kiếm
+            if (!string.IsNullOrEmpty(query))
             {
-                MaProduct = p.ProductId,
-                TenProduct = p.ProductName,
-                Price = p.Price,
-                Hinh = p.Image,
-                MoTaNgan = p.Description
-            }).ToList();
+                productQuery = productQuery.Where(p => p.ProductName.Contains(query));
+            }
 
-            return View(result);
+            // Phân trang - 12 sản phẩm mỗi trang
+            int pageSize = 12;
+            int skip = (page - 1) * pageSize;
+            
+            var totalProducts = productQuery.Count();
+            var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+            
+            var products = productQuery
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(p => new ProductVM
+                {
+                    MaProduct = p.ProductId,
+                    TenProduct = p.ProductName,
+                    Price = p.Price,
+                    Hinh = p.Image,
+                    MoTaNgan = p.Description
+                })
+                .ToList();
+
+            // Truyền thông tin phân trang vào ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalProducts = totalProducts;
+            ViewBag.PageSize = pageSize;
+            ViewBag.CategoryId = id;
+            ViewBag.MaxPrice = maxPrice;
+            ViewBag.Query = query;
+
+            return View(products);
         }
 
 
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Categories.ToListAsync());
@@ -62,6 +90,7 @@ namespace TinhLam.Controllers
 
         // GET: Categories/Create
         // GET: Categories/Create
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             await LoadCategories();
@@ -74,6 +103,7 @@ namespace TinhLam.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("CategoryId,CategoryName")] Category category)
         {
             if (ModelState.IsValid)
@@ -86,6 +116,7 @@ namespace TinhLam.Controllers
         }
 
         // GET: Categories/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             await LoadCategories();
@@ -107,6 +138,7 @@ namespace TinhLam.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName")] Category category)
         {
             if (id != category.CategoryId)
@@ -138,6 +170,7 @@ namespace TinhLam.Controllers
         }
 
         // GET: Categories/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             await LoadCategories();
@@ -159,6 +192,7 @@ namespace TinhLam.Controllers
         // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _context.Categories.FindAsync(id);

@@ -15,71 +15,177 @@
 }
 
 <div class="container py-5">
-    <h6 class="mb-4">Có <span class="text-primary fw-bold">@Model.Count()</span> sản phẩm</h6>
-    <div class="row g-4">
-        @foreach (var item in Model)
+    <h6 class="mb-4">
+        Có <span class="text-primary fw-bold">@ViewBag.TotalProducts</span> sản phẩm
+        @if (!string.IsNullOrEmpty(ViewBag.Query))
         {
-            <div class="col-md-6 col-lg-4">
-                <div class="product-card rounded shadow-sm overflow-hidden position-relative">
-                    <a asp-controller="Home" asp-action="DetailProduct" asp-route-id="@item.MaProduct" class="d-block">
-                        <img src="~/images/@item.Hinh" class="img-fluid w-100 product-image" alt="@item.TenProduct">
-                    </a>
-                    <div class="p-3 bg-white border-top">
-                        <h5 class="text-dark fw-bold">@item.TenProduct</h5>
-                        <p class="small text-muted">@item.MoTaNgan</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="gia fs-6 fw-light text-primary" style="color: #55161b;">@item.Price VND</span>
-                            
+            <span>cho từ khóa "<span class="text-primary fw-bold">@ViewBag.Query</span>"</span>
+        }
+    </h6>
+    
+    <div class="row g-4">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-3 col-6 mb-4">
+                <a asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.MaProduct" class="product-card-link">
+                    <div class="product-card-v2">
+                        <div class="product-card-img-wrap">
+                            <img src="~/images/@product.Hinh" alt="@product.TenProduct" class="product-card-img" />
+                            <span class="product-badge">NEW</span>
+                        </div>
+                        <div class="product-card-info">
+                            <div class="product-card-title">@product.TenProduct</div>
+                            <div class="product-card-price">@(product.Price?.ToString("N0") ?? "Liên hệ") VND</div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         }
     </div>
 
     <!-- Pagination -->
-    <nav class="mt-5">
-        <ul class="pagination justify-content-center">
-            <li class="page-item disabled"><a class="page-link rounded-pill" href="#">&laquo;</a></li>
-            <li class="page-item active"><a class="page-link rounded-pill" href="#">1</a></li>
-            <li class="page-item"><a class="page-link rounded-pill" href="#">2</a></li>
-            <li class="page-item"><a class="page-link rounded-pill" href="#">3</a></li>
-            <li class="page-item"><a class="page-link rounded-pill" href="#">&raquo;</a></li>
-        </ul>
-    </nav>
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                @{
+                    int currentPage = ViewBag.CurrentPage;
+                    int totalPages = ViewBag.TotalPages;
+                    int startPage = Math.Max(1, currentPage - 2);
+                    int endPage = Math.Min(totalPages, currentPage + 2);
+                }
+
+                <!-- Previous button -->
+                @if (currentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new { id = ViewBag.CategoryId, maxPrice = ViewBag.MaxPrice, query = ViewBag.Query, page = currentPage - 1 })">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link rounded-pill">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                    </li>
+                }
+
+                <!-- Page numbers -->
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    if (i == currentPage)
+                    {
+                        <li class="page-item active">
+                            <span class="page-link rounded-pill">@i</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new { id = ViewBag.CategoryId, maxPrice = ViewBag.MaxPrice, query = ViewBag.Query, page = i })">@i</a>
+                        </li>
+                    }
+                }
+
+                <!-- Next button -->
+                @if (currentPage < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new { id = ViewBag.CategoryId, maxPrice = ViewBag.MaxPrice, query = ViewBag.Query, page = currentPage + 1 })">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link rounded-pill">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <!-- Page info -->
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                Trang @currentPage / @totalPages 
+                
+            </small>
+        </div>
+    }
 </div>
 
 <style>
-    .product-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        
+    .product-card-v2 {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 2px 16px rgba(85,22,27,0.08);
+        overflow: hidden;
+        position: relative;
+        transition: box-shadow 0.2s, transform 0.2s;
+        margin-bottom: 24px;
+        text-align: center;
+        padding-bottom: 18px;
     }
-    .gia{
-        color: #55161b !important;
+    .product-card-v2:hover {
+        box-shadow: 0 6px 24px rgba(85,22,27,0.16);
+        transform: translateY(-4px) scale(1.03);
     }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-    .product-image {
-        transition: transform 0.3s ease-in-out;
-        height: 200px; 
+    .product-card-img-wrap {
+        width: 100%;
+        height: 210px;
+        overflow: hidden;
+        border-radius: 18px 18px 0 0;
+        background: #fffbe7;
+        position: relative;
     }
-
-    .product-card:hover .product-image {
-        transform: scale(1.05);
+    .product-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
-
-    .pagination .page-link {
-        color: #f5c808;
-        border-radius: 50px;
-        margin: 0 5px;
+    .product-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: #fff;
+        color: #55161b;
+        font-size: 0.85rem;
+        font-weight: bold;
+        padding: 4px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(85,22,27,0.08);
+        letter-spacing: 1px;
     }
-
-    .pagination .active .page-link {
-        background-color: #f5c808;
-        color: white;
+    .product-card-info {
+        padding: 0 10px;
+    }
+    .product-card-title {
+        font-size: 1.08rem;
+        font-weight: 600;
+        color: #55161b;
+        margin: 18px 0 8px 0;
+        min-height: 38px;
+        line-height: 1.2;
+    }
+    .product-card-price {
+        color: #8c2a2f;
+        font-weight: bold;
+        font-size: 1.05rem;
+    }
+    .product-card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+    @@media (max-width: 767px) {
+        .product-card-img-wrap { height: 120px; }
+        .product-card-title { font-size: 0.98rem; min-height: 28px; }
+        .product-card-price { font-size: 0.98rem; }
     }
 </style>

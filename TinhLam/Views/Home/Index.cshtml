@@ -3,31 +3,90 @@
 }
 
 <!-- Banner dưới menu -->
-<div id="bannerCarousel" class="carousel slide w-100" data-bs-ride="carousel" data-bs-interval="3000">
-    <div class="carousel-inner">
-        <!-- Banner 1 -->
-        <div class="carousel-item active">
-            <img src="~/images/banner1.jpg" class="d-block w-100" alt="Banner 1">
+@if (ViewData["Banners"] != null && ((IEnumerable<TinhLam.Data.HomeBannerImage>)ViewData["Banners"]).Any())
+{
+    <div id="bannerCarousel" class="carousel slide w-100" data-bs-ride="carousel" data-bs-interval="3000">
+        <div class="carousel-inner">
+            @{
+                var banners = (IEnumerable<TinhLam.Data.HomeBannerImage>)ViewData["Banners"];
+                var firstBanner = true;
+            }
+            @foreach (var banner in banners)
+            {
+                <div class="carousel-item @(firstBanner ? "active" : "")">
+                    @if (!string.IsNullOrEmpty(banner.Link))
+                    {
+                        <a href="@banner.Link" target="_blank">
+                            <img src="~/@banner.ImageUrl" class="d-block w-100" alt="@banner.Caption">
+                        </a>
+                    }
+                    else
+                    {
+                        <img src="~/@banner.ImageUrl" class="d-block w-100" alt="@banner.Caption">
+                    }
+                    @if (!string.IsNullOrEmpty(banner.Caption))
+                    {
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>@banner.Caption</h5>
+                        </div>
+                    }
+                </div>
+                firstBanner = false;
+            }
         </div>
-        <!-- Banner 2 -->
-        <div class="carousel-item">
-            <img src="~/images/banner2.jpg" class="d-block w-100" alt="Banner 2">
-        </div>
-        <!-- Banner 3 -->
-        <div class="carousel-item">
-            <img src="~/images/banner3.jpg" class="d-block w-100" alt="Banner 3">
-        </div>
+        @if (banners.Count() > 1)
+        {
+            <!-- Nút điều hướng trái/phải -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+                @for (int i = 0; i < banners.Count(); i++)
+                {
+                    <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="@i" 
+                            class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" 
+                            aria-label="Slide @(i + 1)"></button>
+                }
+            </div>
+        }
     </div>
-    <!-- Nút điều hướng trái/phải -->
-    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
-</div>
+}
+else
+{
+    <!-- Banner mặc định khi không có banner nào -->
+    <div id="bannerCarousel" class="carousel slide w-100" data-bs-ride="carousel" data-bs-interval="3000">
+        <div class="carousel-inner">
+            <!-- Banner 1 -->
+            <div class="carousel-item active">
+                <img src="~/images/banner1.jpg" class="d-block w-100" alt="Banner 1">
+            </div>
+            <!-- Banner 2 -->
+            <div class="carousel-item">
+                <img src="~/images/banner2.jpg" class="d-block w-100" alt="Banner 2">
+            </div>
+            <!-- Banner 3 -->
+            <div class="carousel-item">
+                <img src="~/images/banner3.jpg" class="d-block w-100" alt="Banner 3">
+            </div>
+        </div>
+        <!-- Nút điều hướng trái/phải -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+}
 
 <!-- Danh mục sản phẩm -->
 <section class="category my-5">
@@ -79,11 +138,16 @@
             <div class="product-row">
                 @foreach (var product in ((IEnumerable<TinhLam.Data.Product>)ViewData["LatestProducts"]).Take(8))
                 {
-                    <a class="product" asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.ProductId">
-                        <div class="product-card">
-                            <img src="~/images/@product.Image" alt="@product.ProductName">
-                            <h3>@product.ProductName</h3>
-                            <p class="price">@product.Price.ToString("N0") VND</p>
+                    <a class="product-card-link" asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.ProductId">
+                        <div class="product-card-v2">
+                            <div class="product-card-img-wrap">
+                                <img src="~/images/@product.Image" alt="@product.ProductName" class="product-card-img" />
+                                <span class="product-badge">NEW</span>
+                            </div>
+                            <div class="product-card-info">
+                                <div class="product-card-title">@product.ProductName</div>
+                                <div class="product-card-price">@product.Price.ToString("N0") VND</div>
+                            </div>
                         </div>
                     </a>
                 }
@@ -93,11 +157,16 @@
             <div class="product-row">
                 @foreach (var product in ((IEnumerable<TinhLam.Data.Product>)ViewData["BestSellingProducts"]).Take(8))
                 {
-                    <a class="product" asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId">
-                        <div class="product-card">
-                            <img src="~/images/@product.Image" alt="@product.ProductName">
-                            <h3>@product.ProductName</h3>
-                            <p class="price">@product.Price.ToString("N0") VND</p>
+                    <a class="product-card-link" asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId">
+                        <div class="product-card-v2">
+                            <div class="product-card-img-wrap">
+                                <img src="~/images/@product.Image" alt="@product.ProductName" class="product-card-img" />
+                                <span class="product-badge">NEW</span>
+                            </div>
+                            <div class="product-card-info">
+                                <div class="product-card-title">@product.ProductName</div>
+                                <div class="product-card-price">@product.Price.ToString("N0") VND</div>
+                            </div>
                         </div>
                     </a>
                 }
@@ -151,4 +220,185 @@
     </div>
     
 </section>
+
+<!-- Bài viết mới nhất -->
+<section class="blog-section my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center mb-4" style="color: #55161b; font-weight: 600;">Bài Viết Mới Nhất</h2>
+                <p class="text-center mb-5 text-muted">Khám phá những bài viết thú vị về phong thủy và trang sức</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            @if (ViewData["PublishedPosts"] != null)
+            {
+                @foreach (var post in ((IEnumerable<TinhLam.Data.Post>)ViewData["PublishedPosts"]).Take(3))
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="blog-card-v2">
+                            <div class="blog-card-img-wrap">
+                                <img src="~/images/posts/@post.Image" class="blog-card-img" alt="@post.Title">
+                            </div>
+                            <div class="blog-card-content">
+                                <div class="blog-card-date">
+                                    <i class="fas fa-calendar"></i>
+                                    @post.CreatedAt.ToString("MMMM dd, yyyy", new System.Globalization.CultureInfo("vi-VN"))
+                                </div>
+                                <div class="blog-card-title">@post.Title</div>
+                                <a asp-controller="Posts" asp-action="ViewPost" asp-route-id="@post.PostId" class="blog-card-readmore">
+                                    XEM THÊM
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        
+        
+    </div>
+</section>
+
+<style>
+.blog-card-v2 {
+    background: transparent;
+    border-radius: 18px;
+    box-shadow: none;
+    overflow: visible;
+    position: relative;
+    transition: box-shadow 0.2s;
+    margin-bottom: 24px;
+}
+.blog-card-img-wrap {
+    width: 100%;
+    height: 210px;
+    overflow: hidden;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 4px 24px rgba(85,22,27,0.10);
+}
+.blog-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.blog-card-content {
+    background: #fff;
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 4px 24px rgba(85,22,27,0.10);
+    padding: 22px 20px 18px 20px;
+    position: relative;
+    top: -30px;
+    margin: 0 12px;
+    z-index: 2;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.blog-card-date {
+    color: #a7a7a7;
+    font-size: 0.98rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.blog-card-title {
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: #55161b;
+    margin-bottom: 18px;
+    line-height: 1.4;
+    min-height: 48px;
+}
+.blog-card-readmore {
+    color: #55161b;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 1rem;
+    text-decoration: underline;
+    margin-top: auto;
+    transition: color 0.2s;
+}
+.blog-card-readmore:hover {
+    color: #f5c808;
+    text-decoration: underline;
+}
+@@media (max-width: 767px) {    
+    .blog-card-img-wrap { height: 140px; }
+    .blog-card-content { padding: 16px 10px 12px 10px; min-height: 120px; }
+    .blog-card-title { font-size: 1rem; min-height: 36px; }
+}
+.product-card-v2 {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px rgba(85,22,27,0.08);
+    overflow: hidden;
+    position: relative;
+    transition: box-shadow 0.2s, transform 0.2s;
+    margin-bottom: 24px;
+    text-align: center;
+    padding-bottom: 18px;
+}
+.product-card-v2:hover {
+    box-shadow: 0 6px 24px rgba(85,22,27,0.16);
+    transform: translateY(-4px) scale(1.03);
+}
+.product-card-img-wrap {
+    width: 100%;
+    height: 210px;
+    overflow: hidden;
+    border-radius: 18px 18px 0 0;
+    background: #fffbe7;
+    position: relative;
+}
+.product-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.product-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #fff;
+    color: #55161b;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 4px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(85,22,27,0.08);
+    letter-spacing: 1px;
+}
+.product-card-info {
+    padding: 0 10px;
+}
+.product-card-title {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: #55161b;
+    margin: 18px 0 8px 0;
+    min-height: 38px;
+    line-height: 1.2;
+}
+.product-card-price {
+    color: #8c2a2f;
+    font-weight: bold;
+    font-size: 1.05rem;
+}
+.product-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+@@media (max-width: 767px) {
+    .product-card-img-wrap { height: 120px; }
+    .product-card-title { font-size: 0.98rem; min-height: 28px; }
+    .product-card-price { font-size: 0.98rem; }
+}
+</style>
 

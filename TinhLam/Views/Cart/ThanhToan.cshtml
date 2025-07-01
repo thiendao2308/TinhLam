@@ -1,136 +1,445 @@
 ﻿@model IEnumerable<TinhLam.ViewModels.CartItem>
 @{
-    ViewData["Title"] = "ThanhToan";
+    ViewData["Title"] = "Thanh toán";
 }
 
 <style>
-
+    body, html {
+        background: #fff;
+    }
+    .checkout-container {
+        min-height: 100vh;
+        padding: 40px 0 60px 0;
+    }
+    .checkout-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+    }
+    .checkout-title-bar {
+        border-bottom: 1.5px solid #e5e5e5;
+        margin-bottom: 28px;
+    }
+    .customer-form {
+        background: #fff;
+        border-radius: 8px;
+        padding: 32px 32px 24px 32px;
+        border: 1px solid #f0f0f0;
+    }
+    .customer-form .form-label {
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 6px;
+        font-size: 1rem;
+    }
+    .customer-form .form-label .text-danger {
+        font-size: 1.1em;
+    }
+    .customer-form .form-control, .customer-form .form-select, .customer-form textarea {
+        border-radius: 6px;
+        border: 1.5px solid #e0e0e0;
+        font-size: 1.05rem;
+        padding: 12px 14px;
+        background: #fff;
+        margin-bottom: 0;
+        transition: border-color 0.2s;
+    }
+    .customer-form .form-control:focus, .customer-form .form-select:focus, .customer-form textarea:focus {
+        border-color: #55161b;
+        background: #fff;
+    }
+    .customer-form .form-control::placeholder, .customer-form .form-select::placeholder, .customer-form textarea::placeholder {
+        color: #b0b0b0;
+        font-size: 0.98rem;
+    }
+    .customer-form .row.g-3 > [class^=col-] {
+        margin-bottom: 18px;
+    }
+    .customer-form textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+    .order-card {
+        background: #fdf6e3;
+        border-radius: 10px;
+        border: 1.5px solid #f0e6d2;
+        padding: 32px 28px 24px 28px;
+        min-width: 320px;
+    }
+    .order-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 12px;
+    }
+    .order-title-bar {
+        border-bottom: 1.5px solid #e5e5e5;
+        margin-bottom: 18px;
+    }
+    .order-table th, .order-table td {
+        font-size: 1rem;
+        color: #222;
+        border: none;
+        background: none;
+        padding: 6px 0 6px 0;
+    }
+    .order-table th {
+        font-weight: 600;
+        color: #55161b;
+        padding-bottom: 8px;
+    }
+    .order-table .order-summary-row td {
+        font-weight: 600;
+        color: #55161b;
+    }
+    .order-table .order-total-row td {
+        font-weight: 700;
+        color: #222;
+        font-size: 1.08rem;
+    }
+    .order-table .order-total-row .order-total-label {
+        color: #55161b;
+    }
+    .order-table .order-note {
+        color: #888;
+        font-size: 0.97rem;
+    }
+    .order-btn {
+        width: 100%;
+        margin-top: 22px;
+        margin-bottom: 10px;
+        background: linear-gradient(90deg, #55161b 0%, #a85c1b 60%, #f5c808 100%);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.13rem;
+        border: none;
+        border-radius: 24px;
+        padding: 14px 0;
+        letter-spacing: 1px;
+        transition: background 0.2s, box-shadow 0.2s;
+        box-shadow: none;
+    }
+    .order-btn:hover, .order-btn:focus {
+        background: linear-gradient(90deg, #f5c808 0%, #a85c1b 60%, #55161b 100%);
+        color: #fffbe6;
+        box-shadow: 0 2px 12px #55161b22;
+    }
+    .paypal-section {
+        margin-top: 18px;
+        padding: 0;
+        background: none;
+        border: none;
+        box-shadow: none;
+    }
+    .paypal-text {
+        color: #55161b;
+        font-size: 1.01rem;
+        margin-bottom: 12px;
+        font-weight: 500;
+        text-align: center;
+    }
+    @@media (max-width: 991px) {
+        .order-card {margin-top: 32px;}
+    }
+    @@media (max-width: 767px) {
+        .customer-form, .order-card {padding: 16px 6px 12px 6px;}
+        .checkout-container {padding: 10px 0 30px 0;}
+    }
 </style>
 
-<div class="container-fluid py-5">
-    <div class="container py-5">
-        <h1 class="mb-4">Thông tin mua hàng</h1>
-        <form asp-action="ThanhToan" asp-controller="Cart">
-            <div class="row g-5">
-                
-                    <div class="col-md-12 col-lg-6 col-xl-7">
-
-                        <div class="form-check my-3">
-                            <input type="checkbox" class="form-check-input" id="GiongKhachHang" name="GiongKhachHang" value="0">
-                            <label class="form-check-label" for="GiongKhachHang">Giống thông tin khách hàng</label>
-                        </div>
-                        <div class="form-item delivery-info">
-                            <label class="form-label my-3">Người nhận<sup>*</sup></label>
-                            <input type="text" name="CustomerName" class="form-control" placeholder="Nhập tên khách hàng">
-                        </div>
-                        <div class="form-item delivery-info">
-                            <label class="form-label my-3">Địa chỉ <sup>*</sup></label>
-                            <input type="text" name="ShippingAddress" class="form-control" placeholder="Nhập địa chỉ nhận hàng">
-                        </div>
-                        <div class="form-item delivery-info" style="margin-bottom: 20px;">
-                            <label class="form-label my-3">Số điện thoại<sup>*</sup></label>
-                            <input type="text" name="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại">
-                        </div>
-
-                    <div class="form-item" style="margin-bottom: 20px;">
-                            <textarea name="Notes" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Nhập ghi chú"></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">Đặt hàng</button>
-                        
-                    </div>
-                
-                <div class="col-md-12 col-lg-6 col-xl-5">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col"></th>
-                                    <th scope="col">Sản phẩm</th>
-                                    <th scope="col">Giá</th>
-                                    <th scope="col">Số lượng</th>
-                                    <th scope="col">Thành tiền</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <th scope="row">
-                                            <div class="d-flex align-items-center mt-2">
-                                                <img src="~/images/@item.Hinh" class="img-fluid rounded" style="width: 90px; height: 90px;" alt="@item.TenProduct">
+<div class="checkout-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-12 mb-4">
+                <div class="customer-form">
+                    <div class="checkout-title">THÔNG TIN KHÁCH HÀNG</div>
+                    <div class="checkout-title-bar"></div>
+                    <form asp-action="ThanhToan" asp-controller="Cart" id="checkoutForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" name="CustomerName" class="form-control" placeholder="Họ tên của bạn" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" name="PhoneNumber" class="form-control" placeholder="Số điện thoại của bạn" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select id="city" name="City" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select id="district" name="District" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Xã/Phường <span class="text-danger">*</span></label>
+                                <select id="ward" name="Ward" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Địa chỉ <span class="text-danger">*</span></label>
+                                <input type="text" name="StreetAddress" class="form-control" placeholder="Ví dụ: Số 20, ngõ 90" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Ghi chú đặc biệt cho đơn hàng của bạn</label>
+                                <textarea name="Notes" class="form-control" placeholder=""></textarea>
+                            </div>
+                            
+                            <!-- Phần sử dụng điểm thưởng -->
+                            <div class="col-12" id="rewardPointsSection" style="display: none;">
+                                <div class="reward-points-container" style="background: #f9f2e8; padding: 20px; border-radius: 8px; border: 1px solid #f5c808;">
+                                    <h6 style="color: #55161b; font-weight: bold; margin-bottom: 15px;">
+                                         SỬ DỤNG ĐIỂM THƯỞNG
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 10px;">
+                                                <span style="font-weight: 600; color: #55161b;">Điểm hiện có: </span>
+                                                <span id="currentPoints" style="font-weight: bold; color: #007bff;">0 điểm</span>
                                             </div>
-                                        </th>
-                                        <td class="py-5">
-                                            <p class="mb-0 fw-bold">
-                                                <a asp-controller="Home" asp-action="DetailProduct" asp-route-id="@item.MaProduct" class="text-dark text-decoration-none hover-text-primary">
-                                                    @item.TenProduct
-                                                </a>
-                                            </p>
-                                            <small class="text-muted">Size: @item.SizeOption cm</small>
-                                        </td>
-                                        <td class="py-5">@item.Price VND</td>
-                                        <td class="py-5">@item.SoLuong</td>
-                                        <td class="py-5">@item.ThanhTien</td>
-                                    </tr>
-                                }
-                                <tr>
-                                    <th scope="row">
-                                    </th>
-                                    <td class="py-5"></td>
-                                    <td class="py-5"></td>
-                                    <td class="py-5">
-                                        <p class="mb-0 text-dark py-3">Tổng cộng</p>
-                                    </td>
-                                    <td class="py-5">
-                                        <div class="py-3 border-bottom border-top">
-                                            <p class="mb-0 text-dark">@Model.Sum(p => p.ThanhTien).ToString("#,##0.00")</p>
+                                            <div style="margin-bottom: 15px;">
+                                                <span style="font-size: 0.9rem; color: #666;">
+                                                     Sử dụng 50 điểm để được 5% giảm giá cho đơn hàng này
+                                                </span>
+                                            </div>
                                         </div>
-                                    </td>
-                                </tr>
-                                
-                                
-
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                        <div class="col-12">
-                            <div class="form-check text-start my-3">
-                                <input type="checkbox" class="form-check-input bg-primary border-0" id="Payments-1" name="Payments" value="Payments">
-                                <label class="form-check-label" for="Payments-1">Thanh toán bằng VNPAY</label>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="useRewardPoints" name="UseRewardPoints" value="true">
+                                                <label class="form-check-label" for="useRewardPoints" style="font-weight: 600; color: #55161b;">
+                                                    Sử dụng điểm thưởng
+                                                </label>
+                                            </div>
+                                            <div id="discountInfo" style="margin-top: 10px; display: none;">
+                                                <span style="font-weight: 600; color: #28a745;">Giảm giá: </span>
+                                                <span id="discountAmount" style="font-weight: bold; color: #28a745;">0 VND</span>
+                                                <br>
+                                                <span style="font-size: 0.9rem; color: #666;">
+                                                    Điểm sẽ được sử dụng: <span id="pointsToUse" style="font-weight: bold;">0 điểm</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                        <div class="col-12">
-                            <div class="form-check text-start my-3">
-                                <input type="checkbox" class="form-check-input bg-primary border-0" id="Delivery-1" name="Delivery" value="Delivery">
-                                <label class="form-check-label" for="Delivery-1">Thanh toán khi nhận hàng</label>
-                            </div>
+                        <button type="submit" class="order-btn">ĐẶT HÀNG</button>
+                        <div class="paypal-section">
+                            <p class="paypal-text">Hoặc thanh toán bằng PayPal</p>
+                            <div id="paypal-button-container" class="d-flex justify-content-center"></div>
                         </div>
-                    </div>
-                    <div id="paypal-button-container" style="max-width: 150px;"></div>
-                    
+                    </form>
                 </div>
             </div>
-        </form>
+            <div class="col-lg-5 col-md-12">
+                <div class="order-card">
+                    <div class="order-title">THÔNG TIN ĐƠN HÀNG</div>
+                    <div class="order-title-bar"></div>
+                    <table class="table order-table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th class="text-end">Tổng tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:600;">@item.TenProduct × @item.SoLuong</div>
+                                        <div style="font-size:0.97rem;">Size: @item.Size cm</div>
+                                    </td>
+                                    <td class="text-end">@item.ThanhTien.ToString("N0") VND</td>
+                                </tr>
+                            }
+                            <tr class="order-summary-row">
+                                <td>Thành tiền</td>
+                                <td class="text-end">@Model.Sum(p => p.ThanhTien).ToString("N0") VND</td>
+                            </tr>
+                            <tr id="discountRow" style="display: none;">
+                                <td>Giảm giá (điểm thưởng)</td>
+                                <td class="text-end" style="color: #28a745; font-weight: 600;">
+                                    -<span id="discountDisplay">0</span> VND
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Giao Hàng</td>
+                                <td class="order-note text-end">Nhân viên Tinh Lâm sẽ liên hệ tư vấn về phí vận chuyển</td>
+                            </tr>
+                            <tr class="order-total-row">
+                                <td class="order-total-label">Tổng tiền</td>
+                                <td class="text-end">
+                                    <span id="finalTotal">@Model.Sum(p => p.ThanhTien).ToString("N0")</span> VND
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
 @section Scripts {
     <script src="https://www.paypal.com/sdk/js?client-id=AVWotvlVWqbKF3lwfI6Mttunu8kiXSNFpVfr3-_poa80IFVbZwS0AvT7LHhBYczMaSKLBj2sBV-_3gaH"></script>
     <script>
-        $(document).ready(function () {
-            $("#GiongKhachHang").change(function () {
-                if ($(this).prop("checked")) {
-                    $(this).val(true);
-                    $(".delivery-info").addClass("d-none");
-                } else {
-                    $(this).val(false);
-                    $(".delivery-info").removeClass("d-none");
+        // Biến toàn cục
+        let currentPoints = 0;
+        let subtotal = @Model.Sum(p => p.ThanhTien);
+        let discountAmount = 0;
+        let pointsToUse = 0;
+
+        // Kiểm tra đăng nhập và lấy điểm thưởng
+        async function checkUserAndLoadPoints() {
+            try {
+                const response = await fetch('/Cart/GetUserRewardPoints');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.isLoggedIn) {
+                        currentPoints = data.rewardPoints || 0;
+                        document.getElementById('currentPoints').textContent = currentPoints + ' điểm';
+                        document.getElementById('rewardPointsSection').style.display = 'block';
+                        
+                        if (currentPoints >= 50) {
+                            document.getElementById('useRewardPoints').disabled = false;
+                        } else {
+                            document.getElementById('useRewardPoints').disabled = true;
+                            document.getElementById('useRewardPoints').nextElementSibling.textContent = 'Cần ít nhất 50 điểm để sử dụng';
+                        }
+                    }
                 }
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin điểm thưởng:', error);
+            }
+        }
+
+        // Tính toán giảm giá
+        function calculateDiscount() {
+            if (!document.getElementById('useRewardPoints').checked) {
+                discountAmount = 0;
+                pointsToUse = 0;
+                updateDisplay();
+                return;
+            }
+
+            // Chỉ sử dụng 50 điểm mỗi lần (5% giảm giá)
+            if (currentPoints >= 50) {
+                discountAmount = Math.floor(subtotal * 5 / 100); // 5% giảm giá
+                pointsToUse = 50; // Chỉ sử dụng 50 điểm
+            } else {
+                discountAmount = 0;
+                pointsToUse = 0;
+                document.getElementById('useRewardPoints').checked = false;
+                alert('Cần ít nhất 50 điểm để sử dụng giảm giá!');
+            }
+
+            updateDisplay();
+        }
+
+        // Cập nhật hiển thị
+        function updateDisplay() {
+            const discountRow = document.getElementById('discountRow');
+            const discountDisplay = document.getElementById('discountDisplay');
+            const finalTotal = document.getElementById('finalTotal');
+            const discountInfo = document.getElementById('discountInfo');
+            const discountAmountSpan = document.getElementById('discountAmount');
+            const pointsToUseSpan = document.getElementById('pointsToUse');
+
+            if (discountAmount > 0) {
+                discountRow.style.display = 'table-row';
+                discountDisplay.textContent = discountAmount.toLocaleString();
+                finalTotal.textContent = (subtotal - discountAmount).toLocaleString();
+                discountInfo.style.display = 'block';
+                discountAmountSpan.textContent = discountAmount.toLocaleString() + ' VND';
+                pointsToUseSpan.textContent = pointsToUse + ' điểm';
+            } else {
+                discountRow.style.display = 'none';
+                finalTotal.textContent = subtotal.toLocaleString();
+                discountInfo.style.display = 'none';
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUserAndLoadPoints();
+            
+            document.getElementById('useRewardPoints').addEventListener('change', function() {
+                calculateDiscount();
             });
+        });
+
+        // Cập nhật form để gửi thông tin giảm giá
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            // Thêm thông tin giảm giá vào form
+            const discountInput = document.createElement('input');
+            discountInput.type = 'hidden';
+            discountInput.name = 'DiscountAmount';
+            discountInput.value = discountAmount;
+            this.appendChild(discountInput);
+
+            const pointsInput = document.createElement('input');
+            pointsInput.type = 'hidden';
+            pointsInput.name = 'PointsUsed';
+            pointsInput.value = pointsToUse;
+            this.appendChild(pointsInput);
+
+            const usePointsInput = document.createElement('input');
+            usePointsInput.type = 'hidden';
+            usePointsInput.name = 'UseRewardPoints';
+            usePointsInput.value = document.getElementById('useRewardPoints').checked;
+            this.appendChild(usePointsInput);
+        });
+
+        // Lấy tỉnh/thành phố
+        fetch('https://provinces.open-api.vn/api/p/')
+            .then(response => response.json())
+            .then(data => {
+                const citySelect = document.getElementById('city');
+                citySelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
+                data.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.name;
+                    option.text = city.name;
+                    option.setAttribute('data-code', city.code);
+                    citySelect.appendChild(option);
+                });
+            });
+
+        document.getElementById('city').addEventListener('change', function () {
+            const cityCode = this.options[this.selectedIndex].getAttribute('data-code');
+            fetch(`https://provinces.open-api.vn/api/p/${cityCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    const districtSelect = document.getElementById('district');
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    document.getElementById('ward').innerHTML = '<option value="">Chọn phường/xã</option>';
+                    data.districts.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district.name;
+                        option.text = district.name;
+                        option.setAttribute('data-code', district.code);
+                        districtSelect.appendChild(option);
+                    });
+                });
+        });
+
+        document.getElementById('district').addEventListener('change', function () {
+            const districtCode = this.options[this.selectedIndex].getAttribute('data-code');
+            fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    const wardSelect = document.getElementById('ward');
+                    wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
+                    data.wards.forEach(ward => {
+                        const option = document.createElement('option');
+                        option.value = ward.name;
+                        option.text = ward.name;
+                        wardSelect.appendChild(option);
+                    });
+                });
         });
 
         paypal.Buttons({
@@ -139,47 +448,48 @@
                 color: 'silver',
                 tagline: 'false'
             },
-                    createOrder: (data, actions) => {
-            
-            return fetch("/Cart/create-paypal-order", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({}) // Nếu API cần dữ liệu, thêm dữ liệu vào đây
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(error => { throw error; });
-                }
-                return response.json();
-            })
-            .then(order => {
-                if (!order || !order.id) {
-                    throw new Error("Không lấy được orderId hợp lệ");
-                }
-                return order.id;
-            })
-            .catch(error => {
-                alert(error.message);
-                throw error; // Đảm bảo lỗi được xử lý ở mức cao hơn
-            });
-        },
-        onApprove: (data, actions) => {
-            return fetch(`/Cart/capture-paypal-order?orderId=${data.orderID}`, {
-                method: "POST",
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(error => { throw error; });
-                }
-                window.location.href = "/Cart/PaymentSuccess";
-            })
-            .catch(error => alert(error.message));
-        }
-
+            createOrder: (data, actions) => {
+                const finalAmount = subtotal - discountAmount;
+                return fetch("/Cart/create-paypal-order", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        useRewardPoints: document.getElementById('useRewardPoints').checked,
+                        discountAmount: discountAmount
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(error => { throw error; });
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    if (!order || !order.id) {
+                        throw new Error("Không lấy được orderId hợp lệ");
+                    }
+                    return order.id;
+                })
+                .catch(error => {
+                    alert(error.message);
+                    throw error;
+                });
+            },
+            onApprove: (data, actions) => {
+                return fetch(`/Cart/capture-paypal-order?orderId=${data.orderID}`, {
+                    method: "POST",
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(error => { throw error; });
+                    }
+                    window.location.href = "/Cart/PaymentSuccess";
+                })
+                .catch(error => alert(error.message));
+            }
         }).render('#paypal-button-container');
     </script>
-
 }
 

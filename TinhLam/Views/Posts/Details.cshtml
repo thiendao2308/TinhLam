@@ -1,0 +1,137 @@
+@model TinhLam.Data.Post
+
+@{
+    ViewData["Title"] = "Chi tiết bài viết";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .detail-container {
+        background: #fff;
+        padding: 30px 30px 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        max-width: 800px;
+        margin: 30px auto;
+        border: 2px solid #55161b;
+    }
+    .detail-title {
+        font-size: 2.2rem;
+        font-weight: bold;
+        color: #55161b;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .detail-section-title {
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    .detail-table {
+        width: 100%;
+        margin-bottom: 20px;
+        border-collapse: collapse;
+    }
+    .detail-table td {
+        padding: 8px 10px;
+        vertical-align: top;
+        font-size: 1rem;
+    }
+    .detail-table tr td.label {
+        font-weight: bold;
+        color: #55161b;
+        width: 180px;
+        min-width: 120px;
+    }
+    .detail-table tr td.value {
+        color: #222;
+    }
+    .detail-table tr {
+        border-bottom: 1px solid #eee;
+    }
+    .detail-table .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .detail-table .col {
+        flex: 1 1 50%;
+        min-width: 220px;
+        box-sizing: border-box;
+    }
+    .detail-image {
+        text-align: center;
+        margin-bottom: 18px;
+    }
+    .detail-image img {
+        max-width: 220px;
+        border-radius: 8px;
+        border: 2px solid #f5c808;
+        box-shadow: 0 2px 8px rgba(85,22,27,0.08);
+    }
+    .detail-content {
+        background: #fff8e1;
+        border-radius: 8px;
+        border: 1.5px solid #f5c808;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.08rem;
+        line-height: 1.7;
+    }
+    .btn-back {
+        background: #f5c808;
+        color: #55161b;
+        padding: 16px 0;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        display: block;
+        width: 100%;
+        margin: 30px auto 0 auto;
+        text-align: center;
+        font-size: 1.15rem;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-back:hover {
+        background: #d4a307;
+        color: #55161b;
+    }
+</style>
+
+<div class="detail-container">
+    <div class="detail-title">Chi tiết bài viết</div>
+    <div class="detail-section-title">Thông tin bài viết</div>
+    <table class="detail-table">
+        <tr class="row">
+            <td class="label col">Tiêu đề:</td>
+            <td class="value col">@Model.Title</td>
+            <td class="label col">Tác giả:</td>
+            <td class="value col">@Model.Author</td>
+        </tr>
+        <tr class="row">
+            <td class="label col">Ngày đăng:</td>
+            <td class="value col">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td class="label col">Lượt xem:</td>
+            <td class="value col">@Model.ViewCount</td>
+        </tr>
+        <tr class="row">
+            <td class="label col">Tags:</td>
+            <td class="value col">@Model.Tags</td>
+            <td class="label col">Trạng thái:</td>
+            <td class="value col">@(Model.IsPublished ? "Đã xuất bản" : "Bản nháp")</td>
+        </tr>
+    </table>
+    @if (!string.IsNullOrEmpty(Model.Image))
+    {
+        <div class="detail-image">
+            <img src="~/images/posts/@Model.Image" alt="@Model.Title" />
+        </div>
+    }
+    <div class="detail-section-title">Nội dung bài viết</div>
+    <div class="detail-content">
+        @Html.Raw(Model.Content.Replace("\n", "<br>"))
+    </div>
+    <a asp-action="Index" class="btn-back">Quay lại danh sách</a>
+</div> 

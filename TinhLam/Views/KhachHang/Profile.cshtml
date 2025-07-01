@@ -197,6 +197,39 @@
         <a asp-action="DangXuat" class="logout-btn">Đăng xuất</a>
     </div>
 
+    <!-- Phần điểm thưởng -->
+    <div class="info-box" style="margin-top: 20px;">
+        <h4 style="color: #55161b; margin-bottom: 15px;">
+            💎 Thông tin điểm thưởng
+        </h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div>
+                <div style="font-size: 24px; font-weight: bold; color: #007bff; margin-bottom: 5px;">
+                    @(Model.RewardPoints ?? 0) điểm
+                </div>
+                <div style="color: #666; font-size: 14px;">
+                    Điểm hiện có
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="color: #28a745; font-weight: bold; margin-bottom: 5px;">
+                    @((Model.RewardPoints ?? 0) >= 50 ? "Có thể sử dụng giảm 5% cho 1 đơn hàng" : "Chưa đủ điểm để sử dụng giảm giá")
+                </div>
+                <div style="color: #666; font-size: 14px;">
+                    Cần tối thiểu 50 điểm
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 15px; padding: 10px; background: #f9f2e8; border-radius: 5px; border-left: 4px solid #f5c808;">
+            <div style="font-weight: bold; color: #55161b; margin-bottom: 5px;">💡 Cách sử dụng điểm thưởng:</div>
+            <div style="color: #666; font-size: 14px;">
+                • Mỗi lần thanh toán, bạn chỉ có thể sử dụng 50 điểm để được giảm 5% cho đơn hàng<br>
+                • Điểm được tích lũy khi đơn hàng hoàn thành<br>
+                • Có thể chọn sử dụng hoặc không khi thanh toán
+            </div>
+        </div>
+    </div>
+
     <h4 class="order-title">Lịch sử đơn hàng</h4>
     <form method="get" asp-action="Profile" class="filter-form">
         <label for="status">Trạng thái:</label>
