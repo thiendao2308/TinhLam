@@ -1,0 +1,176 @@
+@model IEnumerable<TinhLam.Data.RedeemPoint>
+
+@{
+    ViewData["Title"] = "Lịch sử sử dụng điểm";
+    Layout = "_AdminLayout";
+    var user = ViewBag.User as TinhLam.Data.User;
+}
+
+<style>
+    .user-info {
+        background: #f9f2e8;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 2px solid #55161b;
+    }
+
+    .user-info h4 {
+        color: #55161b;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .history-container {
+        max-width: 95%;
+        margin: auto;
+        overflow-x: auto;
+        border: 2px solid #55161b;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+        .history-table thead {
+            background: #55161b;
+            color: white;
+        }
+
+        .history-table th, .history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .history-table th {
+            border-bottom: 2px solid #f5c808;
+        }
+
+        .history-table tbody tr:hover {
+            background: #f9f2e8;
+        }
+
+    .btn-back {
+        background: #55161b;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        margin: 10px;
+    }
+
+        .btn-back:hover {
+            background: #722025;
+        }
+
+    .btn-adjust {
+        background: #f5c808;
+        color: #55161b;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        margin: 10px;
+    }
+
+        .btn-adjust:hover {
+            background: #d4a307;
+        }
+
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .bg-primary {
+        background-color: #007bff !important;
+        color: white !important;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .form-actions {
+        text-align: center;
+        margin-top: 20px;
+    }
+</style>
+
+<h1 style="color: #55161b; text-align: center; margin-bottom: 20px;">Lịch sử sử dụng điểm</h1>
+
+<div class="user-info">
+    <h4>Thông tin khách hàng</h4>
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Tên:</strong> @(user?.CustomerName ?? user?.Username)</p>
+            <p><strong>Email:</strong> @user?.Email</p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>Số điện thoại:</strong> @user?.PhoneNumber</p>
+            <p><strong>Điểm hiện tại:</strong> <span class="badge bg-primary">@(user?.RewardPoints ?? 0) điểm</span></p>
+        </div>
+    </div>
+</div>
+
+<div class="history-container">
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Ngày sử dụng</th>
+                <th>Mã đơn hàng</th>
+                <th>Số điểm sử dụng</th>
+                <th>Số tiền giảm</th>
+                <th>Mô tả</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Any())
+            {
+                @foreach (var redeem in Model)
+                {
+                    <tr>
+                        <td>@redeem.RedeemDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <a href="@Url.Action("Details", "Orders", new { id = redeem.OrderId })" target="_blank" style="color: #55161b; font-weight: bold;">
+                                #@redeem.OrderId
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning">@redeem.PointsUsed điểm</span>
+                        </td>
+                        <td style="color: #28a745; font-weight: bold;">@redeem.DiscountAmount.ToString("N0") VNĐ</td>
+                        <td>@redeem.Description</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center">Chưa có lịch sử sử dụng điểm</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="form-actions">
+    <a asp-action="Index" class="btn-back">Quay lại</a>
+    <a asp-action="AdjustPoints" asp-route-userId="@user?.UserId" class="btn-adjust">Điều chỉnh điểm</a>
+</div> 

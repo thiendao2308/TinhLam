@@ -1,0 +1,169 @@
+@model TinhLam.Data.HomeBannerImage
+
+@{
+    ViewData["Title"] = "Xóa Banner";
+    Layout = "_AdminLayout";
+}
+
+<h1 class="page-title">Xóa Banner</h1>
+
+<div class="alert alert-warning">
+    <h4>Bạn có chắc chắn muốn xóa banner này?</h4>
+    <p>Hành động này không thể hoàn tác.</p>
+</div>
+
+<div class="banner-details">
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4">Hình ảnh:</dt>
+                <dd class="col-sm-8">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Url.Content("~/" + Model.ImageUrl)" alt="@Model.Caption" class="banner-preview" />
+                    }
+                    else
+                    {
+                        <span>Không có ảnh</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4">Tiêu đề:</dt>
+                <dd class="col-sm-8">@(Model.Caption ?? "Không có tiêu đề")</dd>
+
+                <dt class="col-sm-4">Liên kết:</dt>
+                <dd class="col-sm-8">
+                    @if (!string.IsNullOrEmpty(Model.Link))
+                    {
+                        <a href="@Model.Link" target="_blank">@Model.Link</a>
+                    }
+                    else
+                    {
+                        <span>Không có liên kết</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4">Thứ tự hiển thị:</dt>
+                <dd class="col-sm-8">@(Model.DisplayOrder ?? 0)</dd>
+
+                <dt class="col-sm-4">Trạng thái:</dt>
+                <dd class="col-sm-8">
+                    <span class="@(Model.IsActive ? "status-active" : "status-inactive")">
+                        @(Model.IsActive ? "Đang hiển thị" : "Ẩn")
+                    </span>
+                </dd>
+
+                <dt class="col-sm-4">Ngày tạo:</dt>
+                <dd class="col-sm-8">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<form asp-action="Delete" class="delete-form">
+    <input type="hidden" asp-for="ImageId" />
+    <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Xóa Banner</button>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </div>
+</form>
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+
+    .alert-warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+    }
+
+    .banner-details {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+
+    .banner-preview {
+        max-width: 200px;
+        max-height: 120px;
+        border-radius: 5px;
+        object-fit: cover;
+    }
+
+    .row {
+        margin: 0;
+    }
+
+    .col-sm-4 {
+        font-weight: bold;
+        color: #55161b;
+    }
+
+    .col-sm-8 {
+        margin-bottom: 10px;
+    }
+
+    .status-active {
+        color: green;
+        font-weight: bold;
+    }
+
+    .status-inactive {
+        color: red;
+        font-weight: bold;
+    }
+
+    .delete-form {
+        margin-top: 20px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+</style> 

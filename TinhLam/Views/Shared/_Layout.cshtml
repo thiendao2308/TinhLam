@@ -1,0 +1,378 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TinhLam</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TinhLam.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    @RenderSection("Styles", required: false)
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="shadow-sm bg-[#f5c808]">
+        <nav class="navbar navbar-expand-lg border-bottom bg-[#f5c808]">
+            <div class="container bg-[#f5c808]">
+                <!-- Logo -->
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" alt="TinhLam" height="40">
+                </a>
+
+                <!-- Toggle Mobile -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navbar Items -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Trang Chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Giới Thiệu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Category" >
+                                Sản Phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Posts" asp-action="List">Bài Viết</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="" asp-action="">Liên Hệ</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex m-3 me-0">
+                        <button class="btn icon-btn search-btn" data-bs-toggle="modal" data-bs-target="#searchModal">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        @await Component.InvokeAsync("Cart")
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <!-- Nếu người dùng đã đăng nhập, hiển thị Profile -->
+                            <a asp-controller="KhachHang" asp-action="Profile" title="Xem thông tin cá nhân" class="icon-btn user-btn">
+                                <i class="fas fa-user"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <!-- Nếu chưa đăng nhập, hiển thị nút đăng nhập -->
+                            <a asp-controller="KhachHang" asp-action="DangNhap" title="Đăng nhập" class="dangnhap-a">
+                                Đăng Nhập
+                            </a>
+
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-section  text-white py-4" >
+        <div class="container">
+            <div class="row">
+                <!-- Thông tin liên hệ -->
+                <div class="col-md-4">
+                    <img class="logo2" src="~/images/logo2.png" />
+                    <p>© 2021 Bản quyền thuộc Công Ty TNHH Tinh Lâm</p>
+                    <p>Giấy chứng nhận đăng ký doanh nghiệp: 0316663318</p>
+                    <p>Địa chỉ: 280 Lương Định Của, P. An Phú, Q.2, TP.HCM</p>
+                    <p>ĐT: 028 777 98917</p>
+                </div>
+
+                <!-- Sản phẩm hỗ trợ -->
+                <div class="col-md-4">
+                    <h5>SẢN PHẨM HỖ TRỢ</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Vòng Đá Phong Thủy</a></li>
+                        <li><a href="#" class="text-white">Vòng Đá Thời Trang</a></li>
+                        <li><a href="#" class="text-white">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#" class="text-white">Chính sách bán hàng</a></li>
+                    </ul>
+                </div>
+
+                <!-- Showroom -->
+                <div class="col-md-4">
+                    <h5>CHI NHÁNH</h5>
+                    <ul class="list-unstyled">
+                        <li>Chi nhánh 1: 280 Lương Định Của, Q.2, TP.HCM</li>
+                        <li>Chi nhánh 2: 610 Phan Đình Phùng, Q.Phú Nhuận, TP.HCM</li>
+                        <li>Chi nhánh 3: 42 Nguyễn Huệ, Q.1, TP.HCM</li>
+                        <li>Chi nhánh 4: 91 Xuân Thủy, Q.2, TP.HCM</li>
+                        <li>Chi nhánh 5: 47 Lý Thường Kiệt, Long Xuyên, An Giang</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Liên kết và bản quyền -->
+            <div class="text-center mt-3">
+                <p>Email: tinhlamjw@gmail.com | Hotline: 1900 29 29 17</p>
+                <p>&copy; 2023 Tinh Lam. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Truy vấn đơn hàng -->
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <a href="#" class="query-orders-btn">
+            <i class="fa fa-receipt"></i>
+        </a>
+    }
+    <!-- Chat box -->
+    
+    @* <a id="chatToggle" class="chat-toggle">💬</a> *@
+    
+    
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+
+    <!-- Modal tìm kiếm -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="searchModalLabel">
+                        <i class="fas fa-search me-2"></i>
+                        Tìm kiếm sản phẩm
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body p-4">
+                    
+                    
+                    <form action="/Categories/Category" method="get">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input id="searchText" type="text" class="form-control" name="search" 
+                                   placeholder="Nhập tên sản phẩm">
+                            <button id="searchButton" class="btn btn-warning" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal tìm kiếm danh sách đơn hàng-->
+    <div class="modal fade" id="queryOrdersModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-search me-2"></i>
+                        Tra cứu đơn hàng
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-receipt text-warning" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Nhập số điện thoại để tra cứu đơn hàng</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label fw-bold">
+                            <i class="fas fa-phone me-2"></i>
+                            Số điện thoại
+                        </label>
+                        <input type="text" id="phoneNumber" class="form-control form-control-lg" 
+                               placeholder="Ví dụ: 0901234567">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button id="searchOrdersBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search me-2"></i>
+                            Tìm kiếm
+                        </button>
+                    </div>
+                    
+                    <div id="orderResults" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal chat box-->
+    @* <div id="chatBox" class="chat-box"> *@
+    @*     <div id="chatHeader" class="chat-header">Hỗ trợ khách hàng</div> *@
+    @*     <div id="chatMessages" class="chat-messages"></div> *@
+    @*     <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." /> *@
+    @*     <button id="sendButton">Gửi</button> *@
+    @* </div> *@
+
+
+
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+
+    <script src="~/js/tabSwitch.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#searchButton").click(function (event) {
+                event.preventDefault();
+
+                let query = $("#searchText").val().trim();
+                if (query.length > 0) {
+                    let url = "/Categories/Category?search=" + encodeURIComponent(query);
+                    window.location.href = url;
+                } else {
+                    // Hiển thị thông báo nếu không nhập gì
+                    $("#searchText").focus();
+                    $("#searchText").addClass("is-invalid");
+                    setTimeout(() => {
+                        $("#searchText").removeClass("is-invalid");
+                    }, 2000);
+                }
+            });
+
+            // Xử lý nhấn Enter
+            $("#searchText").keypress(function(e) {
+                if (e.which == 13) {
+                    $("#searchButton").click();
+                }
+            });
+
+            // Focus vào input khi modal mở
+            $('#searchModal').on('shown.bs.modal', function () {
+                $("#searchText").focus();
+            });
+        });
+    </script>
+    <script>
+        document.querySelectorAll(".tab-button").forEach(button => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".tab-button").forEach(btn => {
+                    btn.style.color = "#777";
+                    btn.style.borderBottom = "3px solid transparent";
+                });
+
+                button.style.color = "#55161b";
+                button.style.borderBottom = "3px solid #f5c808";
+            });
+        });
+    </script>
+    <script>
+        // Back to Top Button
+        document.addEventListener("DOMContentLoaded", function () {
+            const backToTopButton = document.querySelector(".back-to-top");
+
+            window.addEventListener("scroll", function () {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.add("show");
+                } else {
+                    backToTopButton.classList.remove("show");
+                }
+            });
+
+            backToTopButton.addEventListener("click", function (e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const queryOrdersBtn = document.querySelector(".query-orders-btn");
+            const queryOrdersModal = document.getElementById("queryOrdersModal");
+            const searchOrdersBtn = document.getElementById("searchOrdersBtn");
+            const orderResults = document.getElementById("orderResults");
+            const phoneInput = document.getElementById("phoneNumber");
+
+            // Mở modal khi click vào nút
+            queryOrdersBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                const modal = new bootstrap.Modal(queryOrdersModal);
+                modal.show();
+            });
+
+            // Xử lý tìm kiếm đơn hàng
+            searchOrdersBtn.addEventListener("click", function () {
+                const phoneNumber = phoneInput.value.trim();
+
+                if (phoneNumber === "") {
+                    orderResults.innerHTML = '<div class="alert alert-warning">Vui lòng nhập số điện thoại!</div>';
+                    return;
+                }
+
+                // Hiển thị loading
+                searchOrdersBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang tìm...';
+                searchOrdersBtn.disabled = true;
+
+                fetch(`/Orders/GetOrdersByPhone?phone=${phoneNumber}`)
+                    .then(response => response.text())
+                    .then(data => {
+                        orderResults.innerHTML = data;
+                    })
+                    .catch(() => {
+                        orderResults.innerHTML = '<div class="alert alert-danger">Không thể tìm đơn hàng!</div>';
+                    })
+                    .finally(() => {
+                        searchOrdersBtn.innerHTML = '<i class="fas fa-search me-2"></i>Tìm kiếm';
+                        searchOrdersBtn.disabled = false;
+                    });
+            });
+
+            // Xử lý nhấn Enter
+            phoneInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    searchOrdersBtn.click();
+                }
+            });
+        });
+    </script>
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script> *@
+    @* <script> *@
+    @*     var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build(); *@
+
+    @*     connection.start().catch(err => console.error(err)); *@
+
+    @*     document.getElementById("sendButton").addEventListener("click", function () { *@
+    @*         var message = document.getElementById("chatInput").value; *@
+    @*         connection.invoke("SendMessage", "@User.Identity.Name", message).catch(err => console.error(err)); *@
+    @*         document.getElementById("chatInput").value = ""; *@
+    @*     }); *@
+
+    @*     connection.on("ReceiveMessage", function (sender, message) { *@
+    @*         var chatMessages = document.getElementById("chatMessages"); *@
+    @*         chatMessages.innerHTML += `<div><b>${sender}:</b> ${message}</div>`; *@
+    @*     }); *@
+
+    @*     document.getElementById("chatToggle").addEventListener("click", function () { *@
+    @*         var chatBox = document.getElementById("chatBox"); *@
+    @*         chatBox.style.display = chatBox.style.display === "none" ? "block" : "none"; *@
+    @*     }); *@
+    @* </script> *@
+</body>
+</html>

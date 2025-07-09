@@ -1,0 +1,162 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@RenderSection("BreadCum", required: false)
+
+<div class="container-fluid fruite py-5 mt-[-50px]">
+    <div class="container py-5">
+        <h1 class="mb-4 text-center text-primary fw-bold">Sản Phẩm</h1>
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="sidebar p-4 rounded shadow-sm bg-white">
+                    <!-- Bộ lọc danh mục -->
+                    @await Component.InvokeAsync("MenuCategory")
+
+                    <!-- Bộ lọc giá -->
+                    <div class="mb-4">
+                        <h5 class="text-primary fw-bold">Khoảng giá</h5>
+                        <form method="get" action="@Url.Action("Category", "Categories")">
+                            <input type="hidden" name="id" value="@ViewContext.RouteData.Values["id"]" />
+
+                            <!-- Thanh kéo giá -->
+                            <input type="range" class="form-range" id="priceRange" name="maxPrice" min="0" max="5000000" value="5000000"
+                                   oninput="priceOutput.value=priceRange.value">
+
+                            <div class="d-flex justify-content-between">
+                                <span>0 VND</span>
+                                <output id="priceOutput" class="price-display">5000000</output> VND
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 mt-2">Lọc</button>
+                        </form>
+                    </div>
+
+
+                    <!-- Bộ lọc trạng thái -->
+                    <div class="mb-4">
+                        <h5 class="text-primary fw-bold">Tùy chọn khác</h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="filter" id="organic">
+                            <label class="form-check-label" for="organic">size tay 16cm</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="filter" id="fresh">
+                            <label class="form-check-label" for="fresh">size tay 18cm</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="filter" id="sale">
+                            <label class="form-check-label" for="sale">size tay 20cm</label>
+                        </div>
+                    </div>
+
+                    <!-- Xem thêm -->
+                    <div class="d-flex justify-content-center">
+                        <a href="#" class="btn btn-primary w-100 text-white rounded-pill">Xem thêm</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="row g-4 align-items-center">
+                    <!-- Ô tìm kiếm -->
+                    <div class="col-lg-4">
+                        <form asp-action="Search" asp-controller="Products" class="d-flex search-box">
+                            <input type="search" class="form-control p-2 border-primary rounded-start small-search" placeholder="Tìm kiếm..." name="query">
+                            <button class="btn btn-primary px-3 rounded-end"><i class="fa fa-search text-white"></i></button>
+                        </form>
+                    </div>
+
+                    <!-- Bộ lọc sắp xếp -->
+                    <div class="col-lg-4">
+                        <select class="form-select border-primary text-primary">
+                            <option>Mặc định</option>
+                            <option>Theo độ phổ biến</option>
+                            <option>Sản phẩm organic</option>
+                            <option>Giá từ thấp đến cao</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Danh sách sản phẩm -->
+                <div class="row g-4 mt-4">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Màu sắc chung */
+    .text-primary {
+        color: #55161b !important;
+    }
+
+    .btn-primary {
+        background-color: #55161b;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #8c2a2f;
+        }
+
+    .border-primary {
+        border-color: #f5c808 !important;
+    }
+
+    .sidebar {
+        border-left: 5px solid #f5c808;
+    }
+
+    /* Hiệu ứng hover cho sản phẩm */
+    .product-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border: 1px solid #f5c808;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+    /* Pagination */
+    .pagination .page-link {
+        color: #f5c808;
+        border-radius: 50px;
+        margin: 0 5px;
+    }
+
+    .pagination .active .page-link {
+        background-color: #f5c808;
+        color: white;
+    }
+
+    .small-search {
+        max-width: 200px; /* Giới hạn độ rộng */
+        font-size: 14px;
+    }
+
+    .search-box button {
+        padding: 6px 12px; /* Giảm padding */
+    }
+    /* Thanh trượt */
+    input[type="range"] {
+        width: 100%;
+        accent-color: #55161b;
+    }
+
+    /* Tăng kích thước output */
+    /* Tăng khoảng cách và làm dịu số tiền */
+    output {
+        font-size: 1rem; /* Giảm kích thước */
+        font-weight: 500; /* Không quá đậm */
+        color: #444; /* Màu xám nhẹ */
+        background: #f8f9fa; /* Nền nhẹ để dịu hơn */
+        padding: 2px 6px;
+        border-radius: 5px;
+    }
+
+
+</style>

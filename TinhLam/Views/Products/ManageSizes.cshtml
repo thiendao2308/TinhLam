@@ -1,0 +1,176 @@
+@model TinhLam.Data.Product
+
+@{
+    ViewData["Title"] = "Quản lý Size - " + Model.ProductName;
+    Layout = "_AdminLayout";
+}
+
+<h1 class="page-title">Quản lý Size cho sản phẩm: @Model.ProductName</h1>
+
+<div class="action-bar">
+    <a asp-action="AddSize" asp-route-productId="@Model.ProductId" class="btn btn-add">Thêm Size</a>
+    <a asp-action="Index" class="btn btn-back">Quay lại danh sách</a>
+</div>
+
+<div class="product-info">
+    <div class="info-item">
+        <strong>Mã sản phẩm:</strong> @Model.ProductId
+    </div>
+    <div class="info-item">
+        <strong>Giá:</strong> @string.Format("{0:N0} VND", Model.Price)
+    </div>
+    <div class="info-item">
+        <strong>Tổng số lượng:</strong> @Model.ProductSizes.Sum(ps => ps.StockQuantity)
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Size (cm)</th>
+                <th>Số lượng tồn kho</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ProductSizes.Any())
+            {
+                @foreach (var size in Model.ProductSizes.OrderBy(ps => ps.Size))
+                {
+                    <tr>
+                        <td>@size.Size</td>
+                        <td>@size.StockQuantity</td>
+                        <td class="action-buttons">
+                            <a asp-action="EditSize" asp-route-id="@size.ProductSizeId" class="btn btn-edit">Sửa</a>
+                            <form asp-action="DeleteSize" asp-route-id="@size.ProductSizeId" method="post" style="display: inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa size này?');">
+                                <button type="submit" class="btn btn-delete">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" class="text-center">Chưa có size nào cho sản phẩm này</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .action-bar {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+
+    .btn-add {
+        background-color: #f5c808;
+        color: black;
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .btn-back {
+        background-color: #6c757d;
+        color: white;
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn-add:hover {
+        background-color: #55161b;
+        color: white;
+    }
+
+    .btn-back:hover {
+        background-color: #545b62;
+    }
+
+    .product-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 30px;
+    }
+
+    .info-item {
+        font-size: 14px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+        background: white;
+    }
+
+    .table th {
+        background: #55161b;
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .table td {
+        padding: 10px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 5px 8px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        display: inline-block;
+    }
+
+    .btn-edit {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .btn-edit:hover {
+        background-color: #e0a800;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+</style> 

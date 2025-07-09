@@ -1,0 +1,44 @@
+﻿@model TinhLam.Data.Order
+
+<h5>Thông tin đơn hàng</h5>
+<table class="table">
+    <tr>
+        <th>Mã đơn hàng:</th>
+        <td>@Model.OrderId</td>
+    </tr>
+    <tr>
+        <th>Ngày đặt:</th>
+        <td>@Model.OrderDate.ToShortDateString()</td>
+    </tr>
+    <tr>
+        <th>Tổng tiền:</th>
+        <td>@Model.TotalAmount VNĐ</td>
+    </tr>
+    <tr>
+        <th>Trạng thái:</th>
+        <td>@Model.Status</td>
+    </tr>
+</table>
+
+<h5>Chi tiết sản phẩm</h5>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model.OrderDetails)
+        {
+            <tr>
+                <td>@detail.Product.ProductName</td>
+                <td>@detail.Quantity</td>
+                <td>@detail.UnitPrice VNĐ</td>
+                <td>@(detail.Quantity * detail.UnitPrice) VNĐ</td>
+            </tr>
+        }
+    </tbody>
+</table>

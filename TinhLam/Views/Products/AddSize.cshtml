@@ -1,0 +1,123 @@
+@model TinhLam.Data.ProductSize
+
+@{
+    ViewData["Title"] = "Thêm Size cho sản phẩm: " + (ViewBag.ProductName ?? "Không xác định");
+    Layout = "_AdminLayout";
+}
+
+<h1 class="page-title">Thêm Size cho sản phẩm: @(ViewBag.ProductName ?? "Không xác định")</h1>
+
+<div class="form-container">
+    <form asp-action="AddSize" asp-route-productId="@ViewBag.ProductId" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="form-group">
+            <label class="form-label">Size (cm)</label>
+            <input name="size" class="form-control" placeholder="Nhập size (ví dụ: 18)" value="@(Model?.Size ?? "")" required />
+            <span asp-validation-for="Size" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Số lượng tồn kho</label>
+            <input name="stockQuantity" class="form-control" type="number" min="0" placeholder="Nhập số lượng" value="@(Model?.StockQuantity ?? 0)" required />
+            <span asp-validation-for="StockQuantity" class="text-danger"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Thêm Size</button>
+            <a asp-action="ManageSizes" asp-route-id="@ViewBag.ProductId" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .form-container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #55161b;
+        box-shadow: 0 0 5px rgba(85, 22, 27, 0.3);
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background-color: #f5c808;
+        color: black;
+    }
+
+    .btn-primary:hover {
+        background-color: #55161b;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+</style> 

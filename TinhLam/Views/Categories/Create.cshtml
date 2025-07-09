@@ -1,0 +1,119 @@
+﻿@model TinhLam.Data.Category
+
+@{
+    ViewData["Title"] = "Thêm danh mục";
+    Layout = "_AdminLayout";
+}
+
+<h1>Thêm danh mục mới</h1>
+
+<div class="form-container">
+    <h4>Nhập thông tin danh mục</h4>
+    <hr />
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="CategoryName" class="control-label" style="margin-bottom: 10px;"></label>
+            <input asp-for="CategoryName" class="form-control" />
+            <span asp-validation-for="CategoryName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group btn-group">
+            <input type="submit" value="Thêm mới" class="btn btn-submit" />
+            <a asp-action="Index" class="btn btn-back">Quay lại</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        color: #333;
+        text-align: center;
+    }
+
+    h1 {
+        color: #55161b;
+        margin-bottom: 20px;
+    }
+
+    .form-container {
+        width: 40%;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: left;
+    }
+
+    h4 {
+        color: #55161b;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        width: 300px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: 0.3s;
+        cursor: pointer;
+        text-align: center;
+        width: 48%;
+    }
+
+    .btn-submit {
+        background-color: #55161b;
+        color: white;
+        border: none;
+        width: 200px;
+    }
+
+        .btn-submit:hover {
+            background-color: #f5c808;
+            color: #55161b;
+        }
+
+    .btn-back {
+        background-color: #f5c808;
+        color: black;
+        border: none;
+        width: 200px;
+    }
+
+        .btn-back:hover {
+            background-color: #55161b;
+            color: white;
+        }
+
+    .text-danger {
+        font-size: 14px;
+    }
+</style>

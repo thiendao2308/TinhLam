@@ -1,0 +1,205 @@
+﻿@model TinhLam.Data.Product
+
+@{
+    ViewData["Title"] = "Thêm sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .form-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: auto;
+        border: 2px solid #55161b;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            color: #55161b;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .input-group {
+        display: flex;
+    }
+
+    .input-group-text {
+        background: #f5c808;
+        color: #55161b;
+        font-weight: bold;
+        padding: 8px 12px;
+        border: none;
+    }
+
+    .image-preview img {
+        max-width: 100px;
+        border-radius: 5px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .size-options {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .size-options label {
+            background: #f5c808;
+            color: #55161b;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .size-options input {
+            display: none;
+        }
+
+            .size-options input:checked + label {
+                background: #55161b;
+                color: #fff;
+            }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .btn-submit {
+        background: #55161b;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .btn-submit:hover {
+            background: #3d1014;
+        }
+
+    .btn-back {
+        background: #f5c808;
+        color: #55161b;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+        .btn-back:hover {
+            background: #d4a307;
+        }
+</style>
+
+<h1 class="page-title">Thêm sản phẩm mới</h1>
+
+<div class="form-container">
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="ProductName">Tên sản phẩm</label>
+            <input asp-for="ProductName" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Price">Đơn giá</label>
+            <div class="input-group">
+                <input id="priceInput" class="form-control" type="text" />
+                <span class="input-group-text">VND</span>
+            </div>
+            <input type="hidden" asp-for="Price" id="priceHidden" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description">Mô tả sản phẩm</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Hình ảnh</label>
+            <input type="file" id="imageInput" name="ImageFile" class="form-control" accept="image/*" />
+            <div class="image-preview">
+                <img id="imagePreview" src="#" class="d-none" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="CategoryId">Danh mục</label>
+            <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                <option value="">-- Chọn danh mục --</option>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <input type="submit" value="Thêm sản phẩm" class="btn-submit" />
+            <a asp-action="Index" class="btn-back">Quay lại</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const priceInput = document.getElementById("priceInput");
+            const priceHidden = document.getElementById("priceHidden");
+
+            priceInput.addEventListener("input", function () {
+                let value = priceInput.value.replace(/\D/g, "");
+                if (value === "") {
+                    priceHidden.value = "";
+                    priceInput.value = "";
+                    return;
+                }
+                let formatted = new Intl.NumberFormat("vi-VN").format(value);
+                priceInput.value = formatted;
+                priceHidden.value = value;
+            });
+
+            const imageInput = document.getElementById("imageInput");
+            const imagePreview = document.getElementById("imagePreview");
+
+            imageInput.addEventListener("change", function () {
+                if (imageInput.files && imageInput.files[0]) {
+                    let reader = new FileReader();
+                    reader.onload = function (e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.classList.remove("d-none");
+                    };
+                    reader.readAsDataURL(imageInput.files[0]);
+                }
+            });
+        });
+    </script>
+}

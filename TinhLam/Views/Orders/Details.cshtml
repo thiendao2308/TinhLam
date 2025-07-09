@@ -1,0 +1,153 @@
+﻿@model TinhLam.Data.Order
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .order-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        border: 2px solid #55161b;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .order-title {
+        color: #55161b;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .order-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+        .order-info dt, .order-info dd {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        .order-info dt {
+            font-weight: bold;
+            color: #55161b;
+            flex: 0 0 30%; /* Chiếm 30% chiều rộng */
+            text-align: left;
+        }
+
+        .order-info dd {
+            flex: 1; /* Chiếm phần còn lại */
+            color: #333;
+        }
+
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        margin-top: 20px;
+    }
+
+        .order-table th {
+            background: #55161b;
+            color: white;
+            padding: 10px;
+        }
+
+        .order-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .order-table tbody tr:hover {
+            background: #f9f2e8;
+        }
+
+    .total-amount {
+        color: #55161b;
+        font-weight: bold;
+    }
+
+    .btn-back {
+        display: block;
+        text-align: center;
+        background: #f5c808;
+        color: #55161b;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-decoration: none;
+        margin-top: 20px;
+    }
+
+        .btn-back:hover {
+            background: #d4a307;
+        }
+</style>
+
+<div class="order-container">
+    <h1 class="order-title">Chi tiết đơn hàng</h1>
+
+    <h4 style="color: #55161b;">Thông tin đơn hàng</h4>
+    <hr />
+    <dl class="order-info">
+        <dt>Tên khách hàng:</dt>
+        <dd>@Model.CustomerName</dd>
+
+        <dt>Số điện thoại:</dt>
+        <dd>@Model.PhoneNumber</dd>
+
+         <dt>Địa chỉ giao hàng:</dt> 
+         <dd>@Model.StreetAddress</dd> 
+
+        <dt>Ngày đặt hàng:</dt>
+        <dd>@Model.OrderDate</dd>
+
+        <dt>Tổng tiền:</dt>
+        <dd class="total-amount">@Model.TotalAmount VND</dd>
+
+        @if (Model.DiscountAmount > 0)
+        {
+            <dt>Giảm giá (điểm thưởng):</dt>
+            <dd style="color: #28a745; font-weight: bold;">-@Model.DiscountAmount?.ToString("N0") VND</dd>
+        }
+
+        @if (Model.RewardPointsUsed > 0)
+        {
+            <dt>Điểm thưởng đã sử dụng:</dt>
+            <dd style="color: #ffc107; font-weight: bold;">@Model.RewardPointsUsed điểm</dd>
+        }
+
+        <dt>Trạng thái:</dt>
+        <dd>@Model.Status</dd>
+    </dl>
+
+    <h4 style="color: #55161b; margin-top: 20px;">Sản phẩm trong đơn hàng</h4>
+    <table class="order-table">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderDetails)
+            {
+                <tr>
+                    <td>@item.Product.ProductName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice VND</td>
+                    <td class="total-amount">@(item.Quantity * item.UnitPrice) VND</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="Index" class="btn-back">Quay lại danh sách</a>
+</div>

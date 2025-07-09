@@ -1,0 +1,70 @@
+﻿@model TinhLam.Data.Product
+
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<div style="max-width: 600px; background: #fff; padding: 20px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); border: 2px solid #55161b; margin: auto;">
+
+    <h1 style="font-size: 24px; font-weight: bold; color: #55161b; text-align: center; margin-bottom: 20px;">
+        Chi tiết sản phẩm
+    </h1>
+
+    <dl style="margin: 0; padding: 0;">
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Tên sản phẩm:</dt>
+        <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.ProductName)</dd>
+
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Đơn giá:</dt>
+        <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.Price) VND</dd>
+
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Mô tả:</dt>
+        <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.Description)</dd>
+
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Hình ảnh:</dt>
+        <dd style="margin-bottom: 10px;">
+            <img src="@Model.Image" alt="Hình ảnh sản phẩm"
+                 style="max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd; display: block; margin: 10px auto;" />
+        </dd>
+
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Trạng thái:</dt>
+        <dd style="color: #333; margin-bottom: 10px;">
+            @(Model.IsActive.HasValue ? (Model.IsActive.Value ? "Hoạt động" : "Ngừng bán") : "Chưa xác định")
+        </dd>
+
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Danh mục:</dt>
+        <dd style="color: #333; margin-bottom: 10px;">@Html.DisplayFor(model => model.Category.CategoryId)</dd>
+
+        <dt style="font-weight: bold; color: #55161b; margin-top: 10px;">Các size tay:</dt>
+        <dd style="color: #333; margin-bottom: 10px;">
+            @if (Model.ProductSizes != null && Model.ProductSizes.Any())
+            {
+                <ul>
+                    @foreach (var size in Model.ProductSizes)
+                    {
+                        <li>@size.Size cm (Còn @size.StockQuantity)</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>Chưa có size</span>
+            }
+        </dd>
+    </dl>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+        <a asp-action="Edit" asp-route-id="@Model?.ProductId"
+           style="background: #55161b; color: #fff; padding: 10px 15px; border: none; border-radius: 5px;
+                  font-size: 16px; text-decoration: none; text-align: center;">
+            Chỉnh sửa
+        </a>
+        <a asp-action="Index"
+           style="background: #f5c808; color: #55161b; padding: 10px 15px; border-radius: 5px; font-weight: bold;
+                  text-decoration: none; text-align: center;">
+            Quay lại
+        </a>
+    </div>
+</div>

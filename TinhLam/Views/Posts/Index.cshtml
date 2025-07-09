@@ -1,0 +1,454 @@
+@model IEnumerable<TinhLam.Data.Post>
+
+@{
+    ViewData["Title"] = "Quản lý bài viết";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .posts-container {
+        max-width: 95%;
+        margin: auto;
+        overflow-x: auto;
+        border: 2px solid #55161b;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .posts-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .posts-table thead {
+        background: #55161b;
+        color: white;
+    }
+
+    .posts-table th, .posts-table td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .posts-table th {
+        border-bottom: 2px solid #f5c808;
+        text-align: center;
+    }
+
+    .posts-table tbody tr:hover {
+        background: #f9f2e8;
+    }
+
+    .post-image {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    .post-image-placeholder {
+        width: 80px;
+        height: 60px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+
+    .post-title {
+        font-weight: bold;
+        color: #55161b;
+        max-width: 200px;
+        text-align: center;
+    }
+
+    .post-tags {
+        font-size: 12px;
+        color: #6c757d;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .status-published {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .status-draft {
+        color: #ffc107;
+        font-weight: bold;
+    }
+
+    .view-count {
+        color: #55161b;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: bold;
+        transition: 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-view {
+        background: #17a2b8;
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: #138496;
+    }
+
+    .btn-edit {
+        background: #f5c808;
+        color: #55161b;
+    }
+
+    .btn-edit:hover {
+        background: #d4a307;
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c82333;
+    }
+
+    .btn-comments {
+        background: #6f42c1;
+        color: white;
+    }
+
+    .btn-comments:hover {
+        background: #5a32a3;
+    }
+
+    .page-title {
+        color: #55161b;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .action-bar {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+
+    .btn-create {
+        background: #55161b;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+        display: inline-block;
+    }
+
+    .btn-create:hover {
+        background: #f5c808;
+        color: #55161b;
+    }
+
+    .stats-summary {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .stat-item {
+        background: white;
+        border: 2px solid #55161b;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        min-width: 150px;
+    }
+
+    .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 14px;
+    }
+</style>
+
+<h1 class="page-title">Quản lý bài viết</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="max-width: 95%; margin: auto; margin-bottom: 20px;">
+        <i class="fas fa-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="stats-summary">
+    <div class="stat-item">
+        <div class="stat-number">@Model.Count()</div>
+        <div class="stat-label">Tổng bài viết</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">@Model.Sum(p => p.ViewCount)</div>
+        <div class="stat-label">Tổng lượt xem</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">@Model.Count(p => p.IsPublished)</div>
+        <div class="stat-label">Đã xuất bản</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">@Model.Count(p => !p.IsPublished)</div>
+        <div class="stat-label">Bản nháp</div>
+    </div>
+</div>
+
+<div class="action-bar">
+    <a asp-action="Create" class="btn-create">
+        <i class="fas fa-plus me-2"></i>Thêm bài viết mới
+    </a>
+</div>
+
+<div class="posts-container">
+    <table class="posts-table">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Tiêu đề</th>
+                <th>Tác giả</th>
+                <th>Ngày tạo</th>
+                <th>Lượt xem</th>
+                <th>Tags</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="text-align: center;">
+                        @if (!string.IsNullOrEmpty(item.Image))
+                        {
+                            <img src="~/images/posts/@item.Image" alt="@item.Title" class="post-image">
+                        }
+                        else
+                        {
+                            <div class="post-image-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        <div class="post-title">@item.Title</div>
+                    </td>
+                    <td>@item.Author</td>
+                    <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <span class="view-count">@item.ViewCount</span>
+                    </td>
+                    <td>
+                        <div class="post-tags" title="@item.Tags">
+                            @if (!string.IsNullOrEmpty(item.Tags))
+                            {
+                                @item.Tags
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có</span>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        @if (item.IsPublished)
+                        {
+                            <span class="status-published">Đã xuất bản</span>
+                        }
+                        else
+                        {
+                            <span class="status-draft">Bản nháp</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a asp-action="Details" asp-route-id="@item.PostId" class="btn-action btn-view" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.PostId" class="btn-action btn-edit" title="Sửa">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="btn-action btn-comments" onclick="viewComments(@item.PostId, '@item.Title')" title="Xem bình luận (@item.PostComments.Count)">
+                                <i class="fas fa-comments"></i>
+                            </button>
+                            <a href="#" class="btn-action btn-delete" title="Xóa" onclick="return confirmDeletePost(@item.PostId);">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <form id="deleteForm-@item.PostId" asp-action="Delete" asp-route-id="@item.PostId" method="post" style="display:none;"></form>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Comments -->
+<div class="modal fade" id="commentsModal" tabindex="-1" aria-labelledby="commentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="commentsModalLabel">
+                    <i class="fas fa-comments"></i> Bình luận bài viết
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="commentsLoading" class="text-center">
+                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                    <p>Đang tải bình luận...</p>
+                </div>
+                <div id="commentsContent" style="display: none;">
+                    <div id="commentsList"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeletePost(postId) {
+    if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+        document.getElementById('deleteForm-' + postId).submit();
+    }
+    return false;
+}
+
+function viewComments(postId, postTitle) {
+    // Update modal title
+    document.getElementById('commentsModalLabel').innerHTML = '<i class="fas fa-comments"></i> Bình luận: ' + postTitle;
+    
+    // Show loading
+    document.getElementById('commentsLoading').style.display = 'block';
+    document.getElementById('commentsContent').style.display = 'none';
+    
+    // Show modal
+    var modal = new bootstrap.Modal(document.getElementById('commentsModal'));
+    modal.show();
+    
+    // Load comments
+    $.ajax({
+        url: '@Url.Action("GetCommentsByPost", "Posts")',
+        type: 'GET',
+        data: { postId: postId },
+        success: function(response) {
+            document.getElementById('commentsLoading').style.display = 'none';
+            document.getElementById('commentsContent').style.display = 'block';
+            
+            if (response.success) {
+                displayComments(response.comments);
+            } else {
+                document.getElementById('commentsList').innerHTML = '<div class="alert alert-danger">' + response.message + '</div>';
+            }
+        },
+        error: function() {
+            document.getElementById('commentsLoading').style.display = 'none';
+            document.getElementById('commentsContent').style.display = 'block';
+            document.getElementById('commentsList').innerHTML = '<div class="alert alert-danger">Có lỗi xảy ra khi tải bình luận.</div>';
+        }
+    });
+}
+
+function displayComments(comments) {
+    var html = '';
+    
+    if (comments.length === 0) {
+        html = '<div class="text-center text-muted"><i class="fas fa-comment-slash fa-2x mb-2"></i><p>Chưa có bình luận nào cho bài viết này.</p></div>';
+    } else {
+        html = '<div class="table-responsive"><table class="table table-striped">';
+        html += '<thead><tr><th>Người bình luận</th><th>Nội dung</th><th>Ngày bình luận</th><th>Số điện thoại</th><th>Hành động</th></tr></thead><tbody>';
+        
+        comments.forEach(function(comment) {
+            var authorName = comment.userName || (comment.phoneNumber || 'Khách');
+            var userType = comment.userId ? '<span class="badge bg-success">Thành viên</span>' : '<span class="badge bg-secondary">Khách</span>';
+            var phoneNumber = comment.phoneNumber || '<span class="text-muted">Không có</span>';
+            
+            html += '<tr>';
+            html += '<td><div class="fw-bold">' + authorName + '</div><div>' + userType + '</div></td>';
+            html += '<td><div class="text-truncate" style="max-width: 200px;" title="' + comment.commentContent + '">' + comment.commentContent + '</div></td>';
+            html += '<td>' + new Date(comment.commentDate).toLocaleString('vi-VN') + '</td>';
+            html += '<td>' + phoneNumber + '</td>';
+            html += '<td><button class="btn btn-sm btn-danger" onclick="deleteCommentFromModal(' + comment.commentId + ', this)"><i class="fas fa-trash"></i></button></td>';
+            html += '</tr>';
+        });
+        
+        html += '</tbody></table></div>';
+    }
+    
+    document.getElementById('commentsList').innerHTML = html;
+}
+
+function deleteCommentFromModal(commentId, button) {
+    if (confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+        $.ajax({
+            url: '@Url.Action("DeleteComment", "Posts")',
+            type: 'POST',
+            data: { commentId: commentId },
+            success: function(response) {
+                if (response.success) {
+                    $(button).closest('tr').fadeOut(300, function() {
+                        $(this).remove();
+                        // Check if no comments left
+                        if ($('#commentsList tbody tr').length === 0) {
+                            $('#commentsList').html('<div class="text-center text-muted"><i class="fas fa-comment-slash fa-2x mb-2"></i><p>Chưa có bình luận nào cho bài viết này.</p></div>');
+                        }
+                    });
+                    alert(response.message);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('Có lỗi xảy ra khi xóa bình luận. Vui lòng thử lại!');
+            }
+        });
+    }
+}
+</script>

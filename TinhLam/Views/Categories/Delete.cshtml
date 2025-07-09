@@ -1,0 +1,109 @@
+﻿@model TinhLam.Data.Category
+
+@{
+    ViewData["Title"] = "Xóa danh mục";
+    Layout = "_AdminLayout";
+}
+
+<h1 class="page-title">Xóa danh mục</h1>
+
+<div class="card">
+    <div class="card-header">Bạn có chắc chắn muốn xóa danh mục này?</div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Tên danh mục:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.CategoryName)</dd>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="CategoryId" />
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-delete">Xóa</button>
+                <a asp-action="Index" class="btn btn-back">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        max-width: 500px;
+        margin: auto;
+        background: white;
+    }
+
+    .card-header {
+        background: #f5c808;
+        color: black;
+        padding: 10px 15px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .card-body {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        width: 48%;
+    }
+
+    .btn-delete {
+        background-color: #55161b;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: red;
+        }
+
+    .btn-back {
+        background-color: #f5c808;
+        color: black;
+    }
+
+        .btn-back:hover {
+            background-color: #55161b;
+            color: white;
+        }
+</style>

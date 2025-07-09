@@ -1,0 +1,254 @@
+﻿@model IEnumerable<TinhLam.Data.User>
+
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .users-container {
+        max-width: 95%;
+        margin: auto;
+        overflow-x: auto;
+        border: 2px solid #55161b;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+        .users-table thead {
+            background: #55161b;
+            color: white;
+        }
+
+        .users-table th, .users-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .users-table th {
+            border-bottom: 2px solid #f5c808;
+        }
+
+        .users-table tbody tr:hover {
+            background: #f9f2e8;
+        }
+
+    .btn-action {
+        background: #f5c808;
+        color: #55161b;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        margin: 2px;
+    }
+
+        .btn-action:hover {
+            background: #d4a307;
+        }
+
+    .btn-details {
+        background: #17a2b8 !important;
+        color: white !important;
+    }
+
+    .btn-edit {
+        background: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .btn-delete {
+        background: #dc3545 !important;
+        color: white !important;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    .bg-primary {
+        background-color: #007bff !important;
+        color: white !important;
+    }
+
+    .bg-success {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .bg-danger {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .action-bar {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+
+    .btn-add {
+        background-color: #f5c808;
+        color: black;
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .btn-add:hover {
+            background-color: #55161b;
+            color: white;
+        }
+</style>
+
+<h1 style="color: #55161b; text-align: center; margin-bottom: 20px;">Quản lý người dùng</h1>
+
+<div class="action-bar">
+    <a asp-action="Create" class="btn-add">Thêm người dùng</a>
+</div>
+
+<div class="users-container">
+    <table class="users-table">
+        <thead>
+            <tr>
+                <th>Tên người dùng</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Tên khách hàng</th>
+                <th>Vai trò</th>
+                <th>Điểm thưởng</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Username</td>
+                    <td>@item.Email</td>
+                    <td>@item.PhoneNumber</td>
+                    <td>@(item.CustomerName ?? "Chưa cập nhật")</td>
+                    <td>
+                        @if (item.Role == "Admin")
+                        {
+                            <span class="badge bg-danger">Admin</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">User</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">@(item.RewardPoints ?? 0) điểm</span>
+                    </td>
+                    <td>
+                        @if (item.HieuLuc)
+                        {
+                            <span class="badge bg-success">Hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">Tạm khóa</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.UserId" class="btn-action btn-details">Chi tiết</a>
+                        <a asp-action="Edit" asp-route-id="@item.UserId" class="btn-action btn-edit">Sửa</a>
+                        <a href="#" class="btn-action btn-delete" onclick="return confirmDeleteUser(@item.UserId);">Xóa</a>
+                    </td>
+                </tr>
+                <form id="deleteForm-@item.UserId" asp-action="Delete" asp-route-id="@item.UserId" method="post" style="display:none;"></form>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+function confirmDeleteUser(userId) {
+    if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+        document.getElementById('deleteForm-' + userId).submit();
+    }
+    return false;
+}
+</script>
+
+<!-- Chat box -->
+@* <div id="chat-container"> *@
+@*     <h3>Hỗ trợ khách hàng</h3> *@
+@*     <div id="chat-messages"></div> *@
+@*     <input type="text" id="message-input" placeholder="Nhập tin nhắn..." /> *@
+@*     <button id="send-message">Gửi</button> *@
+@* </div> *@
+
+<style>
+    #chat-container {
+        width: 300px;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }
+
+    #chat-messages {
+        height: 200px;
+        overflow-y: scroll;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 10px;
+    }
+
+    #message-input {
+        width: 70%;
+        padding: 5px;
+    }
+
+    #send-message {
+        width: 25%;
+        padding: 5px;
+        background: blue;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+</style>
+
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script> *@
+@* <script> *@
+@*     var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build(); *@
+
+@*     connection.start().catch(err => console.error(err)); *@
+
+@*     document.getElementById("send-message").addEventListener("click", function () { *@
+@*         var message = document.getElementById("message-input").value; *@
+@*         connection.invoke("SendMessage", 1, message).catch(err => console.error(err)); *@
+@*         document.getElementById("message-input").value = ""; *@
+@*     }); *@
+
+@*     connection.on("ReceiveMessage", function (userId, message) { *@
+@*         var chatBox = document.getElementById("chat-messages"); *@
+@*         chatBox.innerHTML += "<p><strong>User " + userId + ":</strong> " + message + "</p>"; *@
+@*         chatBox.scrollTop = chatBox.scrollHeight; *@
+@*     }); *@
+@* </script> *@

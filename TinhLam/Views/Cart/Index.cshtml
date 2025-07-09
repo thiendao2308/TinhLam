@@ -1,0 +1,158 @@
+﻿@model IEnumerable<TinhLam.ViewModels.CartItem>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <h2 class="text-center text-primary fw-bold" style="color: #55161b !important">Giỏ hàng của tôi</h2>
+
+    <div class="row mt-5">
+        <div class="col-lg-8">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="bg-dark text-light">
+                        <tr>
+                            <th></th>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="border-bottom" data-product-id="@item.MaProduct" data-product-size-id="@item.ProductSizeId">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="~/images/@item.Hinh" class="img-fluid rounded shadow-sm" style="width: 80px; height: 80px;">
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="mb-0 fw-bold">
+                                        <a asp-controller="Home" asp-action="DetailProduct" asp-route-id="@item.MaProduct" class="text-dark text-decoration-none hover-text-primary">
+                                            @item.TenProduct
+                                        </a>
+                                    </p>
+                                    <small class="text-muted">Size: @item.Size cm</small>
+                                </td>
+                                <td><strong>@item.Price.ToString("N0") VNĐ</strong></td>
+                                <td>
+                                    <div class="input-group quantity" style="width: 120px;">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-circle btn-minus">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <input type="text" class="form-control text-center border-0" value="@item.SoLuong">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-circle btn-plus">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td><strong>@item.ThanhTien.ToString("N0") VNĐ</strong></td>
+                                <td>
+                                    <a asp-action="RemoveCart" asp-controller="Cart" asp-route-id="@item.MaProduct" asp-route-productSizeId="@item.ProductSizeId" class="btn btn-outline-danger rounded-circle">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cột Tổng Tiền -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body">
+                    <h4 class="fw-bold text-primary" style="color: #55161b !important">Tóm tắt đơn hàng</h4>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <h6>Tạm tính:</h6>
+                        <strong>@Model.Sum(p => p.ThanhTien).ToString("N0") VNĐ</strong>
+                    </div>
+                    
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <h5 class="fw-bold">Tổng cộng:</h5>
+                        <h5 class="fw-bold text-success">@Model.Sum(p => p.ThanhTien).ToString("N0") VNĐ</h5>
+                    </div>
+                    <a asp-action="ThanhToan" asp-controller="Cart" class="btn w-100 mt-4 py-3 fw-bold text-light" style="background-color: #F5C808;">
+                        Tiến hành thanh toán
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .hover-text-primary:hover {
+        color: #55161 !important;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #55161;
+        color: white;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: red;
+        color: white;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const minusButtons = document.querySelectorAll(".btn-minus");
+        const plusButtons = document.querySelectorAll(".btn-plus");
+
+        function updateCart(productId, productSizeId, newQuantity) {
+            fetch('/Cart/UpdateQuantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ productId: productId, productSizeId: productSizeId, quantity: newQuantity })
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+
+        minusButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                let input = this.closest(".quantity").querySelector("input");
+                let value = parseInt(input.value);
+                let tr = this.closest("tr");
+                let productId = tr.dataset.productId;
+                let productSizeId = tr.dataset.productSizeId;
+
+                if (value > 1) {
+                    input.value = value - 1;
+                    updateCart(productId, productSizeId, input.value);
+                }
+            });
+        });
+
+        plusButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                let input = this.closest(".quantity").querySelector("input");
+                let value = parseInt(input.value);
+                let tr = this.closest("tr");
+                let productId = tr.dataset.productId;
+                let productSizeId = tr.dataset.productSizeId;
+
+                input.value = value + 1;
+                updateCart(productId, productSizeId, input.value);
+            });
+        });
+    });
+</script>

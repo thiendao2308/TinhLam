@@ -1,0 +1,240 @@
+﻿@model IEnumerable<TinhLam.Data.Product>
+
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<h1 class="page-title">Danh sách sản phẩm</h1>
+
+<div class="action-bar">
+    <a asp-action="Create" class="btn btn-add">Thêm sản phẩm</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Đơn giá (VND)</th>
+                <th>Số lượng tổng</th>
+                <th>Mô tả</th>
+                <th>Hình ảnh</th>
+                <th>Kích thước</th>
+                <th>Trạng thái</th>
+                <th>Danh mục</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@string.Format("{0:N0}", item.Price)</td>
+                    <td>@item.ProductSizes.Sum(ps => ps.StockQuantity)</td>
+                    <td class="description">@item.Description</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Image))
+                        {
+                            <img src="@Url.Content("~/images/" + item.Image)" alt="@item.ProductName" class="img-thumbnail" />
+                        }
+                        else
+                        {
+                            <span>Không có ảnh</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.ProductSizes.Any())
+                        {
+                            <ul class="size-list">
+                                @foreach (var size in item.ProductSizes.OrderBy(ps => ps.Size))
+                                {
+                                    <li>@size.Size cm (Còn @size.StockQuantity)</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span>Chưa có size</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="@(item.IsActive ?? false ? "status-active" : "status-inactive")">
+                            @(item.IsActive ?? false ? "Đang bán" : "Ngừng bán")
+                        </span>
+                    </td>
+                    <td>@(item.Category?.CategoryName ?? "Không có")</td>
+                    <td class="action-buttons">
+                        <a asp-action="ManageSizes" asp-route-id="@item.ProductId" class="btn btn-manage">Quản lý Size</a>
+                        <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-edit">Sửa</a>
+                        <a asp-action="Details" asp-controller="Products" asp-route-id="@item.ProductId" class="btn btn-details">Chi tiết</a>
+                        <a href="#" class="btn btn-delete" title="Xóa" onclick="return confirmDeleteProduct(@item.ProductId);">Xóa</a>
+                    </td>
+                </tr>
+                <form id="deleteForm-@item.ProductId" asp-action="Delete" asp-route-id="@item.ProductId" method="post" style="display:none;"></form>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+function confirmDeleteProduct(productId) {
+    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+        document.getElementById('deleteForm-' + productId).submit();
+    }
+    return false;
+}
+</script>
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .action-bar {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+
+    .btn-add {
+        background-color: #f5c808;
+        color: black;
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .btn-add:hover {
+            background-color: #55161b;
+            color: white;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+        background: white;
+    }
+
+        .table th {
+            background: #55161b;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .table td {
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+    .img-thumbnail {
+        max-width: 80px;
+        height: auto;
+        border-radius: 5px;
+    }
+
+    .description {
+        max-width: 150px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .size-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .size-list li {
+        margin-bottom: 2px;
+        padding: 2px 4px;
+        background-color: #f8f9fa;
+        border-radius: 3px;
+    }
+
+    .status-active {
+        color: green;
+        font-weight: bold;
+    }
+
+    .status-inactive {
+        color: red;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 5px 8px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        display: inline-block;
+        margin: 1px;
+    }
+
+    .btn-manage {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-manage:hover {
+            background-color: #218838;
+        }
+
+    .btn-edit {
+        background-color: #ffc107;
+        color: black;
+    }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+
+    .btn-details {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+        .btn-details:hover {
+            background-color: #138496;
+        }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+</style>

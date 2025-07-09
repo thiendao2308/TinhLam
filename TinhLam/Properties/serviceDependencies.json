@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:TLinh"
+    },
+    "mssql2": {
+      "type": "mssql",
+      "connectionId": "TLinh",
+      "dynamicId": null
+    }
+  }
+}

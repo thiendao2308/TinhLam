@@ -1,0 +1,213 @@
+@model IEnumerable<TinhLam.Data.HomeBannerImage>
+
+@{
+    ViewData["Title"] = "Quản lý Banner trang chủ";
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<h1 class="page-title">Quản lý Banner trang chủ</h1>
+
+<div class="action-bar">
+    <a asp-action="Create" class="btn btn-add">Thêm Banner</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Hình ảnh</th>
+                <th>Tiêu đề</th>
+                <th>Liên kết</th>
+                <th>Thứ tự hiển thị</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@Url.Content("~/" + item.ImageUrl)" alt="@item.Caption" class="img-thumbnail" />
+                        }
+                        else
+                        {
+                            <span>Không có ảnh</span>
+                        }
+                    </td>
+                    <td>@(item.Caption ?? "Không có tiêu đề")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Link))
+                        {
+                            <a href="@item.Link" target="_blank" class="text-decoration-none">@item.Link</a>
+                        }
+                        else
+                        {
+                            <span>Không có liên kết</span>
+                        }
+                    </td>
+                    <td>@(item.DisplayOrder ?? 0)</td>
+                    <td>
+                        <span class="@(item.IsActive ? "status-active" : "status-inactive")">
+                            @(item.IsActive ? "Đang hiển thị" : "Ẩn")
+                        </span>
+                    </td>
+                    <td>@(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                    <td class="action-buttons">
+                        <a asp-action="Edit" asp-route-id="@item.ImageId" class="btn btn-edit">Sửa</a>
+                        <a href="#" class="btn btn-delete" title="Xóa" onclick="return confirmDeleteBanner(@item.ImageId);">Xóa</a>
+                    </td>
+                </tr>
+                <form id="deleteForm-@item.ImageId" asp-action="Delete" asp-route-id="@item.ImageId" method="post" style="display:none;"></form>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+function confirmDeleteBanner(bannerId) {
+    if (confirm('Bạn có chắc chắn muốn xóa banner này?')) {
+        document.getElementById('deleteForm-' + bannerId).submit();
+    }
+    return false;
+}
+</script>
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .action-bar {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+
+    .btn-add {
+        background-color: #f5c808;
+        color: black;
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .btn-add:hover {
+            background-color: #55161b;
+            color: white;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+        background: white;
+    }
+
+        .table th {
+            background: #55161b;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .table td {
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+    .img-thumbnail {
+        max-width: 120px;
+        max-height: 80px;
+        width: auto;
+        height: auto;
+        border-radius: 5px;
+        object-fit: cover;
+    }
+
+    .status-active {
+        color: green;
+        font-weight: bold;
+    }
+
+    .status-inactive {
+        color: red;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 5px 8px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background-color: #007bff;
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+</style> 

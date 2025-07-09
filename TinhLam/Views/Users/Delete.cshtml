@@ -1,0 +1,185 @@
+﻿@model TinhLam.Data.User
+
+@{
+    ViewData["Title"] = "Xóa người dùng";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .delete-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        border: 2px solid #55161b;
+    }
+
+    .warning-message {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+
+    .details-table dt, .details-table dd {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .details-table dt {
+        font-weight: bold;
+        color: #55161b;
+        width: 200px;
+        background-color: #f9f2e8;
+    }
+
+    .details-table dd {
+        color: #333;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    .bg-primary {
+        background-color: #007bff !important;
+        color: white !important;
+    }
+
+    .bg-success {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+
+    .bg-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .bg-danger {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .action-buttons {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s ease;
+        margin: 5px;
+        display: inline-block;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .btn-secondary {
+        background-color: #55161b;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #722025;
+    }
+</style>
+
+<h1 style="color: #55161b; text-align: center; margin-bottom: 20px;">Xóa người dùng</h1>
+
+<div class="delete-container">
+    <div class="warning-message">
+        ⚠️ Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác.
+    </div>
+
+    <table class="details-table">
+        <tr>
+            <dt>Tên đăng nhập</dt>
+            <dd>@Model.Username</dd>
+        </tr>
+        <tr>
+            <dt>Email</dt>
+            <dd>@Model.Email</dd>
+        </tr>
+        <tr>
+            <dt>Số điện thoại</dt>
+            <dd>@(Model.PhoneNumber ?? "Chưa cập nhật")</dd>
+        </tr>
+        <tr>
+            <dt>Tên khách hàng</dt>
+            <dd>@(Model.CustomerName ?? "Chưa cập nhật")</dd>
+        </tr>
+        <tr>
+            <dt>Địa chỉ</dt>
+            <dd>@(Model.Diachi ?? "Chưa cập nhật")</dd>
+        </tr>
+        <tr>
+            <dt>Vai trò</dt>
+            <dd>
+                @if (Model.Role == "Admin")
+                {
+                    <span class="badge bg-danger">Admin</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">User</span>
+                }
+            </dd>
+        </tr>
+        <tr>
+            <dt>Điểm thưởng</dt>
+            <dd>
+                <span class="badge bg-primary">@(Model.RewardPoints ?? 0) điểm</span>
+            </dd>
+        </tr>
+        <tr>
+            <dt>Trạng thái</dt>
+            <dd>
+                @if (Model.HieuLuc)
+                {
+                    <span class="badge bg-success">Hoạt động</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning">Tạm khóa</span>
+                }
+            </dd>
+        </tr>
+    </table>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="UserId" />
+        <div class="action-buttons">
+            <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+            <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+        </div>
+    </form>
+</div>

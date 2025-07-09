@@ -1,0 +1,198 @@
+@model TinhLam.Data.HomeBannerImage
+
+@{
+    ViewData["Title"] = "Thêm Banner mới";
+    Layout = "_AdminLayout";
+}
+
+<h1 class="page-title">Thêm Banner mới</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            
+            <div class="form-group">
+                <label class="control-label">Hình ảnh Banner *</label>
+                <input name="ImageFile" type="file" class="form-control" accept="image/*" required />
+                @if (ViewData.ModelState["ImageFile"]?.Errors.Count > 0)
+                {
+                    <span class="text-danger">@ViewData.ModelState["ImageFile"].Errors.First().ErrorMessage</span>
+                }
+                <small class="form-text text-muted">Chọn file ảnh (JPG, PNG, GIF). Kích thước khuyến nghị: 1920x600px</small>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Caption" class="control-label">Tiêu đề</label>
+                <input asp-for="Caption" class="form-control" placeholder="Nhập tiêu đề cho banner" />
+                <span asp-validation-for="Caption" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Link" class="control-label">Liên kết</label>
+                <input asp-for="Link" class="form-control" placeholder="https://example.com" />
+                <span asp-validation-for="Link" class="text-danger"></span>
+                <small class="form-text text-muted">Liên kết khi click vào banner (tùy chọn)</small>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DisplayOrder" class="control-label">Thứ tự hiển thị</label>
+                <input asp-for="DisplayOrder" class="form-control" type="number" min="0" value="0" />
+                <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                <small class="form-text text-muted">Số càng nhỏ hiển thị càng trước</small>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                    <label asp-for="IsActive" class="form-check-label">
+                        Hiển thị banner
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Thêm Banner</button>
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="preview-section">
+            <h5>Xem trước</h5>
+            <div id="imagePreview" class="image-preview">
+                <p class="text-muted">Chọn ảnh để xem trước</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelector('input[name="ImageFile"]').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview" />`;
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '<p class="text-muted">Chọn ảnh để xem trước</p>';
+    }
+});
+</script>
+
+<style>
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .control-label {
+        font-weight: bold;
+        color: #55161b;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        border-color: #f5c808;
+        box-shadow: 0 0 0 0.2rem rgba(245, 200, 8, 0.25);
+    }
+
+    .form-check-input:checked {
+        background-color: #f5c808;
+        border-color: #f5c808;
+    }
+
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #f5c808;
+        color: black;
+    }
+
+    .btn-primary:hover {
+        background-color: #55161b;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+
+    .preview-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    .preview-section h5 {
+        color: #55161b;
+        margin-bottom: 15px;
+    }
+
+    .image-preview {
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #ddd;
+        border-radius: 5px;
+        background-color: white;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 5px;
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .form-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style> 

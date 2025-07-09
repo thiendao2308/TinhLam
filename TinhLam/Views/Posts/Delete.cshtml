@@ -1,0 +1,79 @@
+@model TinhLam.Data.Post
+
+@{
+    ViewData["Title"] = "Xóa bài viết";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Xóa bài viết</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Xác nhận xóa bài viết</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác. Tất cả bình luận và ảnh liên quan sẽ bị xóa vĩnh viễn.
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <h4>@Model.Title</h4>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Image))
+                    {
+                        <div class="mb-3">
+                            <img src="~/images/posts/@Model.Image" alt="@Model.Title" class="img-fluid rounded" style="max-height: 200px;" />
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <strong>Nội dung:</strong>
+                        <p class="text-muted">@(Model.Content.Length > 200 ? Model.Content.Substring(0, 200) + "..." : Model.Content)</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Tác giả:</strong> @Model.Author</p>
+                            <p><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Lượt xem:</strong> @Model.ViewCount</p>
+                            <p><strong>Bình luận:</strong> @Model.PostComments.Count</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Thông tin xóa:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-file-text text-danger"></i> Bài viết chính</li>
+                                <li><i class="fas fa-images text-danger"></i> @Model.PostImages.Count ảnh bổ sung</li>
+                                <li><i class="fas fa-comments text-danger"></i> @Model.PostComments.Count bình luận</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Delete" method="post" class="mt-4">
+                <input type="hidden" asp-for="PostId" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xác nhận xóa
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

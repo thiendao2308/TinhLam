@@ -1,0 +1,156 @@
+﻿@model TinhLam.ViewModels.RegisterVM
+@{
+    ViewData["Title"] = "DangKy";
+}
+
+<style>
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 1000px;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 400px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        border-top: 6px solid #f5c808;
+        text-align: center;
+        margin-bottom: 50px;
+        margin-top: 50px;
+    }
+
+    /* Tiêu đề */
+    .login-title {
+        color: #55161b;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Nhóm input */
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    .form-label {
+        color: #55161b;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border 0.3s ease;
+    }
+
+        .form-input:focus {
+            border-color: #f5c808;
+            outline: none;
+            box-shadow: 0 0 5px rgba(245, 200, 8, 0.5);
+        }
+
+    /* Nút đăng nhập */
+    .login-button {
+        width: 100%;
+        background: #f5c808;
+        color: #55161b;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+        .login-button:hover {
+            background: #e5b707;
+        }
+
+    /* Thông báo lỗi */
+    .error-message {
+        color: red;
+        font-size: 14px;
+        display: block;
+        margin-top: 5px;
+    }
+
+    /* Liên kết */
+    .forgot-password,
+    .register-link {
+        display: inline-block;
+        margin-top: 10px;
+        font-size: 14px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .forgot-password {
+        color: #55161b;
+    }
+
+    .register-link {
+        color: #f5c808;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .register-link:hover {
+        color: #e5b707;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-box">
+            <h1 class="login-title">Đăng ký</h1>
+            <form asp-action="DangKy" class="login-form">
+                <div class="form-group">
+                    <label asp-for="@Model.CustomerName" class="form-label"></label><sup style="color: red">*</sup>
+                    <input asp-for="@Model.CustomerName" type="text" class="form-input">
+                    <span asp-validation-for="@Model.CustomerName" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Model.Username" class="form-label"></label><sup style="color: red">*</sup>
+                    <input asp-for="@Model.Username" type="text" class="form-input">
+                    <span asp-validation-for="@Model.Username" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Model.Password" class="form-label"></label><sup style="color: red">*</sup>
+                    <input asp-for="@Model.Password" type="password" class="form-input">
+                    <span asp-validation-for="@Model.Password" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Model.Email" class="form-label"></label><sup style="color: red">*</sup>
+                    <input asp-for="@Model.Email" type="email" class="form-input">
+                    <span asp-validation-for="@Model.Email" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Model.PhoneNumber" class="form-label"></label><sup style="color: red">*</sup>
+                    <input asp-for="@Model.PhoneNumber" type="text" class="form-input">
+                    <span asp-validation-for="@Model.PhoneNumber" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Model.DiaChi" class="form-label"></label><sup style="color: red">*</sup>
+                    <input asp-for="@Model.DiaChi" type="text" class="form-input">
+                    <span asp-validation-for="@Model.DiaChi" class="error-message"></span>
+                </div>
+                <button type="submit" class="login-button">Đăng ký</button>
+            </form>
+        </div>
+    </div>
+</div>
