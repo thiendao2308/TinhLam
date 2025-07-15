@@ -24,7 +24,7 @@ namespace TinhLam.Controllers
         [HttpGet]
         public IActionResult DangKy()
         {
-            return View();
+            return View(new RegisterVM()); 
         }
 
         [HttpPost]
@@ -50,7 +50,7 @@ namespace TinhLam.Controllers
         public IActionResult DangNhap(string? ReturnUrl)
         {
             ViewBag.ReturnUrl = ReturnUrl;
-            return View();
+            return View(new LoginVM());
         }
 
         [HttpPost]
@@ -85,7 +85,8 @@ namespace TinhLam.Controllers
                 new Claim(ClaimTypes.Email, khachHang.Email),
                 new Claim(ClaimTypes.Name, khachHang.CustomerName),
                 new Claim(MySetting.CLAIM_CUSTOMERID, khachHang.UserId.ToString()),
-                new Claim(ClaimTypes.Role, khachHang.Role) // Phân quyền User/Admin
+                new Claim(ClaimTypes.Role, khachHang.Role), // Phân quyền User/Admin
+                new Claim(ClaimTypes.NameIdentifier, khachHang.UserId.ToString()),
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

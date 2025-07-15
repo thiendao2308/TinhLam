@@ -1,0 +1,17 @@
+@model List<TinhLam.Data.User>
+@{
+    ViewBag.Title = "Danh sách người dùng đã chat";
+    Layout = "_AdminLayout";
+}
+
+<h2>Người dùng đã chat</h2>
+<ul>
+    @foreach (var user in Model)
+    {
+        <li>
+            <a href="@Url.Action("ChatWithUser", "ChatMessages", new { userId = user.UserId })">
+                @user.Username
+            </a>
+        </li>
+    }
+</ul>

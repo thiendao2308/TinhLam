@@ -1,0 +1,115 @@
+@model List<TinhLam.Data.ChatMessage>
+@{
+    ViewBag.Title = "User Chat";
+    var userId = ViewBag.UserId;
+}
+
+<h2>Chat with Admin</h2>
+
+<style>
+    .chat-message {
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+        clear: both;
+    }
+
+    .admin-message {
+        background-color: #fff;
+        float: left;
+        text-align: left;
+    }
+
+    .user-message {
+        background-color: #dcf8c6;
+        float: right;
+        text-align: right;
+    }
+
+    #chatBox {
+        height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+</style>
+
+<div id="chatBox">
+    @foreach (var msg in Model)
+    {
+        if (msg.Content.StartsWith("[Admin]:"))
+        {
+            <div class="chat-message admin-message">@msg.Content.Substring(8)</div>
+        }
+        else
+        {
+            <div class="chat-message user-message">@msg.Content</div>
+        }
+    }
+</div>
+<div id="supportOptions" style="margin-bottom:10px;">
+    <button class="btn btn-info" onclick="sendSupportRequest('Cần trợ giúp')">Cần trợ giúp</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('supportOptions').style.display='none'">Tắt</button>
+</div>
+<input type="text" id="userMessage" placeholder="Type your message..." />
+<button id="sendButton">Send</button>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const userId = '@userId';
+        const connection = new signalR.HubConnectionBuilder().withUrl("/chathub?userId=" + userId).build();
+
+        connection.on("ReceiveMessageFromAdmin", function (message) {
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML += `<div class="chat-message admin-message">${message}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        connection.start().then(() => {
+            document.getElementById("sendButton").addEventListener("click", sendMessage);
+        });
+
+        function sendMessage() {
+            const msg = document.getElementById("userMessage").value;
+            if (!msg.trim()) return;
+
+            connection.invoke("SendMessageFromUser", parseInt(userId), msg);
+
+            // Hiển thị tin nhắn người dùng
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML += `<div class="chat-message user-message">${msg}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            document.getElementById("userMessage").value = '';
+
+            // Lưu vào DB
+            fetch('/ChatMessages/SendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: parseInt(userId), content: msg })
+            }).catch(err => console.error("Fetch error:", err));
+        }
+
+        // ✅ Gửi cần trợ giúp (realtime tới admin) + auto hiển thị trả lời từ admin bên user
+        window.sendSupportRequest = function (type) {
+            const autoMessage = `[User] ${type}`;
+            const chatBox = document.getElementById("chatBox");
+
+            // Hiển thị user gửi "Cần trợ giúp"
+            chatBox.innerHTML += `<div class="chat-message user-message">${type}</div>`;
+
+            // Gửi realtime tới admin (❌ KHÔNG lưu DB)
+            connection.invoke("SendMessageFromUser", parseInt(userId), autoMessage);
+
+            // Hiển thị phản hồi giả lập từ admin: "Bạn cần gì?"
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="chat-message admin-message">Bạn cần gì?</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 300); // delay nhỏ cho mượt
+        };
+    });
+</script>
+}
