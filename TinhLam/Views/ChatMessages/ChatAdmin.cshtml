@@ -1,0 +1,107 @@
+@model List<TinhLam.Data.ChatMessage>
+@{
+    ViewBag.Title = "Chat với người dùng";
+    var userId = ViewBag.UserId;
+    var receiverName = ViewBag.ReceiverName;
+    Layout = "_AdminLayout";
+}
+
+<h2>Chat với: @receiverName</h2>
+
+<style>
+    .chat-message {
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+        clear: both;
+    }
+
+    .user-message {
+        background-color: #fff;
+        float: left;
+        text-align: left;
+    }
+
+    .admin-message {
+        background-color: #dcf8c6;
+        float: right;
+        text-align: right;
+    }
+
+    #chatBox {
+        height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+</style>
+
+<div id="chatBox">
+    @foreach (var msg in Model)
+    {
+        if (msg.Content.StartsWith("[Admin]:"))
+        {
+            <div class="chat-message admin-message">@msg.Content.Substring(8)</div>
+        }
+        else
+        {
+            <div class="chat-message user-message">@msg.Content</div>
+        }
+    }
+</div>
+
+<input type="text" id="adminMessage" placeholder="Nhập tin nhắn..." />
+<button id="sendButton">Gửi</button>
+
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const userId = '@userId';
+        const connection = new signalR.HubConnectionBuilder().withUrl("/chathub?userId=" + userId).build();
+
+        connection.on("ReceiveMessageFromUser", function (uid, message) {
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML += `<div style="text-align:left;"><span class="bg-light p-2 rounded">${message}</span></div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (message.includes("Cần trợ giúp")) {
+                // Gửi phản hồi tự động
+                const autoReply = "Bạn cần gì?";
+                connection.invoke("SendMessageFromAdmin", parseInt(userId), autoReply);
+                fetch('/ChatMessages/SendMessage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: parseInt(userId), content: "[Admin]: " + autoReply })
+                }).then(() => {
+                    chatBox.innerHTML += `<div style="text-align:right;"><span class="bg-primary text-white p-2 rounded">${autoReply}</span></div>`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+            }
+        });
+
+        connection.start().then(() => {
+            connection.invoke("JoinAsAdmin");
+
+            document.getElementById("sendButton").addEventListener("click", function () {
+                const msg = document.getElementById("adminMessage").value;
+                if (!msg.trim()) return;
+
+                connection.invoke("SendMessageFromAdmin", parseInt(userId), msg);
+                fetch('/ChatMessages/SendMessage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: parseInt(userId), content: "[Admin]: " + msg })
+                }).then(() => {
+                    const chatBox = document.getElementById("chatBox");
+                    chatBox.innerHTML += `<div style="text-align:right;"><span class="bg-primary text-white p-2 rounded">${msg}</span></div>`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    document.getElementById("adminMessage").value = '';
+                });
+            });
+        });
+    });
+</script>
+}

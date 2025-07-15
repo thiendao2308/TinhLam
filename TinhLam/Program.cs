@@ -4,6 +4,7 @@ using TinhLam.Data;
 using TinhLam.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using TinhLam.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +68,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 
+app.MapHub<ChatHub>("/chathub");
 
 app.UseRouting();
 

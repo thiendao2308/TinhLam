@@ -1,32 +1,73 @@
-﻿//using Microsoft.AspNetCore.SignalR;
-//using System.Threading.Tasks;
-//using TinhLam.Data;
-//using TinhLam.Models;
+﻿using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Concurrent;
 
-//namespace TinhLam.Hubs
-//{
-//    public class ChatHub : Hub
-//    {
-//        private readonly TLinhContext _context;
+namespace TinhLam.Hubs
+{
+    public class ChatHub : Hub
+    {
+        // Gán connectionId với userId
+        private static ConcurrentDictionary<string, int> ConnectionUserMap = new ConcurrentDictionary<string, int>();
 
-//        public ChatHub(TLinhContext context)
-//        {
-//            _context = context;
-//        }
+        public override async Task OnConnectedAsync()
+        {
+            var httpContext = Context.GetHttpContext();
+            var userIdString = httpContext.Request.Query["userId"];
+            if (int.TryParse(userIdString, out int userId))
+            {
+                // Gán connectionId với userId
+                ConnectionUserMap[Context.ConnectionId] = userId;
 
-//        public async Task SendMessage(int userId, string message)
-//        {
-//            var newMessage = new ChatMessage
-//            {
-//                UserId = userId,
-//                Content = message,
-//                Timestamp = DateTime.Now
-//            };
+                // Thêm connection vào group "user-{userId}"
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
+            }
 
-//            _context.ChatMessages.Add(newMessage);
-//            await _context.SaveChangesAsync();
+            await base.OnConnectedAsync();
+        }
 
-//            await Clients.All.SendAsync("ReceiveMessage", userId, message);
-//        }
-//    }
-//}
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            if (ConnectionUserMap.TryRemove(Context.ConnectionId, out int userId))
+            {
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user-{userId}");
+            }
+
+            await base.OnDisconnectedAsync(exception);
+        }
+
+        // Gửi từ User
+        public async Task SendMessageFromUser(int userId, string message)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    throw new ArgumentException("Message is null or empty.");
+                }
+
+                // Gửi tới Admin group
+                await Clients.Group("admin").SendAsync("ReceiveMessageFromUser", userId, message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("SendMessageFromUser Error: " + ex.Message);
+                throw;
+            }
+        }
+
+
+        // Gửi từ Admin đến User
+        public async Task SendMessageFromAdmin(int toUserId, string message)
+        {
+            await Clients.Group($"user-{toUserId}").SendAsync("ReceiveMessageFromAdmin", message);
+        }
+
+        // Khi admin kết nối → cho vào group admin
+        public Task JoinAsAdmin()
+        {
+            return Groups.AddToGroupAsync(Context.ConnectionId, "admin");
+        }
+
+    }
+}
