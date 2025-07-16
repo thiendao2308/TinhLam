@@ -268,7 +268,7 @@
                         <tr>
                             <td>@order.OrderId</td>
                             <td>@order.OrderDate.ToShortDateString()</td>
-                            <td>@order.TotalAmount VNĐ</td>
+                            <td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("vi-VN"))</td>    
                             <td>@order.Status</td>
                             <td>
                                 <button class="btn-detail" data-orderid="@order.OrderId">

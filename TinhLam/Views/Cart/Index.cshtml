@@ -2,6 +2,9 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<form id="token-form">
+    @Html.AntiForgeryToken()
+</form>
 
 <div class="container py-5">
     <h2 class="text-center text-primary fw-bold" style="color: #55161b !important">Giỏ hàng của tôi</h2>
@@ -112,7 +115,7 @@
         const minusButtons = document.querySelectorAll(".btn-minus");
         const plusButtons = document.querySelectorAll(".btn-plus");
 
-        function updateCart(productId, productSizeId, newQuantity) {
+        function updateCart(productId, productSizeId, newQuantity, input) {
             fetch('/Cart/UpdateQuantity', {
                 method: 'POST',
                 headers: {
@@ -120,12 +123,21 @@
                     'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                 },
                 body: JSON.stringify({ productId: productId, productSizeId: productSizeId, quantity: newQuantity })
-            }).then(response => {
-                if (response.ok) {
-                    location.reload();
-                }
-            });
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Cập nhật lại tổng tiền cho item
+                        const row = input.closest("tr");
+                        const tdThanhTien = row.querySelector("td:nth-child(5) strong");
+                        tdThanhTien.textContent = data.itemTotal + " VNĐ";
+
+                        // Cập nhật tổng giỏ hàng
+                        document.querySelectorAll(".card-body h5.text-success").forEach(el => el.textContent = data.cartTotal + " VNĐ");
+                        document.querySelectorAll(".card-body div.d-flex.justify-content-between strong")[0].textContent = data.cartTotal + " VNĐ";
+                    }
+                });
         }
+
 
         minusButtons.forEach(button => {
             button.addEventListener("click", function () {
@@ -134,11 +146,11 @@
                 let tr = this.closest("tr");
                 let productId = tr.dataset.productId;
                 let productSizeId = tr.dataset.productSizeId;
-
                 if (value > 1) {
                     input.value = value - 1;
-                    updateCart(productId, productSizeId, input.value);
+                    updateCart(productId, productSizeId, parseInt(input.value), input); // thêm `input`
                 }
+
             });
         });
 
@@ -149,9 +161,9 @@
                 let tr = this.closest("tr");
                 let productId = tr.dataset.productId;
                 let productSizeId = tr.dataset.productSizeId;
-
                 input.value = value + 1;
-                updateCart(productId, productSizeId, input.value);
+                updateCart(productId, productSizeId, parseInt(input.value), input); // thêm `input`
+
             });
         });
     });

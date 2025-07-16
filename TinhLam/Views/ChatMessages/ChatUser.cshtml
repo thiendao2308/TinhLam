@@ -100,7 +100,7 @@
 
             // Hiển thị user gửi "Cần trợ giúp"
             chatBox.innerHTML += `<div class="chat-message user-message">${type}</div>`;
-
+1q  
             // Gửi realtime tới admin (❌ KHÔNG lưu DB)
             connection.invoke("SendMessageFromUser", parseInt(userId), autoMessage);
 

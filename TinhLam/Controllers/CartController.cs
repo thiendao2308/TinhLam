@@ -386,6 +386,60 @@ namespace TinhLam.Controllers
                 return BadRequest(err);
             }
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateQuantity([FromBody] UpdateCartRequest request)
+        {
+            if (request == null || request.ProductId <= 0 || request.Quantity <= 0)
+            {
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
+
+            var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
+            if (customerIdClaim != null)
+            {
+                // Người dùng đã đăng nhập
+                int customerId = int.Parse(customerIdClaim.Value);
+                var item = db.CartsUsers.FirstOrDefault(c => c.UserId == customerId && c.ProductId == request.ProductId && c.ProductSizeId == request.ProductSizeId);
+                if (item != null)
+                {
+                    item.Quantity = request.Quantity;
+                    item.TotalAmount = item.UnitPrice * request.Quantity;
+                    db.SaveChanges();
+                }
+            }
+            else
+            {
+                // Khách vãng lai
+                var cart = Cart;
+                var item = cart.FirstOrDefault(c => c.MaProduct == request.ProductId && c.ProductSizeId == request.ProductSizeId);
+                if (item != null)
+                {
+                    item.SoLuong = request.Quantity;
+                }
+                HttpContext.Session.Set(MySetting.CART_KEY, cart);
+            }
+
+            // Trả về tổng tiền mới cho từng item và tổng giỏ hàng
+            var updatedCart = Cart;
+            var updatedItem = updatedCart.FirstOrDefault(c => c.MaProduct == request.ProductId && c.ProductSizeId == request.ProductSizeId);
+            decimal itemTotal = updatedItem?.ThanhTien ?? 0;
+            decimal cartTotal = updatedCart.Sum(p => p.ThanhTien);
+
+            return Json(new
+            {
+                success = true,
+                itemTotal = itemTotal.ToString("N0"),
+                cartTotal = cartTotal.ToString("N0")
+            });
+        }
+        public class UpdateCartRequest
+        {
+            public int ProductId { get; set; }
+            public int ProductSizeId { get; set; }
+            public int Quantity { get; set; }
+        }
+
 
         [HttpPost("/Cart/capture-paypal-order")]
         public async Task<IActionResult> CapturePaypalOrder(string orderID, CancellationToken cancellationToken)
