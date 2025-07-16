@@ -5,13 +5,20 @@
 }
 
 <h2>Người dùng đã chat</h2>
-<ul>
-    @foreach (var user in Model)
-    {
-        <li>
-            <a href="@Url.Action("ChatWithUser", "ChatMessages", new { userId = user.UserId })">
-                @user.Username
-            </a>
-        </li>
-    }
-</ul>
+@if (Model == null || !Model.Any())
+{
+    <p>Không có người dùng nào để hiển thị.</p>
+}
+else
+{
+    <ul>
+        @foreach (var user in Model)
+        {
+            <li>
+                <a href="@Url.Action("ChatWithUser", "ChatMessages", new { userId = user.UserId })">
+                    @user.Username
+                </a>
+            </li>
+        }
+    </ul>
+}

@@ -24,7 +24,9 @@ namespace TinhLam.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Users()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Where(u => u.Role != "Admin")
+                .ToListAsync();
             return View(users); 
         }
         [Authorize(Roles = "Admin")]

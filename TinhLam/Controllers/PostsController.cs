@@ -5,7 +5,7 @@ using TinhLam.Data;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.IO;
-
+using TinhLam.Models;
 namespace TinhLam.Controllers
 {
     [Authorize(Roles = "Admin")]
@@ -290,21 +290,22 @@ namespace TinhLam.Controllers
             var posts = await _context.Posts
                 .Where(p => p.IsPublished)
                 .OrderByDescending(p => p.CreatedAt)
-                .Select(p => new
+                .Select(p => new PostListItemViewModel
                 {
-                    p.PostId,
-                    p.Title,
-                    p.Author,
-                    p.CreatedAt,
-                    p.ViewCount,
-                    p.Image,
-                    p.Tags,
+                    PostId = p.PostId,
+                    Title = p.Title,
+                    Author = p.Author,
+                    CreatedAt = p.CreatedAt,
+                    ViewCount = p.ViewCount,
+                    Image = p.Image,
+                    Tags = p.Tags,
                     CommentCount = p.PostComments.Count
                 })
                 .ToListAsync();
 
             return View(posts);
         }
+
 
         // POST: Posts/AddComment
         [HttpPost]
