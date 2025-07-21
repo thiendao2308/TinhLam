@@ -103,7 +103,7 @@ namespace TinhLam.Controllers
         public class ChatMessageInput
         {
             public int UserId { get; set; }
-            public string Content { get; set; }
+            public string Content { get; set; } = string.Empty;
         }
 
     }

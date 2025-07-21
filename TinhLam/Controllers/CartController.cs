@@ -62,6 +62,27 @@ namespace TinhLam.Controllers
 
         public IActionResult AddToCart(int id, int productSizeId, int quantity = 1)
         {
+            // Kiểm tra tồn kho trước khi thêm vào giỏ hàng
+            var productSize = db.ProductSizes.FirstOrDefault(ps => ps.ProductSizeId == productSizeId);
+            if (productSize == null)
+            {
+                TempData["Message"] = "Không tìm thấy kích thước sản phẩm";
+                return RedirectToAction("Index");
+            }
+
+            if (productSize.StockQuantity <= 0)
+            {
+                TempData["Message"] = "Sản phẩm đã hết hàng";
+                return RedirectToAction("Index");
+            }
+
+            // Kiểm tra số lượng yêu cầu có vượt quá tồn kho không
+            if (quantity > productSize.StockQuantity)
+            {
+                TempData["Message"] = $"Chỉ còn {productSize.StockQuantity} sản phẩm trong kho";
+                return RedirectToAction("Index");
+            }
+
             var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
             if (customerIdClaim != null) // Nếu người dùng đã đăng nhập
             {
@@ -75,6 +96,14 @@ namespace TinhLam.Controllers
                         TempData["Message"] = $"Không tìm thấy sản phẩm có mã {id}";
                         return Redirect("/404");
                     }
+
+                    // Kiểm tra lại tồn kho trước khi thêm
+                    if (quantity > productSize.StockQuantity)
+                    {
+                        TempData["Message"] = $"Chỉ còn {productSize.StockQuantity} sản phẩm trong kho";
+                        return RedirectToAction("Index");
+                    }
+
                     var newCartItem = new CartsUser
                     {
                         UserId = customerId,
@@ -88,6 +117,13 @@ namespace TinhLam.Controllers
                 }
                 else
                 {
+                    // Kiểm tra tổng số lượng sau khi thêm
+                    if (existingItem.Quantity + quantity > productSize.StockQuantity)
+                    {
+                        TempData["Message"] = $"Chỉ còn {productSize.StockQuantity} sản phẩm trong kho. Bạn đã có {existingItem.Quantity} trong giỏ hàng";
+                        return RedirectToAction("Index");
+                    }
+
                     existingItem.Quantity += quantity;
                     existingItem.TotalAmount = existingItem.Quantity * existingItem.UnitPrice;
                 }
@@ -105,7 +141,15 @@ namespace TinhLam.Controllers
                         TempData["Message"] = $"Không tìm thấy sản phẩm có mã {id}";
                         return Redirect("/404");
                     }
-                    var productSize = db.ProductSizes.SingleOrDefault(ps => ps.ProductSizeId == productSizeId);
+
+                    // Kiểm tra lại tồn kho trước khi thêm
+                    if (quantity > productSize.StockQuantity)
+                    {
+                        TempData["Message"] = $"Chỉ còn {productSize.StockQuantity} sản phẩm trong kho";
+                        return RedirectToAction("Index");
+                    }
+
+                    var productSizeInfo = db.ProductSizes.SingleOrDefault(ps => ps.ProductSizeId == productSizeId);
                     item = new CartItem
                     {
                         MaProduct = product.ProductId,
@@ -114,12 +158,19 @@ namespace TinhLam.Controllers
                         Hinh = product.Image ?? string.Empty,
                         SoLuong = quantity,
                         ProductSizeId = productSizeId,
-                        Size = productSize?.Size ?? ""
+                        Size = productSizeInfo?.Size ?? ""
                     };
                     gioHang.Add(item);
                 }
                 else
                 {
+                    // Kiểm tra tổng số lượng sau khi thêm
+                    if (item.SoLuong + quantity > productSize.StockQuantity)
+                    {
+                        TempData["Message"] = $"Chỉ còn {productSize.StockQuantity} sản phẩm trong kho. Bạn đã có {item.SoLuong} trong giỏ hàng";
+                        return RedirectToAction("Index");
+                    }
+
                     item.SoLuong += quantity;
                 }
                 HttpContext.Session.Set(MySetting.CART_KEY, gioHang);
@@ -395,6 +446,24 @@ namespace TinhLam.Controllers
                 return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ." });
             }
 
+            var productSize = db.ProductSizes.FirstOrDefault(ps => ps.ProductSizeId == request.ProductSizeId);
+            if (productSize == null)
+            {
+                return BadRequest(new { success = false, message = "Không tìm thấy kích thước sản phẩm." });
+            }
+
+            // Kiểm tra tồn kho
+            if (request.Quantity > productSize.StockQuantity)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = $"Chỉ còn {productSize.StockQuantity} sản phẩm trong kho.",
+                    stockQuantity = productSize.StockQuantity,
+                    maxReached = true
+                });
+            }
+
             var customerIdClaim = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID);
             if (customerIdClaim != null)
             {
@@ -430,9 +499,30 @@ namespace TinhLam.Controllers
             {
                 success = true,
                 itemTotal = itemTotal.ToString("N0"),
-                cartTotal = cartTotal.ToString("N0")
+                cartTotal = cartTotal.ToString("N0"),
+                stockQuantity = productSize.StockQuantity,
+                currentQuantity = request.Quantity,
+                maxReached = request.Quantity >= productSize.StockQuantity
             });
         }
+
+        [HttpGet]
+        public IActionResult GetStockInfo(int productId, int productSizeId)
+        {
+            var productSize = db.ProductSizes.FirstOrDefault(ps => ps.ProductSizeId == productSizeId);
+            if (productSize == null)
+            {
+                return BadRequest(new { success = false, message = "Không tìm thấy kích thước sản phẩm." });
+            }
+
+            return Json(new
+            {
+                success = true,
+                stockQuantity = productSize.StockQuantity,
+                isAvailable = productSize.StockQuantity > 0
+            });
+        }
+
         public class UpdateCartRequest
         {
             public int ProductId { get; set; }

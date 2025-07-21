@@ -17,11 +17,16 @@
                     <div class="mb-4">
                         <h5 class="text-primary fw-bold">Khoảng giá</h5>
                         <form method="get" action="@Url.Action("Category", "Categories")">
-                            <input type="hidden" name="id" value="@ViewContext.RouteData.Values["id"]" />
+                            @if (ViewBag.CategoryId != null)
+                            {
+                                <input type="hidden" name="id" value="@ViewBag.CategoryId" />
+                            }
 
                             <!-- Thanh kéo giá -->
-                            <input type="range" class="form-range" id="priceRange" name="maxPrice" min="0" max="5000000" value="5000000"
+                            <input type="range" class="form-range" id="priceRange" name="maxPrice" min="0" max="5000000"
+                                   value="@Context.Request.Query["maxPrice"].FirstOrDefault() ?? " 5000000""
                                    oninput="priceOutput.value=priceRange.value">
+
 
                             <div class="d-flex justify-content-between">
                                 <span>0 VND</span>
@@ -33,27 +38,7 @@
                     </div>
 
 
-                    <!-- Bộ lọc trạng thái -->
-                    <div class="mb-4">
-                        <h5 class="text-primary fw-bold">Tùy chọn khác</h5>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="filter" id="organic">
-                            <label class="form-check-label" for="organic">size tay 16cm</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="filter" id="fresh">
-                            <label class="form-check-label" for="fresh">size tay 18cm</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="filter" id="sale">
-                            <label class="form-check-label" for="sale">size tay 20cm</label>
-                        </div>
-                    </div>
-
-                    <!-- Xem thêm -->
-                    <div class="d-flex justify-content-center">
-                        <a href="#" class="btn btn-primary w-100 text-white rounded-pill">Xem thêm</a>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -69,13 +54,25 @@
 
                     <!-- Bộ lọc sắp xếp -->
                     <div class="col-lg-4">
-                        <select class="form-select border-primary text-primary">
-                            <option>Mặc định</option>
-                            <option>Theo độ phổ biến</option>
-                            <option>Sản phẩm organic</option>
-                            <option>Giá từ thấp đến cao</option>
-                        </select>
+                        <form method="get" id="sortForm">
+                            @if (ViewBag.CategoryId != null)
+                            {
+                                <input type="hidden" name="id" value="@ViewBag.CategoryId" />
+                            }
+
+                            <input type="hidden" name="maxPrice" value="@Context.Request.Query["maxPrice"]" />
+                            @{
+                                var sort = Context.Request.Query["sort"].ToString();
+                            }
+                            <select name="sort" class="form-select border-primary text-primary" onchange="document.getElementById('sortForm').submit();">
+                                <option value="" selected="@(string.IsNullOrEmpty(sort) ? "selected" : null)">Mặc định</option>
+                                <option value="price-asc" selected="@(sort == "price-asc" ? "selected" : null)">Giá từ thấp đến cao</option>
+                                <option value="price-desc" selected="@(sort == "price-desc" ? "selected" : null)">Giá từ cao đến thấp</option>
+                            </select>
+
+                        </form>
                     </div>
+
                 </div>
 
                 <!-- Danh sách sản phẩm -->

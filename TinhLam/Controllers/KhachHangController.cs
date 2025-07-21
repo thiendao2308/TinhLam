@@ -158,7 +158,7 @@ namespace TinhLam.Controllers
                 CustomerName = khachHang.CustomerName,
                 Email = khachHang.Email,
                 PhoneNumber = khachHang.PhoneNumber,
-                DiaChi = khachHang.Diachi,
+                Diachi = khachHang.Diachi,
                 RewardPoints = khachHang.RewardPoints,
                 Orders = orders
             };

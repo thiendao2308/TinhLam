@@ -7,6 +7,15 @@
 </form>
 
 <div class="container py-5">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-triangle me-2"></i>
+            @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
     <h2 class="text-center text-primary fw-bold" style="color: #55161b !important">Giỏ hàng của tôi</h2>
 
     <div class="row mt-5">
@@ -51,6 +60,9 @@
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
+                                    <small class="text-muted stock-info" style="font-size: 0.75rem; display: block; margin-top: 5px;">
+                                        <i class="fa fa-info-circle"></i> Đang kiểm tra tồn kho...
+                                    </small>
                                 </td>
                                 <td><strong>@item.ThanhTien.ToString("N0") VNĐ</strong></td>
                                 <td>
@@ -108,6 +120,104 @@
         background-color: red;
         color: white;
     }
+
+    /* Toast Notification Styles */
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 16px 20px;
+        min-width: 300px;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        border-left: 4px solid #007bff;
+    }
+
+    .toast-notification.show {
+        transform: translateX(0);
+    }
+
+    .toast-notification.error {
+        border-left-color: #dc3545;
+    }
+
+    .toast-notification.info {
+        border-left-color: #17a2b8;
+    }
+
+    .toast-notification.warning {
+        border-left-color: #ffc107;
+    }
+
+    .toast-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .toast-content i {
+        font-size: 18px;
+    }
+
+    .toast-notification.error .toast-content i {
+        color: #dc3545;
+    }
+
+    .toast-notification.info .toast-content i {
+        color: #17a2b8;
+    }
+
+    .toast-notification.warning .toast-content i {
+        color: #ffc107;
+    }
+
+    /* Button States */
+    .btn-disabled {
+        opacity: 0.5;
+        cursor: not-allowed !important;
+    }
+
+    .btn-disabled:hover {
+        background-color: #6c757d !important;
+        color: #fff !important;
+    }
+
+    /* Stock Info Styles */
+    .stock-info {
+        font-size: 0.75rem;
+        display: block;
+        margin-top: 5px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background-color: rgba(0,0,0,0.05);
+    }
+
+    .stock-info.text-success {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .stock-info.text-warning {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .stock-info.text-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    /* Quantity Input Styles */
+    .quantity input {
+        font-weight: bold;
+        color: #55161b;
+    }
+
+    .quantity input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(85, 22, 27, 0.25);
+        border-color: #55161b;
+    }
 </style>
 
 <script>
@@ -115,7 +225,107 @@
         const minusButtons = document.querySelectorAll(".btn-minus");
         const plusButtons = document.querySelectorAll(".btn-plus");
 
+        // Lưu trữ thông tin tồn kho cho từng sản phẩm
+        const stockInfo = new Map();
+
+        // Hàm hiển thị thông báo
+        function showNotification(message, type = 'info') {
+            // Tạo toast notification
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="fa ${type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Thêm vào body
+            document.body.appendChild(toast);
+            
+            // Hiển thị
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Hàm cập nhật trạng thái nút
+        function updateButtonState(button, disabled, reason = '') {
+            if (disabled) {
+                button.disabled = true;
+                button.classList.add('btn-disabled');
+                button.title = reason;
+            } else {
+                button.disabled = false;
+                button.classList.remove('btn-disabled');
+                button.title = '';
+            }
+        }
+
+        // Hàm cập nhật thông tin tồn kho
+        function updateStockInfo(row, stockQuantity, currentQuantity) {
+            const stockInfoElement = row.querySelector('.stock-info');
+            const plusButton = row.querySelector('.btn-plus');
+            const minusButton = row.querySelector('.btn-minus');
+            
+            if (stockQuantity <= 0) {
+                stockInfoElement.innerHTML = '<i class="fa fa-times-circle text-danger"></i> Hết hàng';
+                stockInfoElement.className = 'stock-info text-danger';
+                updateButtonState(plusButton, true, 'Sản phẩm đã hết hàng');
+                updateButtonState(minusButton, false);
+            } else if (currentQuantity >= stockQuantity) {
+                stockInfoElement.innerHTML = `<i class="fa fa-exclamation-triangle text-warning"></i> Chỉ còn ${stockQuantity} sản phẩm trong kho`;
+                stockInfoElement.className = 'stock-info text-warning';
+                updateButtonState(plusButton, true, `Chỉ còn ${stockQuantity} sản phẩm trong kho`);
+                updateButtonState(minusButton, false);
+            } else {
+                stockInfoElement.innerHTML = `<i class="fa fa-check-circle text-success"></i> Còn ${stockQuantity} sản phẩm trong kho`;
+                stockInfoElement.className = 'stock-info text-success';
+                updateButtonState(plusButton, false);
+                updateButtonState(minusButton, false);
+            }
+        }
+
+        // Hàm lấy thông tin tồn kho
+        function loadStockInfo() {
+            document.querySelectorAll('tr[data-product-id]').forEach(row => {
+                const productId = row.dataset.productId;
+                const productSizeId = row.dataset.productSizeId;
+                const currentQuantity = parseInt(row.querySelector('input').value);
+
+                fetch(`/Cart/GetStockInfo?productId=${productId}&productSizeId=${productSizeId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            stockInfo.set(`${productId}-${productSizeId}`, data.stockQuantity);
+                            updateStockInfo(row, data.stockQuantity, currentQuantity);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi khi lấy thông tin tồn kho:', error);
+                        const stockInfoElement = row.querySelector('.stock-info');
+                        stockInfoElement.innerHTML = '<i class="fa fa-exclamation-circle text-danger"></i> Không thể kiểm tra tồn kho';
+                        stockInfoElement.className = 'stock-info text-danger';
+                    });
+            });
+        }
+
         function updateCart(productId, productSizeId, newQuantity, input) {
+            const row = input.closest("tr");
+            const stockQuantity = stockInfo.get(`${productId}-${productSizeId}`) || 0;
+
+            // Kiểm tra trước khi gửi request
+            if (newQuantity > stockQuantity) {
+                showNotification(`Chỉ còn ${stockQuantity} sản phẩm trong kho`, 'error');
+                input.value = stockQuantity;
+                updateStockInfo(row, stockQuantity, stockQuantity);
+                return;
+            }
+
             fetch('/Cart/UpdateQuantity', {
                 method: 'POST',
                 headers: {
@@ -127,17 +337,36 @@
                 .then(data => {
                     if (data.success) {
                         // Cập nhật lại tổng tiền cho item
-                        const row = input.closest("tr");
                         const tdThanhTien = row.querySelector("td:nth-child(5) strong");
                         tdThanhTien.textContent = data.itemTotal + " VNĐ";
 
                         // Cập nhật tổng giỏ hàng
                         document.querySelectorAll(".card-body h5.text-success").forEach(el => el.textContent = data.cartTotal + " VNĐ");
                         document.querySelectorAll(".card-body div.d-flex.justify-content-between strong")[0].textContent = data.cartTotal + " VNĐ";
+
+                        // Cập nhật thông tin tồn kho
+                        updateStockInfo(row, data.stockQuantity, data.currentQuantity);
+                        
+                        // Hiển thị thông báo nếu đạt giới hạn
+                        if (data.maxReached) {
+                            showNotification(`Đã đạt giới hạn tồn kho (${data.stockQuantity} sản phẩm)`, 'info');
+                        }
+                    } else {
+                        // Hiển thị lỗi
+                        showNotification(data.message, 'error');
+                        
+                        // Reset về số lượng hợp lệ
+                        if (data.stockQuantity !== undefined) {
+                            input.value = data.stockQuantity;
+                            updateStockInfo(row, data.stockQuantity, data.stockQuantity);
+                        }
                     }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi cập nhật giỏ hàng:', error);
+                    showNotification('Có lỗi xảy ra khi cập nhật giỏ hàng', 'error');
                 });
         }
-
 
         minusButtons.forEach(button => {
             button.addEventListener("click", function () {
@@ -146,11 +375,11 @@
                 let tr = this.closest("tr");
                 let productId = tr.dataset.productId;
                 let productSizeId = tr.dataset.productSizeId;
+                
                 if (value > 1) {
                     input.value = value - 1;
-                    updateCart(productId, productSizeId, parseInt(input.value), input); // thêm `input`
+                    updateCart(productId, productSizeId, parseInt(input.value), input);
                 }
-
             });
         });
 
@@ -161,10 +390,13 @@
                 let tr = this.closest("tr");
                 let productId = tr.dataset.productId;
                 let productSizeId = tr.dataset.productSizeId;
+                
                 input.value = value + 1;
-                updateCart(productId, productSizeId, parseInt(input.value), input); // thêm `input`
-
+                updateCart(productId, productSizeId, parseInt(input.value), input);
             });
         });
+
+        // Load thông tin tồn kho khi trang được tải
+        loadStockInfo();
     });
 </script>

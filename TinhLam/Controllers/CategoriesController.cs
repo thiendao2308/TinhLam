@@ -27,9 +27,11 @@ namespace TinhLam.Controllers
             }
         }
 
-        public IActionResult Category(int? id, int? maxPrice, string? query, int page = 1)
+        public IActionResult Category(int? id, int? maxPrice, string? query, string? sort, int page = 1)
         {
-            var productQuery = _context.Products.AsQueryable();
+            var productQuery = _context.Products.AsQueryable()
+                .Include(p => p.Category)
+                .Where(p => p.IsActive == true);
 
             if (id.HasValue)
             {
@@ -47,6 +49,21 @@ namespace TinhLam.Controllers
                 productQuery = productQuery.Where(p => p.ProductName.Contains(query));
             }
 
+            // Sắp xếp
+            switch (sort)
+            {
+                case "price-asc":
+                    productQuery = productQuery.OrderBy(p => p.Price);
+                    break;
+                case "price-desc":
+                    productQuery = productQuery.OrderByDescending(p => p.Price);
+                    break;
+                default:
+                    productQuery = productQuery.OrderBy(p => p.ProductName); // hoặc theo Id
+                    break;
+            }
+
+
             // Phân trang - 12 sản phẩm mỗi trang
             int pageSize = 12;
             int skip = (page - 1) * pageSize;
@@ -59,15 +76,16 @@ namespace TinhLam.Controllers
                 .Take(pageSize)
                 .Select(p => new ProductVM
                 {
-                    MaProduct = p.ProductId,
-                    TenProduct = p.ProductName,
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
                     Price = p.Price,
-                    Hinh = p.Image,
-                    MoTaNgan = p.Description
+                    Image = p.Image,
+                    Description = p.Description
                 })
                 .ToList();
 
             // Truyền thông tin phân trang vào ViewBag
+            ViewBag.Sort = sort;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalProducts = totalProducts;
@@ -209,5 +227,7 @@ namespace TinhLam.Controllers
         {
             return _context.Categories.Any(e => e.CategoryId == id);
         }
+
+
     }
 }

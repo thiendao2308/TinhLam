@@ -35,7 +35,7 @@
                         </div>
                         <div class="product-card-info">
                             <div class="product-card-title">@product.TenProduct</div>
-                            <div class="product-card-price">@(product.Price?.ToString("N0") ?? "Liên hệ") VND</div>
+                            <div class="product-card-price">@product.Price.ToString("N0") VND</div>
                         </div>
                     </div>
                 </a>
@@ -59,7 +59,11 @@
                 @if (currentPage > 1)
                 {
                     <li class="page-item">
-                        <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new { id = ViewBag.CategoryId, maxPrice = ViewBag.MaxPrice, query = ViewBag.Query, page = currentPage - 1 })">
+                        <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new {
+                            id = (ViewBag.CategoryId != null && (int)ViewBag.CategoryId != 0) ? ViewBag.CategoryId : null,
+                            maxPrice = ViewBag.MaxPrice,
+                            query = ViewBag.Query,
+                            page = currentPage - 1 })">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
@@ -85,7 +89,11 @@
                     else
                     {
                         <li class="page-item">
-                            <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new { id = ViewBag.CategoryId, maxPrice = ViewBag.MaxPrice, query = ViewBag.Query, page = i })">@i</a>
+                            <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new {
+                                id = (ViewBag.CategoryId != null && (int)ViewBag.CategoryId != 0) ? ViewBag.CategoryId : null,
+                                maxPrice = ViewBag.MaxPrice,
+                                query = ViewBag.Query,
+                                page = i })">@i</a>
                         </li>
                     }
                 }
@@ -94,7 +102,11 @@
                 @if (currentPage < totalPages)
                 {
                     <li class="page-item">
-                        <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new { id = ViewBag.CategoryId, maxPrice = ViewBag.MaxPrice, query = ViewBag.Query, page = currentPage + 1 })">
+                        <a class="page-link rounded-pill" href="@Url.Action("Category", "Categories", new {
+                            id = (ViewBag.CategoryId != null && (int)ViewBag.CategoryId != 0) ? ViewBag.CategoryId : null,
+                            maxPrice = ViewBag.MaxPrice,
+                            query = ViewBag.Query,
+                            page = currentPage + 1 })">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>

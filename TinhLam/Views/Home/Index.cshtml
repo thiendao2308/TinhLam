@@ -94,22 +94,25 @@ else
         <div class="col-md-6 mb-4">
             <div class="category-card position-relative overflow-hidden">
                 <img src="~/images/category1.jpg" class="img-fluid w-100" alt="Vòng Đá Phong Thủy">
-                <div class="category-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
-                    <p class="text-white text-sm-center">Vòng Đá Phong Thủy</p>
-                </div>
+                <a class="category-overlay no-underline text-white text-center position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center hover:no-underline"
+                   asp-area="" asp-controller="Categories" asp-action="Category" asp-route-name="VongDaPhongThuy">
+                    Vòng đá phong thủy
+                </a>
             </div>
         </div>
 
         <div class="col-md-6 mb-4">
             <div class="category-card position-relative overflow-hidden">
                 <img src="~/images/category2.jpg" class="img-fluid w-100" alt="New Collection">
-                <div class="category-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
-                    <p class="text-white text-sm-center">New Collection</p>
-                </div>
+                <a class="category-overlay no-underline text-white text-center position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                   asp-area="" asp-controller="Categories" asp-action="Category" asp-route-name="NewCollection">
+                    New Collection
+                </a>
             </div>
         </div>
     </div>
 </section>
+
 
 
 
@@ -157,7 +160,7 @@ else
             <div class="product-row">
                 @foreach (var product in ((IEnumerable<TinhLam.Data.Product>)ViewData["BestSellingProducts"]).Take(8))
                 {
-                    <a class="product-card-link" asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId">
+                    <a class="product-card-link" asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.ProductId">
                         <div class="product-card-v2">
                             <div class="product-card-img-wrap">
                                 <img src="~/images/@product.Image" alt="@product.ProductName" class="product-card-img" />
