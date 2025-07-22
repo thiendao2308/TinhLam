@@ -9,17 +9,21 @@ using TinhLam.Data;
 using TinhLam.Models;
 using TinhLam.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using TinhLam.Helpers;
+using Microsoft.Extensions.Configuration;
 
 namespace TinhLam.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly TlinhContext _context;
+        private readonly IConfiguration _configuration;
 
 
-        public ProductsController(TlinhContext context)
+        public ProductsController(TlinhContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         
@@ -75,27 +79,9 @@ namespace TinhLam.Controllers
             {
                 if (ImageFile != null && ImageFile.Length > 0)
                 {
-                    // Lấy tên file ảnh gốc
-                    var fileName = Path.GetFileName(ImageFile.FileName);
-
-                    // Đảm bảo thư mục lưu ảnh tồn tại
-                    var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                    if (!Directory.Exists(uploadPath))
-                    {
-                        Directory.CreateDirectory(uploadPath);
-                    }
-
-                    // Đường dẫn đầy đủ để lưu ảnh
-                    var filePath = Path.Combine(uploadPath, fileName);
-
-                    // Lưu file ảnh vào thư mục wwwroot/images
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImageFile.CopyToAsync(stream);
-                    }
-
-                    // Lưu tên file vào database
-                    product.Image = fileName;
+                    // Upload ảnh lên Cloudinary
+                    var imageUrl = MyUtil.UploadImageToCloudinary(ImageFile, _configuration, "products");
+                    product.Image = imageUrl;
                 }
 
                 _context.Add(product);
@@ -160,18 +146,12 @@ namespace TinhLam.Controllers
                     // Xử lý upload ảnh mới nếu có
                     if (ImageFile != null && ImageFile.Length > 0)
                     {
-                        var fileName = Path.GetFileName(ImageFile.FileName);
-                        var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                        if (!Directory.Exists(uploadPath))
+                        // Upload ảnh mới lên Cloudinary
+                        var imageUrl = MyUtil.UploadImageToCloudinary(ImageFile, _configuration, "products");
+                        if (!string.IsNullOrEmpty(imageUrl))
                         {
-                            Directory.CreateDirectory(uploadPath);
+                            existingProduct.Image = imageUrl;
                         }
-                        var filePath = Path.Combine(uploadPath, fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await ImageFile.CopyToAsync(stream);
-                        }
-                        existingProduct.Image = fileName;
                     }
                     // Nếu không upload ảnh mới thì giữ nguyên ảnh cũ
 

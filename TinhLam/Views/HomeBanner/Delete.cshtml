@@ -20,7 +20,7 @@
                 <dd class="col-sm-8">
                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
                     {
-                        <img src="@Url.Content("~/" + Model.ImageUrl)" alt="@Model.Caption" class="banner-preview" />
+                        <img src="@Model.ImageUrl" alt="@Model.Caption" class="banner-preview" />
                     }
                     else
                     {

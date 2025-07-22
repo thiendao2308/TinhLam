@@ -42,6 +42,29 @@ namespace TinhLam.Controllers
         // GET: Orders
         public async Task<IActionResult> Index(string status, DateTime? startDate, DateTime? endDate)
         {
+            // Tự động chuyển đơn hàng COD từ Pending sang Processing sau 1 phút
+            var now = DateTime.Now;
+            var pendingOrders = _context.Orders.Where(o => o.Status == "Pending" && o.PaymentMethod == "COD");
+            foreach (var order in pendingOrders)
+            {
+                // Ghép OrderDate và OrderTime thành DateTime
+                DateTime orderDateTime;
+                try
+                {
+                    orderDateTime = order.OrderDate.ToDateTime(order.OrderTime);
+                }
+                catch
+                {
+                    // Nếu không có OrderTime, lấy 00:00
+                    orderDateTime = order.OrderDate.ToDateTime(TimeOnly.MinValue);
+                }
+                if ((now - orderDateTime).TotalMinutes >= 1)
+                {
+                    order.Status = "Processing";
+                }
+            }
+            await _context.SaveChangesAsync();
+
             var ordersQuery = _context.Orders.AsQueryable();
 
             // Lọc theo trạng thái đơn hàng nếu có
@@ -83,12 +106,42 @@ namespace TinhLam.Controllers
             }
 
             var oldStatus = order.Status;
-            order.Status = status;
+
+            // Nếu đã là Completed hoặc Cancelled thì không cho đổi trạng thái nữa
+            if (oldStatus == "Completed" || oldStatus == "Cancelled")
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Nếu đang là Pending và chọn khác Pending thì chuyển sang Processing
+            if (oldStatus == "Pending")
+            {
+                if (status != "Pending")
+                {
+                    order.Status = "Processing";
+                }
+                else
+                {
+                    order.Status = "Pending";
+                }
+            }
+            // Nếu đang là Processing
+            else if (oldStatus == "Processing")
+            {
+                // Chỉ cho phép chuyển sang Completed hoặc Cancelled
+                if (status == "Completed" || status == "Cancelled")
+                {
+                    order.Status = status;
+                }
+                // Không cho phép chuyển về Pending hoặc các trạng thái khác
+            }
+            // Các trường hợp khác không làm gì
+
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
 
             // Nếu đơn hàng chuyển sang trạng thái "Completed" và có UserId
-            if (status == "Completed" && order.UserId.HasValue && oldStatus != "Completed")
+            if (order.Status == "Completed" && order.UserId.HasValue && oldStatus != "Completed")
             {
                 // Tính điểm tích lũy
                 var earnedPoints = await _rewardPointService.CalculateEarnedPoints(order.TotalAmount);

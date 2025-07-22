@@ -46,7 +46,7 @@
                     <td>
                         @if (!string.IsNullOrEmpty(item.Image))
                         {
-                            <img src="@Url.Content("~/images/" + item.Image)" alt="@item.ProductName" class="img-thumbnail" />
+                            <img src="@item.Image" alt="@item.ProductName" class="img-thumbnail" />
                         }
                         else
                         {

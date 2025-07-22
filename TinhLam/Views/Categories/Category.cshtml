@@ -4,7 +4,7 @@
 }
 
 @section BreadCum {
-    <div class="container-fluid page-header py-5 text-center" style="background: url('/images/banner3.jpg') center/cover; color: white;">
+    <div class="container-fluid page-header py-5 text-center pt-5" style="background: url('/images/banner3.jpg') center/cover; color: white;">
         <h1 class="display-6 fw-bold">Shop</h1>
         <ol class="breadcrumb justify-content-center mb-0">
             <li class="breadcrumb-item"><a href="/" class="text-light">Home</a></li>
@@ -30,7 +30,7 @@
                 <a asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.MaProduct" class="product-card-link">
                     <div class="product-card-v2">
                         <div class="product-card-img-wrap">
-                            <img src="~/images/@product.Hinh" alt="@product.TenProduct" class="product-card-img" />
+                            <img src="@product.Hinh" alt="@product.TenProduct" class="product-card-img" />
                             <span class="product-badge">NEW</span>
                         </div>
                         <div class="product-card-info">

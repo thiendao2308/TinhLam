@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TinhLam.Data;
 using Microsoft.AspNetCore.Authorization;
+using TinhLam.Helpers;
+using Microsoft.Extensions.Configuration;
 
 namespace TinhLam.Controllers
 {
@@ -14,10 +16,12 @@ namespace TinhLam.Controllers
     public class HomeBannerController : Controller
     {
         private readonly TlinhContext _context;
+        private readonly IConfiguration _configuration;
 
-        public HomeBannerController(TlinhContext context)
+        public HomeBannerController(TlinhContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: HomeBanner
@@ -59,30 +63,15 @@ namespace TinhLam.Controllers
 
             try
             {
-                // Tạo tên file duy nhất
-                var fileName = Guid.NewGuid().ToString() + fileExtension;
-
-                // Đảm bảo thư mục lưu ảnh tồn tại
-                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/banners");
-                if (!Directory.Exists(uploadPath))
+                // Upload ảnh lên Cloudinary
+                var imageUrl = MyUtil.UploadImageToCloudinary(ImageFile, _configuration, "banners");
+                if (string.IsNullOrEmpty(imageUrl))
                 {
-                    Directory.CreateDirectory(uploadPath);
+                    ModelState.AddModelError("ImageFile", "Upload ảnh lên Cloudinary thất bại. Vui lòng kiểm tra cấu hình hoặc thử lại.");
+                    return View(homeBannerImage);
                 }
-
-                // Đường dẫn đầy đủ để lưu ảnh
-                var filePath = Path.Combine(uploadPath, fileName);
-
-                // Lưu file ảnh
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await ImageFile.CopyToAsync(stream);
-                }
-
-                // Clear ModelState cho ImageUrl trước khi set giá trị mới
                 ModelState.Remove("ImageUrl");
-                
-                // Set các giá trị cho model
-                homeBannerImage.ImageUrl = "images/banners/" + fileName;
+                homeBannerImage.ImageUrl = imageUrl;
                 homeBannerImage.CreatedAt = DateTime.Now;
 
                 // Kiểm tra validation sau khi đã set đầy đủ giá trị
@@ -149,30 +138,11 @@ namespace TinhLam.Controllers
                     // Xử lý upload ảnh mới nếu có
                     if (ImageFile != null && ImageFile.Length > 0)
                     {
-                        // Xóa ảnh cũ nếu tồn tại
-                        if (!string.IsNullOrEmpty(existingBanner.ImageUrl))
-                        {
-                            var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingBanner.ImageUrl);
-                            if (System.IO.File.Exists(oldImagePath))
-                            {
-                                System.IO.File.Delete(oldImagePath);
-                            }
-                        }
-
-                        // Tạo tên file duy nhất
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
-                        var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/banners");
-                        if (!Directory.Exists(uploadPath))
-                        {
-                            Directory.CreateDirectory(uploadPath);
-                        }
-                        var filePath = Path.Combine(uploadPath, fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await ImageFile.CopyToAsync(stream);
-                        }
-                        existingBanner.ImageUrl = "images/banners/" + fileName;
+                        // Upload ảnh mới lên Cloudinary
+                        var imageUrl = MyUtil.UploadImageToCloudinary(ImageFile, _configuration, "banners");
+                        existingBanner.ImageUrl = imageUrl;
                     }
+                    // Nếu không upload ảnh mới, giữ nguyên ImageUrl cũ
 
                     _context.Update(existingBanner);
                     await _context.SaveChangesAsync();
