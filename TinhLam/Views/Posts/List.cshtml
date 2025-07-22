@@ -177,7 +177,7 @@
                 <div class="post-card">
                     @if (!string.IsNullOrEmpty(post.Image))
                     {
-                        <img src="~/images/posts/@post.Image" alt="@post.Title" class="post-image" />
+                        <img src="@post.Image" alt="@post.Title" class="post-image" />
                     }
                     else
                     {

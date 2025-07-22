@@ -12,8 +12,16 @@ namespace TinhLam.Controllers
 {
     public class PayPalOrderRequest
     {
+        public string? OrderId { get; set; }
         public bool UseRewardPoints { get; set; }
         public decimal DiscountAmount { get; set; }
+        public string? CustomerName { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? City { get; set; }
+        public string? District { get; set; }
+        public string? Ward { get; set; }
+        public string? StreetAddress { get; set; }
+        public string? Notes { get; set; }
     }
 
     public class CartController : Controller
@@ -315,13 +323,16 @@ namespace TinhLam.Controllers
                         db.SaveChanges();
                     }
                 }
-
+ 
+                    TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                DateTime nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
                 var hoadon = new Order
                 {
                     UserId = customerId,
                     CustomerName = model.CustomerName ?? "Khách hàng",
                     PhoneNumber = model.PhoneNumber,
                     OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                    OrderTime = TimeOnly.FromDateTime(DateTime.Now),
                     PaymentMethod = "COD",
                     Status = "Pending",
                     Notes = model.Notes,
@@ -418,9 +429,10 @@ namespace TinhLam.Controllers
                 }
             }
 
-            // Lấy tổng tiền cuối cùng và đảm bảo không có dấu phẩy hoặc chấm
-            var tongTien = finalAmount.ToString("F2", CultureInfo.InvariantCulture);
-
+            // Quy đổi VNĐ sang USD với tỷ giá cố định
+            decimal exchangeRate = 25000M; // 1 USD = 25,000 VNĐ
+            decimal usdAmount = finalAmount / exchangeRate;
+            var tongTien = usdAmount.ToString("F2", CultureInfo.InvariantCulture);
             var donViTienTe = "USD";
             var maDonHangThamChieu = "DH" + DateTime.Now.Ticks.ToString();
 
@@ -532,11 +544,11 @@ namespace TinhLam.Controllers
 
 
         [HttpPost("/Cart/capture-paypal-order")]
-        public async Task<IActionResult> CapturePaypalOrder(string orderID, CancellationToken cancellationToken)
+        public async Task<IActionResult> CapturePaypalOrder([FromBody] PayPalOrderRequest request, CancellationToken cancellationToken)
         {
             try
             {
-                var response = await _paypalClient.CaptureOrder(orderID);
+                var response = await _paypalClient.CaptureOrder(request.OrderId);
 
                 if (response.status == "COMPLETED")
                 {
@@ -546,11 +558,11 @@ namespace TinhLam.Controllers
                     // Tính toán tổng tiền và giảm giá
                     decimal subtotal = Cart.Sum(item => item.ThanhTien);
                     decimal finalTotal = subtotal;
-                    decimal discountAmount = 0;
-                    int pointsUsed = 0;
+                    decimal discountAmount = request.DiscountAmount;
+                    int pointsUsed = request.UseRewardPoints ? 50 : 0;
 
                     // Xử lý giảm giá từ điểm thưởng nếu có
-                    if (customerId.HasValue)
+                    if (customerId.HasValue && request.UseRewardPoints)
                     {
                         var user = db.Users.SingleOrDefault(u => u.UserId == customerId.Value);
                         if (user != null && user.RewardPoints >= 50)
@@ -566,20 +578,25 @@ namespace TinhLam.Controllers
                         }
                     }
 
+
+                    TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                DateTime nowVN = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+
                     var hoadon = new Order
                     {
                         UserId = customerId,
-                        CustomerName = "Khách hàng PayPal",
-                        PhoneNumber = "0123456789",
+                        CustomerName = request.CustomerName,
+                        PhoneNumber = request.PhoneNumber,
                         OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                        OrderTime = TimeOnly.FromDateTime(DateTime.Now),
                         PaymentMethod = "PayPal",
-                        Status = "Completed",
-                        Notes = "Thanh toán qua PayPal",
+                        Status = "Processing", // Đổi từ Completed sang Processing
+                        Notes = request.Notes,
                         TotalAmount = finalTotal,
-                        City = null,
-                        District = null,
-                        Ward = null,
-                        StreetAddress = null,
+                        City = request.City,
+                        District = request.District,
+                        Ward = request.Ward,
+                        StreetAddress = request.StreetAddress,
                         DiscountAmount = discountAmount,
                         RewardPointsUsed = pointsUsed
                     };

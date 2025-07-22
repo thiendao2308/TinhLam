@@ -114,7 +114,7 @@
             <div class="image-preview">
                 @if (!string.IsNullOrEmpty(Model.Image))
                 {
-                    <img id="imagePreview" src="~/images/@Model.Image" alt="Ảnh hiện tại" />
+                    <img id="imagePreview" src="@Model.Image" alt="Ảnh hiện tại" />
                 }
                 else
                 {

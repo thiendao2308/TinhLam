@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.IO;
 using TinhLam.Models;
+using TinhLam.Helpers;
+using Microsoft.Extensions.Configuration;
 namespace TinhLam.Controllers
 {
     [Authorize(Roles = "Admin")]
@@ -13,11 +15,13 @@ namespace TinhLam.Controllers
     {
         private readonly TlinhContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IConfiguration _configuration;
 
-        public PostsController(TlinhContext context, IWebHostEnvironment webHostEnvironment)
+        public PostsController(TlinhContext context, IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _configuration = configuration;
         }
 
         // GET: Posts
@@ -159,55 +163,70 @@ namespace TinhLam.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("PostId,Title,Content,Author,Tags,IsPublished")] Post post, List<IFormFile> images)
         {
+               ModelState.Remove("PostedBy");
             if (id != post.PostId)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                Console.WriteLine($"ModelState Errors: {string.Join(", ", errors)}");
+                return View(post);
+            }
+
+            try
+            {
+                var existingPost = await _context.Posts.FindAsync(id);
+                if (existingPost == null)
                 {
-                    var existingPost = await _context.Posts.FindAsync(id);
-                    if (existingPost == null)
-                    {
-                        return NotFound();
-                    }
+                    return NotFound();
+                }
 
-                    existingPost.Title = post.Title;
-                    existingPost.Content = post.Content;
-                    existingPost.Author = post.Author;
-                    existingPost.Tags = post.Tags;
-                    existingPost.IsPublished = post.IsPublished;
+                existingPost.Title = post.Title;
+                existingPost.Content = post.Content;
+                existingPost.Author = post.Author;
+                existingPost.Tags = post.Tags;
+                existingPost.IsPublished = post.IsPublished;
 
-                    // Xử lý ảnh mới nếu có
-                    if (images != null && images.Count > 0)
+                // Xử lý ảnh mới nếu có
+                if (images != null && images.Count > 0)
+                {
+                    var mainImage = images.FirstOrDefault();
+                    if (mainImage != null && mainImage.Length > 0)
                     {
-                        var mainImage = images.FirstOrDefault();
-                        if (mainImage != null && mainImage.Length > 0)
+                        var imageUrl = MyUtil.UploadImageToCloudinary(mainImage, _configuration, "posts");
+                        if (!string.IsNullOrEmpty(imageUrl))
                         {
-                            var fileName = await SaveImage(mainImage);
-                            existingPost.Image = fileName;
+                            existingPost.Image = imageUrl;
                         }
                     }
+                }
+                // Nếu không upload ảnh mới thì giữ nguyên ảnh cũ
 
-                    _context.Update(existingPost);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PostExists(post.PostId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(existingPost);
+                await _context.SaveChangesAsync();
             }
-            return View(post);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PostExists(post.PostId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating post: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                ModelState.AddModelError("", $"Có lỗi xảy ra khi cập nhật bài viết: {ex.Message}");
+                return View(post);
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Posts/Delete/5
@@ -499,22 +518,9 @@ namespace TinhLam.Controllers
         {
             if (image == null || image.Length == 0)
                 return string.Empty;
-
-            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "posts");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            var uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await image.CopyToAsync(fileStream);
-            }
-
-            return uniqueFileName;
+            // Upload ảnh lên Cloudinary
+            var imageUrl = MyUtil.UploadImageToCloudinary(image, _configuration, "posts");
+            return imageUrl;
         }
     }
 } 

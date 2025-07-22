@@ -135,6 +135,11 @@
                     <span asp-validation-for="@Model.Password" class="error-message"></span>
                 </div>
                 <div class="form-group">
+                    <label asp-for="@Model.ConfirmPassword" class="form-label"></label><sup style="color: red">*</sup>
+                    <input asp-for="@Model.ConfirmPassword" type="ConfirmPassword" class="form-input">
+                    <span asp-validation-for="@Model.ConfirmPassword" class="error-message"></span>
+                </div>
+                <div class="form-group">
                     <label asp-for="@Model.Email" class="form-label"></label><sup style="color: red">*</sup>
                     <input asp-for="@Model.Email" type="email" class="form-input">
                     <span asp-validation-for="@Model.Email" class="error-message"></span>

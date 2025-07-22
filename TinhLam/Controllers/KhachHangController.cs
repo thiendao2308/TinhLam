@@ -27,24 +27,40 @@ namespace TinhLam.Controllers
             return View(new RegisterVM()); 
         }
 
-        [HttpPost]
-        public IActionResult DangKy(RegisterVM model)
-        {
-            if (ModelState.IsValid)
-            {
-                var khachHang = _mapper.Map<User>(model);
-                khachHang.RandomKey = MyUtil.GenerateRandomKey();
-                var passwordHasher = new PasswordHasher<User>();
-                khachHang.Password = passwordHasher.HashPassword(khachHang, model.Password);
-                khachHang.Role = "User";
-                khachHang.HieuLuc = true;
-                khachHang.Diachi = model.DiaChi;
-                db.Add(khachHang);
-                db.SaveChanges();
-                
-            }
-            return RedirectToAction("DangNhap", "KhachHang");
-        }
+     [HttpPost]
+public IActionResult DangKy(RegisterVM model)
+{
+    if (!ModelState.IsValid)
+    {
+        var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+        Console.WriteLine("Register ModelState Errors: " + string.Join(" | ", errors));
+        return View(model);
+    }
+
+    // Kiểm tra username đã tồn tại chưa
+    if (db.Users.Any(u => u.Username == model.Username))
+    {
+        ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại");
+        return View(model);
+    }
+    // Kiểm tra email đã tồn tại chưa
+    if (db.Users.Any(u => u.Email == model.Email))
+    {
+        ModelState.AddModelError("Email", "Email đã được sử dụng");
+        return View(model);
+    }
+
+    var khachHang = _mapper.Map<User>(model);
+    khachHang.RandomKey = MyUtil.GenerateRandomKey();
+    var passwordHasher = new PasswordHasher<User>();
+    khachHang.Password = passwordHasher.HashPassword(khachHang, model.Password);
+    khachHang.Role = "User";
+    khachHang.HieuLuc = true;
+    khachHang.Diachi = model.DiaChi;
+    db.Add(khachHang);
+    db.SaveChanges();
+    return RedirectToAction("DangNhap", "KhachHang");
+}
 
         [HttpGet]
         public IActionResult DangNhap(string? ReturnUrl)
