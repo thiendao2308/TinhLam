@@ -17,12 +17,12 @@
                     @if (!string.IsNullOrEmpty(banner.Link))
                     {
                         <a href="@banner.Link" target="_blank">
-                            <img src="~/@banner.ImageUrl" class="d-block w-100" alt="@banner.Caption">
+                            <img src="@banner.ImageUrl" class="d-block w-100" alt="@banner.Caption">
                         </a>
                     }
                     else
                     {
-                        <img src="~/@banner.ImageUrl" class="d-block w-100" alt="@banner.Caption">
+                        <img src="@banner.ImageUrl" class="d-block w-100" alt="@banner.Caption">
                     }
                     @if (!string.IsNullOrEmpty(banner.Caption))
                     {
@@ -144,7 +144,7 @@ else
                     <a class="product-card-link" asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.ProductId">
                         <div class="product-card-v2">
                             <div class="product-card-img-wrap">
-                                <img src="~/images/@product.Image" alt="@product.ProductName" class="product-card-img" />
+                                <img src="@product.Image" alt="@product.ProductName" class="product-card-img" />
                                 <span class="product-badge">NEW</span>
                             </div>
                             <div class="product-card-info">
@@ -163,7 +163,7 @@ else
                     <a class="product-card-link" asp-controller="Home" asp-action="DetailProduct" asp-route-id="@product.ProductId">
                         <div class="product-card-v2">
                             <div class="product-card-img-wrap">
-                                <img src="~/images/@product.Image" alt="@product.ProductName" class="product-card-img" />
+                                <img src="@product.Image" alt="@product.ProductName" class="product-card-img" />
                                 <span class="product-badge">NEW</span>
                             </div>
                             <div class="product-card-info">
@@ -242,7 +242,7 @@ else
                     <div class="col-md-4 mb-4">
                         <div class="blog-card-v2">
                             <div class="blog-card-img-wrap">
-                                <img src="~/images/posts/@post.Image" class="blog-card-img" alt="@post.Title">
+                                <img src="@post.Image" class="blog-card-img" alt="@post.Title">
                             </div>
                             <div class="blog-card-content">
                                 <div class="blog-card-date">

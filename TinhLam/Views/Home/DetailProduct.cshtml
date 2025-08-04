@@ -25,7 +25,7 @@
             <div class="col-lg-6 mb-4">
                 <div class="product-image-container">
                     <div class="product-image-wrapper">
-                        <img src="~/images/@Model.Image" alt="@Model.ProductName" class="product-main-image">
+                        <img src="@Model.Image" alt="@Model.ProductName" class="product-main-image">
                         <div class="image-overlay">
                             <div class="zoom-icon">
                                 <i class="fas fa-search-plus"></i>
@@ -288,7 +288,7 @@
                         <a asp-controller="Home" asp-action="DetailProduct" asp-route-id="@related.ProductId" class="product-card-link">
                             <div class="product-card-v2">
                                 <div class="product-card-img-wrap">
-                                    <img src="~/images/@related.Image" alt="@related.ProductName" class="product-card-img" />
+                                    <img src="@related.Image" alt="@related.ProductName" class="product-card-img" />
                                     <span class="product-badge">NEW</span>
                                 </div>
                                 <div class="product-card-info">
@@ -373,7 +373,7 @@
         });
 
         // Xử lý form submit
-        addToCartForm.addEventListener("submit", function(e) {
+        addToCartForm.addEventListener("submit", async function(e) {
             e.preventDefault();
             
             const productSizeId = sizeSelect.value;
@@ -397,8 +397,47 @@
                 return;
             }
             
-            // Chuyển hướng đến action AddToCart với các tham số
-            window.location.href = `/Cart/AddToCart?id=${@Model.ProductId}&productSizeId=${productSizeId}&quantity=${quantity}`;
+            // Gọi AJAX tới /Cart/AddToCart
+            try {
+                const response = await fetch(`/Cart/AddToCart?id=${@Model.ProductId}&productSizeId=${productSizeId}&quantity=${quantity}`, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (response.ok) {
+                    const toast = document.createElement('div');
+                    toast.className = 'toast-notification';
+                    toast.innerHTML = `
+                        <div class="toast-content">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Đã thêm sản phẩm vào giỏ hàng!
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => { toast.remove(); }, 3000);
+                } else {
+                    const toast = document.createElement('div');
+                    toast.className = 'toast-notification';
+                    toast.innerHTML = `
+                        <div class="toast-content">
+                            <i class="fas fa-times-circle text-danger me-2"></i>
+                            Thêm vào giỏ hàng thất bại!
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => { toast.remove(); }, 3000);
+                }
+            } catch (err) {
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification';
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="fas fa-times-circle text-danger me-2"></i>
+                        Lỗi kết nối máy chủ!
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.remove(); }, 3000);
+            }
         });
 
         // Wishlist button

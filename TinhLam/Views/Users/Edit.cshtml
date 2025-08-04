@@ -106,54 +106,12 @@
         <input type="hidden" asp-for="UserId" />
         
         <div class="form-group">
-            <label asp-for="Username" class="control-label">Tên đăng nhập</label>
-            <input asp-for="Username" class="form-control" placeholder="Nhập tên đăng nhập" required />
-            <span asp-validation-for="Username" class="text-danger"></span>
-        </div>
-        
-        <div class="form-group">
-            <label asp-for="Password" class="control-label">Mật khẩu</label>
-            <input asp-for="Password" type="password" class="form-control" placeholder="Để trống nếu không thay đổi" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-        
-        <div class="form-group">
-            <label asp-for="Email" class="control-label">Email</label>
-            <input asp-for="Email" type="email" class="form-control" placeholder="example@email.com" required />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-        
-        <div class="form-group">
-            <label asp-for="PhoneNumber" class="control-label">Số điện thoại</label>
-            <input asp-for="PhoneNumber" class="form-control" placeholder="0123456789" />
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-        </div>
-        
-        <div class="form-group">
-            <label asp-for="CustomerName" class="control-label">Tên khách hàng</label>
-            <input asp-for="CustomerName" class="form-control" placeholder="Nhập tên khách hàng" />
-            <span asp-validation-for="CustomerName" class="text-danger"></span>
-        </div>
-        
-        <div class="form-group">
-            <label asp-for="Diachi" class="control-label">Địa chỉ</label>
-            <textarea asp-for="Diachi" class="form-control" rows="3" placeholder="Nhập địa chỉ"></textarea>
-            <span asp-validation-for="Diachi" class="text-danger"></span>
-        </div>
-        
-        <div class="form-group">
             <label asp-for="Role" class="control-label">Vai trò</label>
             <select asp-for="Role" class="form-control">
                 <option value="User">User</option>
                 <option value="Admin">Admin</option>
             </select>
             <span asp-validation-for="Role" class="text-danger"></span>
-        </div>
-        
-        <div class="form-group">
-            <label asp-for="RewardPoints" class="control-label">Điểm thưởng</label>
-            <input asp-for="RewardPoints" type="number" class="form-control" placeholder="0" min="0" />
-            <span asp-validation-for="RewardPoints" class="text-danger"></span>
         </div>
         
         <div class="form-group">

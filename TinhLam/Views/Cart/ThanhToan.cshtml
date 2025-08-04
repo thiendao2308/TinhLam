@@ -396,6 +396,19 @@
             this.appendChild(usePointsInput);
         });
 
+        // Thêm hàm lấy thông tin khách hàng từ form
+        function getCustomerInfo() {
+            return {
+                CustomerName: document.querySelector('[name="CustomerName"]').value,
+                PhoneNumber: document.querySelector('[name="PhoneNumber"]').value,
+                City: document.querySelector('[name="City"]').value,
+                District: document.querySelector('[name="District"]').value,
+                Ward: document.querySelector('[name="Ward"]').value,
+                StreetAddress: document.querySelector('[name="StreetAddress"]').value,
+                Notes: document.querySelector('[name="Notes"]').value
+            };
+        }
+
         // Lấy tỉnh/thành phố
         fetch('https://provinces.open-api.vn/api/p/')
             .then(response => response.json())
@@ -453,6 +466,7 @@
             },
             createOrder: (data, actions) => {
                 const finalAmount = subtotal - discountAmount;
+                const customerInfo = getCustomerInfo();
                 return fetch("/Cart/create-paypal-order", {
                     method: "POST",
                     headers: {
@@ -460,7 +474,8 @@
                     },
                     body: JSON.stringify({
                         useRewardPoints: document.getElementById('useRewardPoints').checked,
-                        discountAmount: discountAmount
+                        discountAmount: discountAmount,
+                        ...customerInfo
                     })
                 })
                 .then(response => {
@@ -473,6 +488,9 @@
                     if (!order || !order.id) {
                         throw new Error("Không lấy được orderId hợp lệ");
                     }
+                    // Lưu lại thông tin khách hàng vào biến toàn cục để dùng cho capture
+                    window._paypalCustomerInfo = customerInfo;
+                    window._paypalOrderId = order.id;
                     return order.id;
                 })
                 .catch(error => {
@@ -481,8 +499,20 @@
                 });
             },
             onApprove: (data, actions) => {
-                return fetch(`/Cart/capture-paypal-order?orderId=${data.orderID}`, {
+                // Lấy lại thông tin khách hàng đã lưu
+                const customerInfo = window._paypalCustomerInfo || getCustomerInfo();
+                const orderId = window._paypalOrderId || data.orderID;
+                return fetch(`/Cart/capture-paypal-order`, {
                     method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        useRewardPoints: document.getElementById('useRewardPoints').checked,
+                        discountAmount: discountAmount,
+                        ...customerInfo
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {

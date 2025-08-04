@@ -55,7 +55,7 @@ namespace TinhLam.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,Username,PasswordHash,Email,PhoneNumber,Role,RewardPoints")] User user)
+        public async Task<IActionResult> Create([Bind("UserId,Username,Password,Email,PhoneNumber,Role,RewardPoints,HieuLuc,CustomerName,Diachi")] User user)
         {
             if (ModelState.IsValid)
             {
@@ -87,34 +87,36 @@ namespace TinhLam.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,Username,PasswordHash,Email,PhoneNumber,Role,RewardPoints")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("UserId,Role,HieuLuc")] User user)
         {
             if (id != user.UserId)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                var userInDb = await _context.Users.FindAsync(id);
+                if (userInDb == null)
                 {
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.UserId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                userInDb.Role = user.Role;
+                userInDb.HieuLuc = user.HieuLuc;
+                await _context.SaveChangesAsync();
             }
-            return View(user);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(user.UserId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Users/Delete/5

@@ -126,7 +126,7 @@
     @if (!string.IsNullOrEmpty(Model.Image))
     {
         <div class="detail-image">
-            <img src="~/images/posts/@Model.Image" alt="@Model.Title" />
+            <img src="@Model.Image" alt="@Model.Title" />
         </div>
     }
     <div class="detail-section-title">Nội dung bài viết</div>

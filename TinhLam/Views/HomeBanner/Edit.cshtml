@@ -20,7 +20,7 @@
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
                 {
                     <div class="current-image">
-                        <img src="@Url.Content("~/" + Model.ImageUrl)" alt="@Model.Caption" class="current-banner-image" />
+                        <img src="@Model.ImageUrl" alt="@Model.Caption" class="current-banner-image" />
                     </div>
                 }
                 <label class="control-label">Thay đổi hình ảnh (tùy chọn)</label>

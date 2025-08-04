@@ -113,7 +113,7 @@
             <label>Ảnh hiện tại</label><br />
             @if (!string.IsNullOrEmpty(Model.Image))
             {
-                <img src="~/images/posts/@Model.Image" alt="@Model.Title" />
+                <img src="@Model.Image" alt="@Model.Title" />
             }
         </div>
         <div class="form-group">
