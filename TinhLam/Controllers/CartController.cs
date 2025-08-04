@@ -303,6 +303,14 @@ namespace TinhLam.Controllers
                     return View(Cart);
                 }
 
+                // Validation địa chỉ
+                if (string.IsNullOrEmpty(model.City) || string.IsNullOrEmpty(model.District) || 
+                    string.IsNullOrEmpty(model.Ward) || string.IsNullOrEmpty(model.StreetAddress))
+                {
+                    ModelState.AddModelError("", "Vui lòng điền đầy đủ thông tin địa chỉ giao hàng");
+                    return View(Cart);
+                }
+
                 // Tính toán tổng tiền và giảm giá
                 decimal subtotal = Cart.Sum(item => item.ThanhTien);
                 decimal finalTotal = subtotal;
@@ -387,6 +395,7 @@ namespace TinhLam.Controllers
                         db.SaveChanges();
                         transaction.Commit();
 
+                        TempData["SuccessMessage"] = $"Đặt hàng thành công! Mã đơn hàng: #{hoadon.OrderId}. Chúng tôi sẽ liên hệ sớm để xác nhận.";
                         return RedirectToAction("PaymentSuccess", "Cart", new { orderId = hoadon.OrderId });
                     }
                     catch
@@ -400,8 +409,22 @@ namespace TinhLam.Controllers
         }
 
 
-        public IActionResult PaymentSuccess()
+        public IActionResult PaymentSuccess(int? orderId)
         {
+            if (orderId.HasValue)
+            {
+                var order = db.Orders
+                    .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                    .FirstOrDefault(o => o.OrderId == orderId.Value);
+                
+                if (order != null)
+                {
+                    return View(order);
+                }
+            }
+            
+            // Fallback nếu không có orderId hoặc không tìm thấy order
             return View();
         }
 

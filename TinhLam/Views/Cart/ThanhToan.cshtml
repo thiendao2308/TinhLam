@@ -151,6 +151,20 @@
 
 <div class="checkout-container">
     <div class="container">
+        <!-- Hiển thị thông báo lỗi -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger mb-4">
+                <h6 class="fw-bold">⚠️ Có lỗi xảy ra:</h6>
+                <ul class="mb-0">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+        
         <div class="row justify-content-center">
             <div class="col-lg-7 col-md-12 mb-4">
                 <div class="customer-form">
@@ -376,6 +390,53 @@
 
         // Cập nhật form để gửi thông tin giảm giá
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            // Validation client-side
+            const customerName = document.querySelector('input[name="CustomerName"]').value.trim();
+            const phoneNumber = document.querySelector('input[name="PhoneNumber"]').value.trim();
+            const city = document.getElementById('city').value;
+            const district = document.getElementById('district').value;
+            const ward = document.getElementById('ward').value;
+            const streetAddress = document.querySelector('input[name="StreetAddress"]').value.trim();
+
+            let hasError = false;
+            let errorMessage = '';
+
+            if (!customerName) {
+                errorMessage += '- Tên khách hàng là bắt buộc\n';
+                hasError = true;
+            }
+
+            if (!phoneNumber) {
+                errorMessage += '- Số điện thoại là bắt buộc\n';
+                hasError = true;
+            }
+
+            if (!city || city === '') {
+                errorMessage += '- Vui lòng chọn tỉnh/thành phố\n';
+                hasError = true;
+            }
+
+            if (!district || district === '') {
+                errorMessage += '- Vui lòng chọn quận/huyện\n';
+                hasError = true;
+            }
+
+            if (!ward || ward === '') {
+                errorMessage += '- Vui lòng chọn phường/xã\n';
+                hasError = true;
+            }
+
+            if (!streetAddress) {
+                errorMessage += '- Địa chỉ cụ thể là bắt buộc\n';
+                hasError = true;
+            }
+
+            if (hasError) {
+                e.preventDefault();
+                alert('Vui lòng kiểm tra lại thông tin:\n' + errorMessage);
+                return false;
+            }
+
             // Thêm thông tin giảm giá vào form
             const discountInput = document.createElement('input');
             discountInput.type = 'hidden';

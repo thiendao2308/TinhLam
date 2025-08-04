@@ -21,7 +21,6 @@ namespace TinhLam.ViewModels
         public string? Notes { get; set; }
         
         [Display(Name = "Tổng tiền")]
-        [PositiveNumber(ErrorMessage = "Tổng tiền phải lớn hơn 0")]
         public decimal TotalAmount { get; set; }
         
         [Display(Name = "Thành phố")]
