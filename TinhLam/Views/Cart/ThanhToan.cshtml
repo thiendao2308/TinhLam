@@ -366,9 +366,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             checkUserAndLoadPoints();
             
-            document.getElementById('useRewardPoints').addEventListener('change', function() {
-                calculateDiscount();
-            });
+            const useRewardPointsElement = document.getElementById('useRewardPoints');
+            if (useRewardPointsElement) {
+                useRewardPointsElement.addEventListener('change', function() {
+                    calculateDiscount();
+                });
+            }
         });
 
         // Cập nhật form để gửi thông tin giảm giá

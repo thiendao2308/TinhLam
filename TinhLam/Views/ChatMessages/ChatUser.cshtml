@@ -60,7 +60,7 @@
    <script>
     document.addEventListener("DOMContentLoaded", function () {
         const userId = '@userId';
-        const connection = new signalR.HubConnectionBuilder().withUrl("/chathub?userId=" + userId).build();
+        const connection = new signalR.HubConnectionBuilder().withUrl("/chathub?userId=" + encodeURIComponent(userId)).build();
 
         connection.on("ReceiveMessageFromAdmin", function (message) {
             const chatBox = document.getElementById("chatBox");

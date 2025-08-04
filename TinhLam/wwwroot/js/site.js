@@ -2,4 +2,4 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
-import Popper from '@popperjs/core';
+// Bootstrap và Popper.js được load qua CDN trong _Layout.cshtml
