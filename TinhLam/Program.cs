@@ -13,9 +13,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Cấu hình DbContext cho CSDL
+var connectionString = builder.Configuration.GetConnectionString("TLinh");
+var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "SqlServer";
+
 builder.Services.AddDbContext<TlinhContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TLinh"));
+    if (databaseProvider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase))
+    {
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
 });
 
 builder.Services.AddDistributedMemoryCache();

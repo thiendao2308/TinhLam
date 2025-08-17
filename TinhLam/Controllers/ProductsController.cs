@@ -55,7 +55,6 @@ namespace TinhLam.Controllers
 
         public IActionResult Search(string? query)
         {
-            // Redirect đến trang danh sách sản phẩm với query parameter
             return RedirectToAction("Category", "Categories", new { query = query });
         }
 

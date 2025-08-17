@@ -1,0 +1,29 @@
+services:
+  # Web Service cho ứng dụng ASP.NET Core
+  - type: web
+    name: tinhlam-web
+    env: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /
+    buildCommand: docker build -t tinhlam .
+    startCommand: docker run -p $PORT:8080 tinhlam
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DatabaseProvider
+        value: PostgreSQL
+      - key: ConnectionStrings__TLinh
+        fromDatabase:
+          name: tinhlam-postgres
+          property: connectionString
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+
+databases:
+  # PostgreSQL Database
+  - name: tinhlam-postgres
+    databaseName: tinhlam
+    user: tinhlam_user
+    plan: free
+    region: oregon

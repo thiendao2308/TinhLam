@@ -318,10 +318,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const userId = '@User.FindFirst("CustomerId")?.Value ?? "0"';
+            const userId = '@User.FindFirst("CustomerId")?.Value';
             const toggleBtn = document.getElementById("chatToggleBtn");
             const chatBubble = document.getElementById("chatBubble");
             const chatBox = document.getElementById("chatBoxBubble");
+
+            // Chỉ hiển thị chat khi user đã đăng nhập
+            if (!userId || userId === "") {
+                if (toggleBtn) toggleBtn.style.display = "none";
+                return;
+            }
 
             if (!toggleBtn || !chatBubble || !chatBox) return;
 
@@ -336,18 +342,25 @@
                 toggleBtn.style.display = "block";
             };
             // Load tin nhắn cũ
-            fetch(`/ChatMessages/GetMessagesByUserId`)
-                .then(response => response.json())
+            fetch(`/ChatMessages/GetMessagesByUserId?userId=${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    data.forEach(msg => {
-                        const isAdmin = msg.content.startsWith("[Admin]:");
-                        const messageText = isAdmin ? msg.content.substring(8) : msg.content;
-                        const messageHtml = `<div class="chat-message ${isAdmin ? 'admin-message' : 'user-message'}">
-                                            ${messageText}
-                                         </div>`;
-                        chatBox.innerHTML += messageHtml;
-                    });
-                    chatBox.scrollTop = chatBox.scrollHeight;
+                    if (Array.isArray(data)) {
+                        data.forEach(msg => {
+                            const isAdmin = msg.content.startsWith("[Admin]:");
+                            const messageText = isAdmin ? msg.content.substring(8) : msg.content;
+                            const messageHtml = `<div class="chat-message ${isAdmin ? 'admin-message' : 'user-message'}">
+                                                ${messageText}
+                                             </div>`;
+                            chatBox.innerHTML += messageHtml;
+                        });
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
                 })
                 .catch(error => console.error("Lỗi khi load tin nhắn cũ:", error));
 
